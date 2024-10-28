@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Developer from "../components/Developer.jsx";
 import CanvasLoader from "../components/CanvasLoader.jsx";
 import { workExperiences } from "../constants/index.js";
+import { useEffect } from "react";
 
 const WorkExperience = () => {
   const [animationName, setAnimationName] = useState("idle");
