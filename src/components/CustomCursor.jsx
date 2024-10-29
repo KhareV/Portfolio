@@ -5,20 +5,17 @@ const CustomCursor = () => {
   const cursorRef = useRef(null);
   const trailsRef = useRef([]);
   const requestRef = useRef();
-  const previousTimeRef = useRef();
+  const isHovered = useRef(false);
+  const hoverTargetCenter = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    let trails = [];
-    // Reduced to just 3 trail elements for a smaller tail
     const TRAIL_COUNT = 3;
-
-    // Create trail elements
-    for (let i = 0; i < TRAIL_COUNT; i++) {
+    const trails = Array.from({ length: TRAIL_COUNT }, () => {
       const trail = document.createElement("div");
       trail.className = "trail";
       document.body.appendChild(trail);
-      trails.push(trail);
-    }
+      return trail;
+    });
     trailsRef.current = trails;
 
     let mousePosition = { x: 0, y: 0 };
@@ -29,30 +26,49 @@ const CustomCursor = () => {
       mousePosition.y = event.clientY;
     };
 
-    const animate = (time) => {
-      if (previousTimeRef.current !== undefined) {
-        // Increased to 0.4 for snappier movement
-        currentPosition.x += (mousePosition.x - currentPosition.x) * 0.4;
-        currentPosition.y += (mousePosition.y - currentPosition.y) * 0.4;
+    const setHoverState = (target) => {
+      const rect = target.getBoundingClientRect();
+      hoverTargetCenter.current = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+      isHovered.current = true;
+    };
 
-        if (cursorRef.current) {
-          cursorRef.current.style.transform = `translate(${currentPosition.x}px, ${currentPosition.y}px)`;
-        }
+    const resetHoverState = () => {
+      isHovered.current = false;
+    };
 
-        trailsRef.current.forEach((trail, index) => {
-          // Reduced delay for tighter trail
-          const delay = index * 0.02;
-          const x = currentPosition.x;
-          const y = currentPosition.y;
-
-          setTimeout(() => {
-            trail.style.transform = `translate(${x}px, ${y}px)`;
-          }, delay * 1000);
-        });
+    const animate = () => {
+      if (isHovered.current) {
+        currentPosition.x = hoverTargetCenter.current.x;
+        currentPosition.y = hoverTargetCenter.current.y;
+      } else {
+        currentPosition.x += (mousePosition.x - currentPosition.x) * 0.3;
+        currentPosition.y += (mousePosition.y - currentPosition.y) * 0.3;
       }
-      previousTimeRef.current = time;
+
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate(${currentPosition.x}px, ${currentPosition.y}px)`;
+        cursorRef.current.style.width = isHovered.current ? "30px" : "20px";
+        cursorRef.current.style.height = isHovered.current ? "30px" : "20px";
+      }
+
+      trailsRef.current.forEach((trail, index) => {
+        const delay = index * 0.05; // Adjusted delay for smoother effect
+        requestAnimationFrame(() => {
+          trail.style.transform = `translate(${currentPosition.x}px, ${currentPosition.y}px)`;
+        });
+      });
+
       requestRef.current = requestAnimationFrame(animate);
     };
+
+    const targets = document.querySelectorAll("button, a");
+    targets.forEach((target) => {
+      target.addEventListener("mouseenter", () => setHoverState(target));
+      target.addEventListener("mouseleave", resetHoverState);
+    });
 
     window.addEventListener("mousemove", mouseMoveHandler);
     requestRef.current = requestAnimationFrame(animate);
@@ -60,8 +76,10 @@ const CustomCursor = () => {
     return () => {
       window.removeEventListener("mousemove", mouseMoveHandler);
       cancelAnimationFrame(requestRef.current);
-      trailsRef.current.forEach((trail) => {
-        trail.remove();
+      trails.forEach((trail) => trail.remove());
+      targets.forEach((target) => {
+        target.removeEventListener("mouseenter", () => setHoverState(target));
+        target.removeEventListener("mouseleave", resetHoverState);
       });
     };
   }, []);
