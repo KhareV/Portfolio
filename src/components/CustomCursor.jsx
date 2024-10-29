@@ -1,4 +1,3 @@
-// CustomCursor.js
 import React, { useEffect, useRef } from "react";
 
 const CustomCursor = () => {
@@ -7,6 +6,7 @@ const CustomCursor = () => {
   const requestRef = useRef();
   const isHovered = useRef(false);
   const hoverTargetCenter = useRef({ x: 0, y: 0 });
+  const mutationObserverRef = useRef(null);
 
   useEffect(() => {
     const TRAIL_COUNT = 3;
@@ -55,7 +55,7 @@ const CustomCursor = () => {
       }
 
       trailsRef.current.forEach((trail, index) => {
-        const delay = index * 0.05; // Adjusted delay for smoother effect
+        const delay = index * 0.05;
         requestAnimationFrame(() => {
           trail.style.transform = `translate(${currentPosition.x}px, ${currentPosition.y}px)`;
         });
@@ -65,22 +65,45 @@ const CustomCursor = () => {
     };
 
     const targets = document.querySelectorAll("button, a");
+
+    const mouseEnterHandler = (event) => setHoverState(event.currentTarget);
+    const mouseLeaveHandler = resetHoverState;
+
     targets.forEach((target) => {
-      target.addEventListener("mouseenter", () => setHoverState(target));
-      target.addEventListener("mouseleave", resetHoverState);
+      target.addEventListener("mouseenter", mouseEnterHandler);
+      target.addEventListener("mouseleave", mouseLeaveHandler);
     });
 
     window.addEventListener("mousemove", mouseMoveHandler);
     requestRef.current = requestAnimationFrame(animate);
+
+    // Observe DOM changes to reapply cursor settings if elements reappear
+    mutationObserverRef.current = new MutationObserver(() => {
+      const updatedTargets = document.querySelectorAll("button, a");
+      updatedTargets.forEach((target) => {
+        target.removeEventListener("mouseenter", mouseEnterHandler);
+        target.removeEventListener("mouseleave", mouseLeaveHandler);
+        target.addEventListener("mouseenter", mouseEnterHandler);
+        target.addEventListener("mouseleave", mouseLeaveHandler);
+      });
+    });
+
+    mutationObserverRef.current.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
 
     return () => {
       window.removeEventListener("mousemove", mouseMoveHandler);
       cancelAnimationFrame(requestRef.current);
       trails.forEach((trail) => trail.remove());
       targets.forEach((target) => {
-        target.removeEventListener("mouseenter", () => setHoverState(target));
-        target.removeEventListener("mouseleave", resetHoverState);
+        target.removeEventListener("mouseenter", mouseEnterHandler);
+        target.removeEventListener("mouseleave", mouseLeaveHandler);
       });
+      if (mutationObserverRef.current) {
+        mutationObserverRef.current.disconnect();
+      }
     };
   }, []);
 
