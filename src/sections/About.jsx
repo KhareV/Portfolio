@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Globe from "react-globe.gl";
 import Button from "../components/Button.jsx";
-
+import TechMarquee from "../components/TechMarquee.jsx";
 const About = () => {
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -39,9 +39,9 @@ const About = () => {
         >
           <div className="grid-container hover:transform-card hover:bg-tertiary relative">
             <img
-              src="assets/grid1.png"
+              src="image/avatar.png"
               alt="grid-1"
-              className="w-full sm:h-[276px] h-fit object-contain filter brightness-50"
+              className="w-full sm:h-[276px] h-fit object-contain filter brightness-80"
             />
             <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30"></div>
             <div className="relative">
@@ -106,20 +106,133 @@ const About = () => {
                 showGraticules
                 globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
                 bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
-                labelsData={[
+                cameraPosition={{ x: 1.5, y: 0, z: 0 }}
+                cameraRotation={{ x: 0, y: -Math.PI / 2, z: 0 }}
+                autoRotate={false}
+                pointOfView={[{ lat: 20, lng: 78, altitude: 0.6 }]}
+                htmlElementsData={[
                   {
-                    lat: 19.076,
-                    lng: 72.8777,
-                    text: "Mumbai, India",
-                    color: "white",
-                    size: 15,
+                    lat: 55.7558,
+                    lng: 37.6173,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: 45.4215,
+                    lng: -75.6972,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: 39.9042,
+                    lng: 116.4074,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: 38.8977,
+                    lng: -77.0365,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: -15.7975,
+                    lng: -47.8919,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: -35.2809,
+                    lng: 149.13,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: 28.6139,
+                    lng: 77.209,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: -34.6037,
+                    lng: -58.3816,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: 51.1694,
+                    lng: 71.4491,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: 36.7538,
+                    lng: 3.0588,
+                    size: 8,
+                    color: "#FF5733",
+                    isChennai: false,
+                  },
+                  {
+                    lat: 13.0827,
+                    lng: 80.2707,
+                    size: 10,
+                    text: "Chennai, India",
+                    color: "#FFFFFF",
+                    isChennai: true,
                   },
                 ]}
+                htmlElement={(d) => {
+                  const el = document.createElement("div");
+                  el.innerHTML = `
+            <div style="
+              transform: translate(-50%, -50%);
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              position: relative;
+            ">
+              <svg 
+                height="${d.size * 2}"
+                width="${d.size * 2}"
+                viewBox="0 0 24 24"
+                fill="${d.color}"
+                style="transform: translateY(50%);"
+              >
+                <path d="M12 0C7.802 0 4 3.403 4 7.602C4 11.8 7.469 16.812 12 24C16.531 16.812 20 11.8 20 7.602C20 3.403 16.199 0 12 0ZM12 11C10.343 11 9 9.657 9 8C9 6.343 10.343 5 12 5C13.657 5 15 6.343 15 8C15 9.657 13.657 11 12 11Z"/>
+              </svg>
+              ${
+                d.isChennai
+                  ? `
+                <div style="
+                  color: ${d.color};
+                  font-size: ${d.size * 0.8}px;
+                  margin-top: ${d.size * 0.3}px;
+                  text-shadow: 2px 2px 3px rgba(0,0,0,0.9);
+                  white-space: nowrap;
+                  pointer-events: none;
+                ">${d.text}</div>
+              `
+                  : ""
+              }
+            </div>
+          `;
+                  return el;
+                }}
+                htmlAltitude={0.1}
               />
             </div>
             <div className="relative">
               <p className="grid-headtext">
-                I’m very flexible with time zone communications & locations
+                I'm very flexible with time zone communications & locations
               </p>
               <p className="grid-subtext">
                 I&apos;m based in Chennai, India and open to remote work
@@ -159,6 +272,7 @@ const About = () => {
                 Programming isn&apos;t just my profession—it&apos;s my passion.
                 I enjoy exploring new technologies, and enhancing my skills.
               </p>
+              <TechMarquee />
             </div>
           </div>
         </motion.div>
