@@ -1,4 +1,3 @@
-// Hero.jsx
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ComputersCanvas from "../components/HackerRoom";
@@ -11,21 +10,28 @@ const Hero = () => {
 
   useEffect(() => {
     const contactSection = document.getElementById("contact");
+    const footerSection = document.getElementById("footer");
 
-    if (!contactSection) return;
+    if (!contactSection || !footerSection) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        setIsButtonVisible(!entry.isIntersecting);
-      },
-      { threshold: 0.1 } // Adjust threshold as needed
-    );
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.target.id === "contact" || entry.target.id === "footer") {
+          setIsButtonVisible(!entry.isIntersecting);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, {
+      threshold: 0.1,
+    });
 
     observer.observe(contactSection);
+    observer.observe(footerSection);
 
     return () => {
       if (contactSection) observer.unobserve(contactSection);
+      if (footerSection) observer.unobserve(footerSection);
     };
   }, []);
 

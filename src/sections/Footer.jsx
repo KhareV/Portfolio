@@ -1,17 +1,10 @@
 const Footer = () => {
   return (
-    <footer className="mt-10 c-space pt-8 pb-5 border-t border-gray-500 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6 md:gap-8 bg-gray-900">
-      <div className="text-white-500 flex gap-4">
-        <p className="hover:text-white transition-colors cursor-pointer">
-          Terms & Conditions
-        </p>
-        <p>|</p>
-        <p className="hover:text-white transition-colors cursor-pointer">
-          Privacy Policy
-        </p>
-      </div>
-
-      <div className="flex gap-5">
+    <footer
+      className="mt-10 c-space pt-8 pb-5 border-t border-gray-500 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6 md:gap-8 bg-gray-900"
+      id="footer"
+    >
+      <div className="text-white-500 flex gap-5">
         <a
           href="https://github.com/KhareV"
           target="_blank"
