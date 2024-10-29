@@ -280,6 +280,7 @@ body {
   position: fixed;
   pointer-events: none;
   z-index: 9999;
+  transition: transform 0.1s ease, width 0.1s ease, height 0.1s ease;
 }
 
 .trail {
@@ -381,31 +382,4 @@ body {
   100% {
     transform: translate(0, 0) rotate(-10deg);
   }
-}
-.cursor {
-  width: 20px;
-  height: 20px;
-  background: rgba(128, 128, 128, 0.7);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease;
-}
-
-.trail {
-  width: 15px;
-  height: 15px;
-  background: rgba(128, 128, 128, 0.3);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 9998;
-  transition: transform 0.1s ease;
-}
-
-button,
-a {
-  position: relative;
-  z-index: 1;
 }
