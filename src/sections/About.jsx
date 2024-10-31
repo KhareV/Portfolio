@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Globe from "react-globe.gl";
 import Button from "../components/Button.jsx";
 import TechMarquee from "../components/TechMarquee.jsx";
+import ItemLayout from "../components/ItemLayout.jsx";
 const About = () => {
   const [hasCopied, setHasCopied] = useState(false);
 

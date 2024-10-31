@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Import useState
+import React, { useState } from "react";
 import Navbar from "./sections/Navbar";
 import Hero from "./sections/Hero";
 import About from "./sections/About";
@@ -11,6 +11,8 @@ import CustomCursor from "./components/CustomCursor";
 import EarthCanvas from "./components/Earth";
 import StarsCanvas from "./components/Stars";
 import LoadingSpinner from "./components/LoadingSpinner";
+import Github from "./sections/Github";
+import Sound from "./components/Sound";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -31,15 +33,19 @@ const App = () => {
             <Navbar />
             <Hero />
             <About />
+            <Github />
             <LogoAnimation />
             <Projects />
             <Contact />
             <WorkExperience />
             <EarthCanvas />
             <Footer />
+            <Sound />
           </main>
         </div>
       )}
+      {/* Modal container moved outside main content */}
+      <div id="my-modal" />
     </>
   );
 };

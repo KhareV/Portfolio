@@ -7,7 +7,7 @@ import Navigation from "../components/navigation/index";
 
 const WizardSec = () => {
   return (
-    <div className="left-96 relative w-full h-full flex items-center justify-center">
+    <div className="left-96 top-4 relative w-full h-full flex items-center justify-center">
       {/* Ensure Navigation has a high z-index to be clickable */}
       <div className="absolute z-10 top-5 left-1180">
         <Navigation />
