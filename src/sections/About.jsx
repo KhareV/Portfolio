@@ -30,29 +30,87 @@ const About = () => {
       <div className="grid xl:grid-cols-3 xl:grid-rows-6 md:grid-cols-2 grid-cols-1 gap-5 h-full">
         {/* First Grid Item */}
         <motion.div
-          className="col-span-1 xl:row-span-3"
+          className="col-span-1 xl:row-span-3 relative"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={slideIn}
           transition={{ delay: 0.3 }}
         >
-          <div className="grid-container hover:transform-card hover:bg-tertiary relative">
-            <img
-              src="image/avatar.png"
-              alt="grid-1"
-              className="w-full sm:h-[276px] h-fit object-contain filter brightness-80"
-            />
-            <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30"></div>
-            <div className="relative">
-              <p className="grid-headtext">Hi, I’m Vedant Khare</p>
-              <p className="grid-subtext">
-                With experience in web development, I have honed my skills in
-                both frontend and backend technologies, including HTML, CSS,
-                JavaScript, React, Next.js, Node.js, and MongoDB. I've completed
-                over 20 projects, creating dynamic and responsive web
-                applications tailored to user needs.
-              </p>
+          {/* Background Container */}
+          <div className="w-4/5 mx-auto bg-gray-920 rounded-lg relative">
+            {/* Marquee Container */}
+            <div className="absolute inset-0 w-full h-full">
+              <div className="py-8 mt-24">
+                <div className="relative flex overflow-x-hidden overflow-y-hidden">
+                  <div className="animate-profile-scroll-1 whitespace-nowrap flex items-center">
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                  </div>
+                  <div className="absolute top-0 animate-profile-scroll-2 whitespace-nowrap flex items-center">
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                    <span className="mx-4 text-6xl text-gray-300">
+                      Vedant Khare
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content Container */}
+            <div className="relative z-10 profile-container hover:profile-transform hover:bg-tertiary">
+              <img
+                src="image/avatar.png"
+                alt="grid-1"
+                className="w-full sm:h-[276px] h-fit object-contain"
+              />
+              <div className="absolute top-0 left-0 w-full h-full bg-black/30"></div>
+              <div className="relative">
+                <p className="profile-heading">Hi, I'm Vedant Khare</p>
+                <p className="profile-description">
+                  With experience in web development, I have honed my skills in
+                  both frontend and backend technologies, including HTML, CSS,
+                  JavaScript, React, Next.js, Node.js, and MongoDB. I've
+                  completed over 20 projects, creating dynamic and responsive
+                  web applications tailored to user needs.
+                </p>
+              </div>
             </div>
           </div>
         </motion.div>

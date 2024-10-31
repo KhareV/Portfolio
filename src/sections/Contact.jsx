@@ -80,7 +80,120 @@ const Contact = () => {
           alt="terminal-bg"
           className="absolute inset-0 min-h-screen"
         />
+        {/* Marquee Background */}
+        <div className="mx-10 text-white-800 absolute inset-0 opacity-10 z-0 flex flex-col gap-32 mt-56">
+          {/* Row 1 */}
+          <div className="relative flex overflow-x-hidden">
+            <div className="animate-marquee whitespace-nowrap flex items-center">
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+            </div>
+            <div className="absolute top-0 animate-marquee2 whitespace-nowrap flex items-center">
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+              <span className="mx-4 text-3xl">
+                Let's build something interesting
+              </span>
+            </div>
+          </div>
 
+          {/* Row 2 */}
+          <div className="relative flex overflow-x-hidden">
+            <div className="animate-marquee-reverse whitespace-nowrap flex items-center">
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+            </div>
+            <div className="absolute top-0 animate-marquee2-reverse whitespace-nowrap flex items-center">
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+              <span className="mx-4 text-3xl">
+                I am cool, you are cool, let's build something
+              </span>
+            </div>
+          </div>
+
+          {/* Row 3 */}
+          <div className="relative flex overflow-x-hidden">
+            <div className="animate-marquee whitespace-nowrap flex items-center">
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+            </div>
+            <div className="absolute top-0 animate-marquee2 whitespace-nowrap flex items-center">
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+              <span className="mx-4 text-3xl">Together, we make it happen</span>
+            </div>
+          </div>
+
+          {/* Row 4 */}
+          <div className="relative flex overflow-x-hidden">
+            <div className="animate-marquee-reverse whitespace-nowrap flex items-center">
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+            </div>
+            <div className="absolute top-0 animate-marquee2-reverse whitespace-nowrap flex items-center">
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+            </div>
+          </div>
+        </div>
         <motion.div
           className="contact-container"
           initial={{ x: -100, opacity: 0 }}
@@ -89,7 +202,7 @@ const Contact = () => {
           viewport={{ once: true, amount: 0.5 }}
         >
           <h3 className="head-text">Let's talk</h3>
-          <p className="text-lg text-white-600 mt-3">
+          <p className="text-3xl text-white-600 mt-3">
             Whether you’re looking to build a new website, improve your existing
             platform, or bring a unique project to life, I’m here to help.
           </p>

@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", // Adjust based on your project structure
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -31,6 +28,10 @@ export default {
         "black-100": "#100d25",
         "black-200": "#090325",
         "white-100": "#f3f3f3",
+        background: "rgb(var(--background))",
+        foreground: "rgb(var(--foreground))",
+        muted: "rgb(var(--muted))",
+        accent: "rgb(var(--accent))",
       },
       backgroundImage: {
         terminal: "url('/assets/terminal.png')",
@@ -39,6 +40,8 @@ export default {
       },
       boxShadow: {
         card: "0px 35px 120px -15px #211e35",
+        "glass-inset": "inset 0 17px 5px -9px rgba(254,254,91, 0.05)",
+        "glass-sm": "5px 5px 20px 0px rgba(254,254,91, 0.3)",
       },
       screens: {
         xs: "450px",
@@ -53,6 +56,10 @@ export default {
         marquee2: "marquee2 25s linear infinite",
         "marquee-reverse": "marquee-reverse 25s linear infinite",
         "marquee2-reverse": "marquee2-reverse 25s linear infinite",
+        "profile-scroll-1": "profileScrollLeft 25s linear infinite",
+        "profile-scroll-2": "profileScrollRight 25s linear infinite",
+        "spin-slow": "spin 40s linear infinite",
+        "spin-slow-reverse": "spin-reverse 40s linear infinite",
       },
       keyframes: {
         marquee: {
@@ -71,8 +78,45 @@ export default {
           "0%": { transform: "translateX(0%)" },
           "100%": { transform: "translateX(100%)" },
         },
+        profileScrollLeft: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
+        profileScrollRight: {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(0%)" },
+        },
+        "spin-reverse": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(-360deg)" },
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addComponents }) {
+      addComponents({
+        ".profile-container": {
+          transition: "all 0.3s ease-in-out",
+          padding: "1.5rem",
+        },
+        ".profile-transform": {
+          transform: "scale(1.02)",
+        },
+        ".profile-heading": {
+          fontSize: "1.875rem",
+          lineHeight: "2.25rem",
+          fontWeight: "700",
+          color: "#ffffff",
+          marginBottom: "1rem",
+        },
+        ".profile-description": {
+          fontSize: "1rem",
+          lineHeight: "1.5rem",
+          color: "#d1d5db",
+          marginBottom: "1rem",
+        },
+      });
+    },
+  ],
 };

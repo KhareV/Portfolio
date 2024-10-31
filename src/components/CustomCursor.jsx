@@ -64,7 +64,7 @@ const CustomCursor = () => {
       requestRef.current = requestAnimationFrame(animate);
     };
 
-    const targets = document.querySelectorAll("button, a");
+    const targets = document.querySelectorAll("button,a");
 
     const mouseEnterHandler = (event) => setHoverState(event.currentTarget);
     const mouseLeaveHandler = resetHoverState;
