@@ -119,12 +119,11 @@ const Github = () => {
               >
                 <img
                   className="w-full h-auto"
-                  src={`${GITHUB_STATS_URL}/api/pin/?username=${USERNAME}&repo=Nextjs-contentlayer-blog&${new URLSearchParams(
-                    {
-                      ...commonProps,
-                      description_lines_count: "2",
-                    }
-                  )}`}
+                  src={`${GITHUB_STATS_URL}/api/pin/?username=${USERNAME}&repo=Property-Dhundo-Property-Buying-and-Selling
+&${new URLSearchParams({
+                    ...commonProps,
+                    description_lines_count: "2",
+                  })}`}
                   alt="Featured Repository: Next.js Contentlayer Blog"
                   loading="lazy"
                 />

@@ -54,7 +54,10 @@ const Sound = () => {
         <Modal onClose={() => setShowModal(false)} toggle={toggle} />
       )}
       <audio ref={audioRef} loop>
-        <source src={"/birds39-forest-20772.mp3"} type="audio/mpeg" />
+        <source
+          src={"/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3"}
+          type="audio/mpeg"
+        />
         Your browser does not support the audio element.
       </audio>
       <motion.button
