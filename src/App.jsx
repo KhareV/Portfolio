@@ -28,20 +28,18 @@ const App = () => {
       ) : (
         <div className="overflow-x-hidden">
           <StarsCanvas />
-          <main className="max-w-7xl mx-auto">
-            <CustomCursor />
-            <Navbar />
-            <Hero />
-            <About />
-            <Github />
-            <LogoAnimation />
-            <Projects />
-            <Contact />
-            <WorkExperience />
-            <EarthCanvas />
-            <Footer />
-            <Sound />
-          </main>
+          <CustomCursor />
+          <Navbar />
+          <Hero />
+          <About />
+          <Github />
+          <LogoAnimation />
+          <Projects />
+          <Contact />
+          <WorkExperience />
+          <EarthCanvas />
+          <Footer />
+          <Sound />
         </div>
       )}
       {/* Modal container moved outside main content */}

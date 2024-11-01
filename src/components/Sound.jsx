@@ -1,61 +1,99 @@
 import { motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import Modal from "./Modal"; // Import the Modal component
+import Modal from "./Modal";
 
 const Sound = () => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
-  const handleFirstUserInteraction = () => {
-    const musicConsent = localStorage.getItem("musicConsent");
-    if (musicConsent === "true" && !isPlaying) {
-      audioRef.current.play();
-      setIsPlaying(true);
-    }
-    ["click", "keydown", "touchstart"].forEach((event) =>
-      document.removeEventListener(event, handleFirstUserInteraction)
-    );
-  };
+  const initialRenderRef = useRef(true);
 
   useEffect(() => {
+    if (!initialRenderRef.current) return;
+
     const consent = localStorage.getItem("musicConsent");
     const consentTime = localStorage.getItem("consentTime");
-
-    if (
+    const consentIsValid =
       consent &&
       consentTime &&
-      new Date(consentTime).getTime() + 3 * 24 * 60 * 60 * 1000 > new Date()
-    ) {
+      new Date(consentTime).getTime() + 3 * 24 * 60 * 60 * 1000 >
+        new Date().getTime();
+
+    if (!consentIsValid) {
+      // Show modal immediately on mount
+      setShowModal(true);
+    } else {
       setIsPlaying(consent === "true");
       if (consent === "true") {
-        ["click", "keydown", "touchstart"].forEach((event) =>
-          document.addEventListener(event, handleFirstUserInteraction)
-        );
+        document.addEventListener("click", handleFirstUserInteraction);
+        document.addEventListener("keydown", handleFirstUserInteraction);
+        document.addEventListener("touchstart", handleFirstUserInteraction);
       }
-    } else {
-      setShowModal(true);
     }
+
+    initialRenderRef.current = false;
+
+    return () => {
+      document.removeEventListener("click", handleFirstUserInteraction);
+      document.removeEventListener("keydown", handleFirstUserInteraction);
+      document.removeEventListener("touchstart", handleFirstUserInteraction);
+    };
   }, []);
 
-  const toggle = () => {
-    const newState = !isPlaying;
-    setIsPlaying(newState);
-    newState ? audioRef.current.play() : audioRef.current.pause();
-    localStorage.setItem("musicConsent", String(newState));
+  const handleFirstUserInteraction = () => {
+    if (!isPlaying && audioRef.current) {
+      audioRef.current.play().catch(() => {
+        // Handle play() promise rejection
+        console.log("Playback failed, waiting for explicit user interaction");
+      });
+      setIsPlaying(true);
+    }
+    document.removeEventListener("click", handleFirstUserInteraction);
+    document.removeEventListener("keydown", handleFirstUserInteraction);
+    document.removeEventListener("touchstart", handleFirstUserInteraction);
+  };
+
+  const handleConsent = () => {
+    setIsPlaying(true);
+    document.addEventListener("click", handleFirstUserInteraction);
+    document.addEventListener("keydown", handleFirstUserInteraction);
+    document.addEventListener("touchstart", handleFirstUserInteraction);
+    localStorage.setItem("musicConsent", "true");
     localStorage.setItem("consentTime", new Date().toISOString());
     setShowModal(false);
   };
 
+  const handleClose = () => {
+    setIsPlaying(false);
+    localStorage.setItem("musicConsent", "false");
+    localStorage.setItem("consentTime", new Date().toISOString());
+    setShowModal(false);
+  };
+
+  const toggle = () => {
+    const newState = !isPlaying;
+    setIsPlaying(newState);
+    if (audioRef.current) {
+      if (newState) {
+        audioRef.current.play().catch(() => {
+          // Handle play() promise rejection
+          console.log("Playback failed, waiting for explicit user interaction");
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+    localStorage.setItem("musicConsent", String(newState));
+    localStorage.setItem("consentTime", new Date().toISOString());
+  };
+
   return (
     <div className="text-white-800 fixed top-4 right-2.5 xs:right-4 z-50 group">
-      {showModal && (
-        <Modal onClose={() => setShowModal(false)} toggle={toggle} />
-      )}
+      {showModal && <Modal onClose={handleClose} toggle={handleConsent} />}
       <audio ref={audioRef} loop>
         <source
-          src={"/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3"}
+          src="/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3"
           type="audio/mpeg"
         />
         Your browser does not support the audio element.
@@ -66,8 +104,8 @@ const Sound = () => {
         animate={{ scale: 1 }}
         transition={{ delay: 1 }}
         className="w-10 h-10 xs:w-14 xs:h-14 text-foreground rounded-full flex items-center justify-center cursor-pointer z-50 p-2.5 xs:p-4 custom-bg"
-        aria-label={"Sound control button"}
-        name={"Sound control button"}
+        aria-label="Sound control button"
+        name="Sound control button"
       >
         {isPlaying ? (
           <Volume2

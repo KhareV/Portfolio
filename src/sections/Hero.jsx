@@ -65,13 +65,13 @@ const Hero = () => {
           >
             <div className="flex flex-col justify-center items-center mt-5">
               <motion.div
-                className="w-5 h-5 rounded-full bg-[#915EFF]"
+                className="w-5 h-5 rounded-full bg-yellow-600"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 1, delay: 0.4 }}
               />
               <motion.div
-                className="w-1 h-40 sm:h-80 bg-[#915EFF] violet-gradient"
+                className="w-1 h-40 sm:h-80 bg-yellow-600"
                 initial={{ height: 0 }}
                 animate={{ height: "100%" }}
                 transition={{ duration: 1, delay: 0.6 }}
@@ -85,7 +85,7 @@ const Hero = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1.2, ease: "easeInOut", delay: 0.8 }}
               >
-                Hi, I'm <span className="text-[#915EFF]">Vedant</span>
+                Hi, I'm <span className="text-yellow-600 ">Vedant</span>
                 <span className="waving-hand">👋</span>
               </motion.h1>
               <motion.p
