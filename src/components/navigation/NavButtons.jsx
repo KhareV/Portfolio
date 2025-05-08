@@ -9,7 +9,7 @@ import {
   Twitter,
   User,
 } from "lucide-react";
-import React from "react";
+import React, { useState, useRef } from "react";
 import ResponsiveComponent from "../ResponsiveComponent";
 import clsx from "clsx";
 import { motion } from "framer-motion";
@@ -34,61 +34,108 @@ const item = {
   show: { scale: 1 },
 };
 
-const NavButton = ({ x, y, name, href, icon, labelDirection = "right" }) => {
+const NavButton = ({
+  x,
+  y,
+  name,
+  href,
+  icon,
+  angle = 0,
+  isWheelRotating = true,
+  labelDirection = "right",
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const buttonRef = useRef(null);
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+
   return (
     <ResponsiveComponent>
       {({ size }) => {
         return size && size >= 480 ? (
           <div
-            className="absolute cursor-pointer z-50"
-            style={{ transform: `translate(${x}, ${y})` }}
+            ref={buttonRef}
+            className="absolute z-50 pointer-events-auto"
+            style={{
+              transform: `translate(${x}, ${y})`,
+              zIndex: isHovered ? 100 : 50,
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             <motion.a
               variants={item}
               href={href}
-              className="text-foreground rounded-full flex items-center justify-center custom-bg"
-              aria-name={name}
-              name={name}
-              prefetch="false"
-              scroll="false"
+              className={`text-foreground rounded-full flex items-center justify-center transition-all duration-300 ${
+                isHovered
+                  ? "bg-yellow-600/30 border-yellow-500/50 shadow-[0_0_15px_rgba(255,217,0,0.5)]"
+                  : "custom-bg"
+              }`}
+              aria-label={name}
             >
-              {/* Rotate only the icon inside */}
-              <span
-                className="relative w-14 h-14 p-4 animate-spin-slow group-hover:pause hover:text-accent"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              {/* Button content with self-counter-rotation */}
+              <div
+                className={`relative w-14 h-14 p-4 flex items-center justify-center ${
+                  isWheelRotating ? "animate-spin-slow-reverse" : ""
+                }`}
               >
-                {getIcon(icon)}
-                <span className="peer bg-transparent absolute top-0 left-0 w-full h-full" />
-                <span className="absolute hidden peer-hover:block px-2 py-1 left-full mx-2 top-1/2 -translate-y-1/2 bg-background text-foreground text-sm rounded-md shadow-lg whitespace-nowrap">
+                {/* Static icon that brightens on hover */}
+                <div
+                  className={`transition-all duration-300 ${
+                    isHovered ? "text-yellow-400 scale-125" : ""
+                  }`}
+                >
+                  {getIcon(icon)}
+                </div>
+
+                {/* Tooltip that appears on hover */}
+                <div
+                  className={`absolute px-3 py-1.5 bg-black/80 border border-yellow-500/30 rounded-md left-16 text-yellow-100 whitespace-nowrap text-sm transition-all duration-300 ${
+                    isHovered
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 -translate-x-2"
+                  }`}
+                >
                   {name}
-                </span>
-              </span>
+                </div>
+              </div>
             </motion.a>
           </div>
         ) : (
-          <div className="w-fit cursor-pointer z-50">
+          <div
+            className="w-fit pointer-events-auto cursor-pointer z-50"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             <motion.a
               variants={item}
               href={href}
-              className="text-foreground rounded-full flex items-center justify-center custom-bg"
-              aria-name={name}
-              name={name}
-              prefetch="false"
-              scroll="false"
+              className={`text-foreground rounded-full flex items-center justify-center transition-all duration-300 ${
+                isHovered
+                  ? "bg-yellow-600/30 border-yellow-500/50 shadow-[0_0_15px_rgba(255,217,0,0.5)]"
+                  : "custom-bg"
+              }`}
+              aria-label={name}
             >
-              <span
-                className="relative w-10 h-10 xs:w-14 xs:h-14 p-2.5 xs:p-4 hover:text-accent"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              >
-                {getIcon(icon)}
-                <span className="peer bg-transparent absolute top-0 left-0 w-full h-full" />
+              <span className="relative w-10 h-10 xs:w-14 xs:h-14 p-2.5 xs:p-4 flex items-center justify-center">
                 <span
-                  className={clsx(
-                    "absolute hidden peer-hover:block px-2 py-1 left-full mx-2 top-1/2 -translate-y-1/2 bg-background text-foreground text-sm rounded-md shadow-lg whitespace-nowrap",
-                    labelDirection === "left" ? "right-full left-auto" : ""
-                  )}
+                  className={`transition-all duration-300 ${
+                    isHovered ? "text-yellow-400 scale-125" : ""
+                  }`}
+                >
+                  {getIcon(icon)}
+                </span>
+
+                {/* Tooltip */}
+                <span
+                  className={`absolute px-3 py-1.5 bg-black/80 border border-yellow-500/30 rounded-md ${
+                    labelDirection === "left"
+                      ? "right-full mr-3"
+                      : "left-full ml-3"
+                  } top-1/2 -translate-y-1/2 text-yellow-100 whitespace-nowrap text-sm transition-all duration-300 ${
+                    isHovered ? "opacity-100" : "opacity-0"
+                  }`}
                 >
                   {name}
                 </span>

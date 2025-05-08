@@ -27,7 +27,7 @@ const About = () => {
   };
 
   return (
-    <section className="c-space my-20" id="about">
+    <section className="c-space my-20 py-20" id="about">
       <div className="grid xl:grid-cols-3 xl:grid-rows-6 md:grid-cols-2 grid-cols-1 gap-5 h-full">
         {/* First Grid Item */}
         <motion.div
@@ -42,7 +42,7 @@ const About = () => {
           <div className="w-4/5 mx-auto bg-gray-920 rounded-lg relative">
             {/* Marquee Container */}
             <div className="absolute inset-0 w-full h-full">
-              <div className="py-8 mt-24">
+              <div className="py-8 mt-96 pt-48">
                 <div className="relative flex overflow-x-hidden overflow-y-hidden">
                   <div className="animate-profile-scroll-1 whitespace-nowrap flex items-center">
                     <span className="mx-4 text-6xl text-gray-300">
@@ -97,13 +97,13 @@ const About = () => {
             {/* Content Container */}
             <div className="relative z-10 profile-container hover:profile-transform hover:bg-tertiary">
               <img
-                src="image/avatar.png"
+                src="image/WhatsApp Image 2025-04-29 at 16.36.35_6c693daa.jpg"
                 alt="grid-1"
                 className="w-full sm:h-[276px] h-fit object-contain"
               />
               <div className="absolute top-0 left-0 w-full h-full bg-black/30"></div>
               <div className="relative">
-                <p className="profile-heading">Hi, I'm Vedant Khare</p>
+                <p className="profile-heading mt-9">Hi, I'm Vedant Khare</p>
                 <p className="profile-description">
                   With experience in web development, I have honed my skills in
                   both frontend and backend technologies, including HTML, CSS,

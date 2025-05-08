@@ -13,7 +13,6 @@ import StarsCanvas from "./components/Stars";
 import LoadingSpinner from "./components/LoadingSpinner";
 import Github from "./sections/Github";
 import Sound from "./components/Sound";
-
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 

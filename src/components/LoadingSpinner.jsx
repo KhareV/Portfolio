@@ -25,7 +25,7 @@ const LoadingSpinner = ({ onLoadComplete }) => {
     const timer = setTimeout(() => {
       setLoading(false);
       onLoadComplete();
-    }, 4000);
+    }, 5500);
 
     // Cleanup function
     return () => {
@@ -77,7 +77,7 @@ const LoadingSpinner = ({ onLoadComplete }) => {
           ))}
         </div>
       </div>
-      ) : null;
+      ) : null
     </>
   );
 };

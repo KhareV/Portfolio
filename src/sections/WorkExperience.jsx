@@ -13,7 +13,7 @@ const WorkExperience = () => {
 
   return (
     <motion.section
-      className="c-space my-20"
+      className="c-space my-96 pt-16"
       id="work"
       initial={{ opacity: 0 }}
       whileInView={{ x: 0, opacity: 1 }}

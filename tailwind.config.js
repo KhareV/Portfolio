@@ -42,6 +42,7 @@ export default {
         card: "0px 35px 120px -15px #211e35",
         "glass-inset": "inset 0 17px 5px -9px rgba(254,254,91, 0.05)",
         "glass-sm": "5px 5px 20px 0px rgba(254,254,91, 0.3)",
+        dock: "0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 10px rgba(255, 208, 0, 0.15)",
       },
       screens: {
         xs: "450px",
@@ -60,6 +61,7 @@ export default {
         "profile-scroll-2": "profileScrollRight 25s linear infinite",
         "spin-slow": "spin 40s linear infinite",
         "spin-slow-reverse": "spin-reverse 40s linear infinite",
+        float: "float 6s ease-in-out infinite",
       },
       keyframes: {
         marquee: {
@@ -89,6 +91,10 @@ export default {
         "spin-reverse": {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(-360deg)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
         },
       },
     },

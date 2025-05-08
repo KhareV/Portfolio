@@ -26,6 +26,7 @@ const Sound = () => {
     } else {
       setIsPlaying(consent === "true");
       if (consent === "true") {
+        // Add event listeners for first interaction
         document.addEventListener("click", handleFirstUserInteraction);
         document.addEventListener("keydown", handleFirstUserInteraction);
         document.addEventListener("touchstart", handleFirstUserInteraction);
@@ -40,6 +41,20 @@ const Sound = () => {
       document.removeEventListener("touchstart", handleFirstUserInteraction);
     };
   }, []);
+
+  // Effect to handle audio when isPlaying changes
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        // Try to play, but don't change state if it fails (browser policy)
+        audioRef.current.play().catch((error) => {
+          console.log("Playback failed:", error);
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
 
   const handleFirstUserInteraction = () => {
     if (!isPlaying && audioRef.current) {
@@ -74,16 +89,6 @@ const Sound = () => {
   const toggle = () => {
     const newState = !isPlaying;
     setIsPlaying(newState);
-    if (audioRef.current) {
-      if (newState) {
-        audioRef.current.play().catch(() => {
-          // Handle play() promise rejection
-          console.log("Playback failed, waiting for explicit user interaction");
-        });
-      } else {
-        audioRef.current.pause();
-      }
-    }
     localStorage.setItem("musicConsent", String(newState));
     localStorage.setItem("consentTime", new Date().toISOString());
   };

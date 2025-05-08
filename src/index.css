@@ -13,6 +13,30 @@ body {
   font-family: "General Sans", sans-serif;
 }
 
+/* Add styling for typing text gradient */
+.typing-text-gradient {
+  background: linear-gradient(to right, #facc15, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Add animation for cursor blinking */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
 @layer utilities {
   .c-space {
     @apply sm:px-10 px-5;
@@ -296,18 +320,26 @@ body {
 .typing-text {
   white-space: nowrap;
   overflow: hidden;
-  border-right: 2px solid white;
-  animation: blink 0.7s infinite;
+  border-right: 3px solid #ffc800;
+  animation: typing 3s steps(40) 1s 1 normal both, blink 1s steps(1) infinite;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 @keyframes blink {
   0%,
-  50% {
-    border-color: white;
-  }
-  50.01%,
   100% {
     border-color: transparent;
+  }
+  50% {
+    border-color: #ffc800;
   }
 }
 .grid-container {
@@ -342,7 +374,6 @@ body {
   z-index: 1000;
 }
 
-/* Snake Container */
 .snake {
   position: relative;
   display: flex;
@@ -400,4 +431,86 @@ body {
   100% {
     transform: translate(100px, 100px);
   }
+}
+
+/* Particle animation for hero section */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-100px) translateX(20px);
+  }
+}
+
+/* Project card hover effects */
+.project-card {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+}
+
+/* LoadingSpinner.css */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #050816;
+  z-index: 9999;
+}
+
+.snake-container {
+  width: 100%;
+  height: 80vh;
+  position: relative;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.icon-container:hover {
+  transform: scale(1.2);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.loading-progress {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0%;
+  height: 4px;
+  background: linear-gradient(90deg, #61dafb, #e34f26, #1572b6);
+  border-radius: 2px;
+  max-width: 300px;
+  box-shadow: 0 0 20px rgba(97, 218, 251, 0.5);
+}
+
+.progress-text {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
