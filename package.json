@@ -5,15 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "node server/server.js",
-    "server:basic": "node server/server-basic.js",
-    "server:merged": "node server/merged-server.js",
-    "server:final": "node server/server-final.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server:final\"",
+    "server": "node server/serverfinal.js",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "node server/server-final.js"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
