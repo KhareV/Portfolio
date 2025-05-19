@@ -28,6 +28,7 @@ body {
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
@@ -68,7 +69,7 @@ body {
 
   /* button component */
   .btn {
-    @apply flex gap-4 items-center justify-center cursor-pointer p-3 rounded-md bg-black-300  transition-all active:scale-95 text-white mx-auto;
+    @apply flex gap-4 items-center justify-center cursor-pointer p-3 rounded-md bg-black-300 transition-all active:scale-95 text-white mx-auto;
   }
 
   .btn-ping {
@@ -137,7 +138,7 @@ body {
   }
 
   .work-content_container {
-    @apply grid grid-cols-[auto_1fr] items-start gap-5  transition-all ease-in-out duration-500 cursor-pointer hover:bg-black-300 rounded-lg sm:px-5 px-2.5;
+    @apply grid grid-cols-[auto_1fr] items-start gap-5 transition-all ease-in-out duration-500 cursor-pointer hover:bg-black-300 rounded-lg sm:px-5 px-2.5;
   }
 
   .work-content_logo {
@@ -197,28 +198,36 @@ body {
   0% {
     transform: rotate(0deg);
   }
+
   15% {
     transform: rotate(14deg);
   }
+
   30% {
     transform: rotate(-8deg);
   }
+
   40% {
     transform: rotate(14deg);
   }
+
   50% {
     transform: rotate(-4deg);
   }
+
   60% {
     transform: rotate(10deg);
   }
+
   70% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(0deg);
   }
 }
+
 .grid-container {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -237,7 +246,8 @@ body {
 }
 
 .logo {
-  font-size: 60px; /* Adjust size as needed */
+  font-size: 60px;
+  /* Adjust size as needed */
   color: #ffffff;
 }
 
@@ -250,48 +260,61 @@ body {
   0% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-20px);
   }
+
   100% {
     transform: translateY(0);
   }
 
   /* Randomize animation delay for each logo */
 }
+
 .logo-0 {
   animation-delay: 0s;
 }
+
 .logo-1 {
   animation-delay: 0.5s;
 }
+
 .logo-2 {
   animation-delay: 1s;
 }
+
 .logo-3 {
   animation-delay: 1.5s;
 }
+
 .logo-4 {
   animation-delay: 2s;
 }
+
 .logo-5 {
   animation-delay: 2.5s;
 }
+
 .logo-6 {
   animation-delay: 3s;
 }
+
 /* Floating keyframes */
 @keyframes float {
   0% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-35px);
   }
+
   100% {
     transform: translateY(0px);
   }
 }
+
 * {
   cursor: none !important;
 }
@@ -308,15 +331,19 @@ body {
 }
 
 .trail {
-  width: 15px; /* Slightly smaller than the cursor */
+  width: 15px;
+  /* Slightly smaller than the cursor */
   height: 15px;
-  background: rgba(128, 128, 128, 0.3); /* More transparent than cursor */
+  background: rgba(128, 128, 128, 0.3);
+  /* More transparent than cursor */
   border-radius: 50%;
   position: fixed;
   pointer-events: none;
   z-index: 9998;
-  transition: transform 0.1s ease; /* Smooth movement */
+  transition: transform 0.1s ease;
+  /* Smooth movement */
 }
+
 .typing-text {
   white-space: nowrap;
   overflow: hidden;
@@ -328,6 +355,7 @@ body {
   from {
     width: 0;
   }
+
   to {
     width: 100%;
   }
@@ -338,18 +366,23 @@ body {
   100% {
     border-color: transparent;
   }
+
   50% {
     border-color: #ffc800;
   }
 }
+
 .grid-container {
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .grid-container:hover {
-  background-color: var(--tertiary-color); /* Adjust color as needed */
-  transform: scale(1.02); /* Adds a slight scaling effect on hover */
+  background-color: var(--tertiary-color);
+  /* Adjust color as needed */
+  transform: scale(1.02);
+  /* Adds a slight scaling effect on hover */
 }
+
 .violet-gradient {
   background: #804dee;
   background: linear-gradient(-90deg, #804dee 0%, rgba(60, 51, 80, 0) 100%);
@@ -359,6 +392,7 @@ body {
     rgba(60, 51, 80, 0) 100%
   );
 }
+
 /* LoadingSpinner.css */
 .loading-screen {
   position: fixed;
@@ -382,7 +416,8 @@ body {
 
 /* Icon Styling */
 .icon-wrapper {
-  font-size: 3rem; /* Larger size for visibility */
+  font-size: 3rem;
+  /* Larger size for visibility */
   color: var(--color);
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
   border-radius: 50%;
@@ -398,22 +433,28 @@ body {
   0% {
     transform: translate(0, 0) rotate(0deg);
   }
+
   20% {
     transform: translate(20vw, -20vh) rotate(15deg);
   }
+
   40% {
     transform: translate(-30vw, 30vh) rotate(-10deg);
   }
+
   60% {
     transform: translate(20vw, -25vh) rotate(10deg);
   }
+
   80% {
     transform: translate(-20vw, 20vh) rotate(-5deg);
   }
+
   100% {
     transform: translate(0, 0) rotate(-10deg);
   }
 }
+
 @layer utilities {
   .pause {
     animation-play-state: paused;
@@ -428,6 +469,7 @@ body {
   0% {
     transform: translate(0, 0);
   }
+
   100% {
     transform: translate(100px, 100px);
   }
@@ -439,6 +481,7 @@ body {
   100% {
     transform: translateY(0) translateX(0);
   }
+
   50% {
     transform: translateY(-100px) translateX(20px);
   }
@@ -513,4 +556,138 @@ body {
   font-size: 1rem;
   font-weight: bold;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+@theme inline {
+  --color-hubspot: var(--hubspot);
+  --color-dark: var(--dark);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-serif: var(--font-neuton);
+  --font-sans: var(--font-noto-sans);
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --hubspot: #ff5c34;
+    --dark: #fbf0e6;
+    --secondary: rgb(207, 192, 178);
+    --accent: rgb(207, 192, 178);
+    --background: #f3e7dc;
+    --foreground: #3a3a3a;
+    --bg-image: url("/bglight.svg");
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hubspot: #ff5c34;
+    --dark: #141412;
+    --secondary: #4d4d4a;
+    --accent: #30302e;
+    --background: #262625;
+    --foreground: #fefefe;
+    --bg-image: url("/bg.svg");
+  }
+}
+@theme inline {
+  --color-hubspot: var(--hubspot);
+  --color-dark: var(--dark);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-serif: var(--font-neuton);
+  --font-sans: var(--font-noto-sans);
+}
+body {
+  color: var(--foreground);
+  font-family: var(--font-neuton), Arial, Helvetica, sans-serif;
+}
+/* chat */
+
+/* Chatbox styles */
+.chatbox-wrapper {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 50px rgba(128, 0, 255, 0.15);
+  transform: perspective(1000px) rotateY(-5deg);
+  transition: all 0.5s ease;
+}
+
+.chatbox-wrapper:hover {
+  transform: perspective(1000px) rotateY(0deg);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 60px rgba(128, 0, 255, 0.2);
+}
+
+/* Star background styles with reduced glow */
+.stars-sm {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      1px 1px at 10% 20%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    ),
+    radial-gradient(1px 1px at 40% 10%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 70% 40%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 90% 60%, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 1000px 1000px;
+  animation: twinkle 8s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+.stars-md {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      1.5px 1.5px at 15% 15%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    ),
+    radial-gradient(
+      1.5px 1.5px at 45% 15%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    ),
+    radial-gradient(
+      1.5px 1.5px at 75% 45%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+  background-size: 1000px 1000px;
+  animation: twinkle 12s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+.stars-lg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      2px 2px at 5% 25%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    ),
+    radial-gradient(2px 2px at 35% 65%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(2px 2px at 60% 15%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(2px 2px at 85% 75%, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 1000px 1000px;
+  animation: twinkle 15s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
 }

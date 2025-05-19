@@ -100,6 +100,7 @@ export default {
     },
   },
   plugins: [
+    require("tailwind-scrollbar"),
     function ({ addComponents }) {
       addComponents({
         ".profile-container": {

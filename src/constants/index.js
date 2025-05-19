@@ -64,8 +64,6 @@ export const myProjects = [
   {
     title: "PropertyDhundo-Your Own Broker",
     desc: "PropertyDhundo - Your Own Broker simplifies property buying and selling by connecting buyers and sellers directly, eliminating traditional brokers. It offers the tools needed for informed decisions and easy transaction management in one place.",
-    subdesc:
-      "PropertyDhundo - Your Own Broker connects buyers and sellers directly, eliminating brokers for a streamlined experience. Built with Tailwind CSS, MongoDB, Next.js, Cloudinary, NextAuth, and Google API.",
     href: "https://github.com/KhareV/Property-Dhundo-Property-Buying-and-Selling",
     texture: "/textures/project/project1.mp4",
     logo: "/image/logo.png",
@@ -106,8 +104,6 @@ export const myProjects = [
   {
     title: "MedWe - Your One-Stop Pharmacy",
     desc: "MedWe is your all-in-one pharmacy solution, offering a wide range of medications, health products, and expert advice to meet all your healthcare needs in one convenient location.",
-    subdesc:
-      "Built with Next.js, MongoDB, Google API, and NextAuth, MedWe provides a secure and efficient platform for managing your pharmacy needs.",
     href: "https://github.com/KhareV/SIH-MedWE-Pharmacy-Website",
     texture: "/textures/project/project2.mp4",
     logo: "/image/logo2.png",
@@ -148,8 +144,6 @@ export const myProjects = [
   {
     title: "ChatApp",
     desc: "ChatApp is a real-time messaging platform that enables seamless communication among users through instant messaging and group chats, ensuring an engaging user experience.",
-    subdesc:
-      "ChatApp, built with React, GraphQL, Apollo Client, and Tailwind CSS, provides a seamless real-time messaging experience with an intuitive interface.",
     href: "https://github.com/KhareV/ChatApp",
     texture: "/textures/project/project3.mp4",
     logo: "/assets/project-logo3.png",
@@ -182,8 +176,6 @@ export const myProjects = [
   {
     title: "Pixabay Gallery",
     desc: "Pixabay Gallery is a user-friendly platform that showcases stunning images and videos sourced from Pixabay. Discover and download high-quality, royalty-free content for your creative projects with ease.",
-    subdesc:
-      "Pixabay Gallery, built with React and the Pixabay API, allows users to effortlessly explore and download high-quality, royalty-free images and videos for their creative projects.",
     href: "https://github.com/KhareV/Pixabay-Gallery",
     texture: "/textures/project/project4.mp4",
     logo: "/assets/project-logo4.png",
@@ -214,8 +206,6 @@ export const myProjects = [
   {
     title: "Imaginify - AI Photo Manipulation App",
     desc: "Imaginify is a groundbreaking Software-as-a-Service application that empowers users to create stunning photo manipulations using AI technology. With features like AI-driven image editing, a payments system, and a credits-based model.",
-    subdesc:
-      "Made using Node.js, React, Tailwind CSS, and the OpenAI API, Imanigify allows users to create stunning images from text prompts, combining powerful AI capabilities with a sleek and user-friendly interface.",
     href: "https://github.com/KhareV/Nodejs-OpenAI-Image-Generator",
     texture: "/textures/project/project5.mp4",
     logo: "/assets/project-logo5.png",

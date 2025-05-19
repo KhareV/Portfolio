@@ -10,14 +10,18 @@ import CanvasLoader from "../components/CanvasLoader";
 import { styles } from "../styles";
 import ComputerCanvas from "../components/HackerRoom.jsx";
 import Wizard from "../components/Wizard.jsx";
-import FloatingNavigation from "../components/FloatingNavigation.jsx";
 import ComputersCanvas from "../components/HackerRoom.jsx";
 import WizardSec from "./WizardSec.jsx";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
+import FloatingNavigation from "../components/FloatingNavigation.jsx";
 gsap.registerPlugin(ScrollTrigger);
+import TopBoxBar from "../components/TopBoxBar.jsx";
+import ChatBox from "../components/Chatbox.jsx";
+import Messagebar from "../components/Messagebar.jsx";
+import { MessageProvider } from "../MessageContext.jsx";
+import Head from "../components/Head.jsx";
 
 const Hero = () => {
   const [isButtonVisible, setIsButtonVisible] = useState(true);
@@ -93,7 +97,6 @@ const Hero = () => {
     };
   }, []);
 
-  // Improved typing effect for roles
   useEffect(() => {
     let timeout;
     const currentRole = roles[currentTextIndex];
@@ -103,23 +106,19 @@ const Hero = () => {
 
     const typeEffect = () => {
       if (!isDeleting && idx <= currentRole.length) {
-        // Still typing
         setDisplayText(currentRole.substring(0, idx));
         idx++;
 
-        // When typing is complete, mark it complete and set a pause
         if (idx > currentRole.length) {
           setIsTypingComplete(true);
-          pauseTime = 30; // Pause for 30 × 50ms = 1.5s
+          pauseTime = 30;
         }
 
         timeout = setTimeout(typeEffect, 80);
       } else if (isDeleting && idx >= 0) {
-        // Deleting
         setDisplayText(currentRole.substring(0, idx));
         idx--;
 
-        // If we've deleted everything, move to next word
         if (idx === 0) {
           isDeleting = false;
           setCurrentTextIndex((prev) => (prev + 1) % roles.length);
@@ -127,11 +126,9 @@ const Hero = () => {
 
         timeout = setTimeout(typeEffect, 40);
       } else if (pauseTime > 0) {
-        // In pause state after typing is complete
         pauseTime--;
         timeout = setTimeout(typeEffect, 50);
       } else {
-        // Start deleting
         setIsTypingComplete(false);
         isDeleting = true;
         timeout = setTimeout(typeEffect, 100);
@@ -144,7 +141,6 @@ const Hero = () => {
   }, [currentTextIndex]);
 
   const handlePointerDown = (e) => {
-    // Save the rotation on pointer down
     setRotation([
       e.object.rotation.x,
       e.object.rotation.y,
@@ -152,9 +148,7 @@ const Hero = () => {
     ]);
   };
 
-  // GSAP animations
   useGSAP(() => {
-    // Animate the heading with a split text effect
     if (headingRef.current) {
       const text = headingRef.current;
       gsap.fromTo(
@@ -164,7 +158,6 @@ const Hero = () => {
       );
     }
 
-    // Animate the project cards with staggered appearance
     if (projectsRef.current) {
       const cards = projectsRef.current.querySelectorAll(".project-card");
       gsap.fromTo(
@@ -191,14 +184,17 @@ const Hero = () => {
     <>
       <section
         ref={sectionRef}
-        className="relative w-full min-h-screen mx-auto overflow-visible pb-24"
+        className="relative w-full min-h-screen mx-auto overflow-visible pb-24 mt-36"
       >
-        {/* Add FloatingNavigation */}
-        <FloatingNavigation />
+        <div className="absolute inset-0 overflow-hidden opacity-30">
+          <div className="stars-sm"></div>
+          <div className="stars-md"></div>
+          <div className="stars-lg"></div>
+        </div>
 
-        <div className="absolute inset-0 top-[120px] max-w-7xl mx-auto flex flex-col items-start gap-5 px-6 z-10">
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center max-w-7xl mx-auto px-6 pt-20 h-screen">
           <motion.div
-            className="flex flex-col items-start gap-5 w-full"
+            className="flex-1 flex flex-col items-start w-full lg:max-w-[60%]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, ease: "easeInOut" }}
@@ -256,7 +252,6 @@ const Hero = () => {
                 blockchain solutions, and AI integration.
               </motion.p>
 
-              {/* Key achievements badges */}
               <div className="mt-6 flex flex-wrap gap-3">
                 <motion.span
                   className="px-3 py-1 bg-purple-900/30 border border-purple-500/30 rounded-full text-sm text-purple-300"
@@ -297,7 +292,6 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Project highlights - Moved to below the text on the left side */}
             <motion.div
               ref={projectsRef}
               className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 w-full max-w-xl mb-20"
@@ -329,27 +323,31 @@ const Hero = () => {
               ))}
             </motion.div>
           </motion.div>
-        </div>
 
-        {/* 3D Model Section - Moved higher up and to the right */}
-        <div className="absolute bottom-20 md:bottom-32 right-0 md:right-5 lg:right-10 w-full max-w-[90%] h-[75vh] z-0">
-          <WizardSec />
+          <motion.div
+            className="hidden lg:block flex-1 h-[600px] w-full max-w-[450px] relative"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.5, delay: 0.8 }}
+          >
+            <div className="chatbox-container absolute top-0 right-0 w-full h-full">
+              <div className="chatbox-wrapper relative w-full h-full rounded-2xl shadow-2xl">
+                <MessageProvider>
+                  <ChatBox />
+                </MessageProvider>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
         {isButtonVisible && (
           <motion.div
-            className="fixed bottom-7 left-0 right-0 w-full z-20 flex justify-center"
+            className="fixed bottom-20 right-24 w-full z-20 flex justify-center"
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 2, duration: 0.5 }}
           >
-            <a href="#about">
-              <Button
-                name="Let's work together"
-                isBeam
-                containerClass="sm:w-fit w-full sm:min-w-96 hover:scale-105 transition-transform duration-300"
-              />
-            </a>
+            <FloatingNavigation />
           </motion.div>
         )}
       </section>
