@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "node server/serverfinal.js",
-    "build": "vite build",
+    "build": "vite build && cpx -r dist/**/* ../server/dist",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node ../server/serverfinal.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -59,6 +59,7 @@
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.1.2",
+    "cpx": "^1.5.0",
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-hooks": "^5.0.0",
