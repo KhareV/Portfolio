@@ -10,7 +10,7 @@ import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Import the custom prompt
-import getSystemPrompt from "./src/api/chat/prompt.js";
+import getSystemPrompt from "../src/api/chat/prompt.js";
 
 // Load environment variables
 dotenv.config();
@@ -73,27 +73,33 @@ const server = http.createServer((req, res) => {
             contents: [
               {
                 role: "user",
-                parts: [{ text: prompt + "\n\nUser: " + question }]
-              }
+                parts: [{ text: prompt + "\n\nUser: " + question }],
+              },
             ],
             generationConfig: {
               temperature: 0.7,
               maxOutputTokens: 800,
-            }
+            },
           });
 
           // Extract the response text
           const response = result.response;
-          
+
           if (response) {
             // Fix: text is a method, not a property - need to call it as a function
             const answer = response.text();
-            
+
             // Make sure answer is a string before using substring
-            if (typeof answer === 'string') {
-              console.log("AI response generated:", answer.substring(0, 50) + "...");
+            if (typeof answer === "string") {
+              console.log(
+                "AI response generated:",
+                answer.substring(0, 50) + "..."
+              );
             } else {
-              console.log("AI response generated but not a string, type:", typeof answer);
+              console.log(
+                "AI response generated but not a string, type:",
+                typeof answer
+              );
             }
 
             res.writeHead(200, {
@@ -110,24 +116,30 @@ const server = http.createServer((req, res) => {
 
           // Fallback to mock responses if AI fails
           const mockResponses = {
-            hello: "<span class='text-green-500 text-xl font-bold'>Hello there! How can I help you today?</span>",
-            "who are you": "<span class='text-blue-500 text-xl font-bold'>I'm Vedant's virtual assistant. I'm here to chat about Vedant's projects, skills, and experience. I try to respond in his casual style!</span>",
-            "who r u": "<span class='text-blue-500 text-xl font-bold'>hey! i'm vedant's virtual assistant. i chat about vedant's projects, skills, and background in his casual style.</span>",
-            "what projects": "<span class='text-purple-500 text-xl font-bold'>i've worked on several exciting projects: <br>- MedWE: medicine delivery platform (SIH Finalist)<br>- SkillBridge: educational lending platform with blockchain<br>- Voyageur: AI Travel Recommendation System<br>- PropertyDhundo: Real Estate Marketplace</span>",
-            "contact": "<span class='text-amber-500 text-xl font-bold'>you can reach me at kharevedant05@gmail.com or through <a href='https://www.linkedin.com/in/kharevedant05/' target='_blank' class='text-blue-500 hover:underline'>linkedin</a></span>",
-            "default": '<span class="font-mono bg-black text-xl p-3 border-4 border-double border-green-400 text-green-400 uppercase tracking-widest">hey! i\'m vedant\'s chatbot. ask me anything about vedant\'s projects, skills or background!</span>'
+            hello:
+              "<span class='text-green-500 text-xl font-bold'>Hello there! How can I help you today?</span>",
+            "who are you":
+              "<span class='text-blue-500 text-xl font-bold'>I'm Vedant's virtual assistant. I'm here to chat about Vedant's projects, skills, and experience. I try to respond in his casual style!</span>",
+            "who r u":
+              "<span class='text-blue-500 text-xl font-bold'>hey! i'm vedant's virtual assistant. i chat about vedant's projects, skills, and background in his casual style.</span>",
+            "what projects":
+              "<span class='text-purple-500 text-xl font-bold'>i've worked on several exciting projects: <br>- MedWE: medicine delivery platform (SIH Finalist)<br>- SkillBridge: educational lending platform with blockchain<br>- Voyageur: AI Travel Recommendation System<br>- PropertyDhundo: Real Estate Marketplace</span>",
+            contact:
+              "<span class='text-amber-500 text-xl font-bold'>you can reach me at kharevedant05@gmail.com or through <a href='https://www.linkedin.com/in/kharevedant05/' target='_blank' class='text-blue-500 hover:underline'>linkedin</a></span>",
+            default:
+              "<span class=\"font-mono bg-black text-xl p-3 border-4 border-double border-green-400 text-green-400 uppercase tracking-widest\">hey! i'm vedant's chatbot. ask me anything about vedant's projects, skills or background!</span>",
           };
 
           // Simple keyword matching with more flexible matching
           let answer = mockResponses.default;
           const questionLower = question.toLowerCase();
-          
+
           Object.keys(mockResponses).forEach((key) => {
             if (questionLower.includes(key)) {
               answer = mockResponses[key];
             }
           });
-          
+
           console.log("Using fallback response");
           res.writeHead(200, {
             "Content-Type": "application/json",

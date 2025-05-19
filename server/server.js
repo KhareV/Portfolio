@@ -23,15 +23,18 @@ app.use(express.static(join(__dirname, "dist")));
 app.post("/api/chat", (req, res) => {
   try {
     const { question } = req.body;
-    
+
     console.log("Received chat request:", question);
 
     // Mock responses as a fallback
     const mockResponses = {
       hello: "Hello there! How can I help you today?",
-      "who are you": "I'm Vedant's virtual assistant. I can tell you about Vedant's projects, skills, and experience.",
-      "what projects": "Vedant has worked on several projects including MedWE, SkillBridge, Voyageur, PropertyDhundo, and this 3D Portfolio.",
-      contact: "You can contact Vedant at kharevedant05@gmail.com or through LinkedIn.",
+      "who are you":
+        "I'm Vedant's virtual assistant. I can tell you about Vedant's projects, skills, and experience.",
+      "what projects":
+        "Vedant has worked on several projects including MedWE, SkillBridge, Voyageur, PropertyDhundo, and this 3D Portfolio.",
+      contact:
+        "You can contact Vedant at kharevedant05@gmail.com or through LinkedIn.",
       default: "Thanks for your message! Vedant will get back to you soon.",
     };
 
@@ -46,7 +49,9 @@ app.post("/api/chat", (req, res) => {
     res.json({ answer });
   } catch (error) {
     console.error("Error in chat API:", error);
-    res.status(500).json({ error: "Failed to process message", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Failed to process message", details: error.message });
   }
 });
 

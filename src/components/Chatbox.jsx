@@ -124,11 +124,11 @@ const ChatBox = () => {
     if (scrollableDiv) {
       // Add the wheel event listener with the passive option set to false
       const wheelHandler = (e) => handleWheel(e);
-      scrollableDiv.addEventListener('wheel', wheelHandler, { passive: true });
-      
+      scrollableDiv.addEventListener("wheel", wheelHandler, { passive: true });
+
       // Cleanup function to remove event listener
       return () => {
-        scrollableDiv.removeEventListener('wheel', wheelHandler);
+        scrollableDiv.removeEventListener("wheel", wheelHandler);
       };
     }
   }, [isScrolling]); // Re-add when isScrolling changes
