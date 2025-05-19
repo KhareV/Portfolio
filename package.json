@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "node server.js",
-    "server:basic": "node server-basic.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server:basic\"",
+    "server": "node server/server.js",
+    "server:basic": "node server/server-basic.js",
+    "server:merged": "node server/merged-server.js",
+    "server:final": "node server/server-final.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run server:final\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node server-basic.js"
+    "start": "node server/server-final.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -26,9 +28,10 @@
     "body-parser": "^2.2.0",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "framer-motion": "^11.11.10",
+    "fs": "^0.0.1-security",
     "gsap": "^3.12.5",
     "leaflet": "^1.9.4",
     "lenis": "^1.3.1",
@@ -37,6 +40,7 @@
     "lucide-react": "^0.454.0",
     "motion": "^12.10.1",
     "next": "^15.0.2",
+    "path": "^0.12.7",
     "react": "^18.3.1",
     "react-datamaps-india": "^0.6.0",
     "react-dom": "^18.3.1",
@@ -49,7 +53,8 @@
     "tailwind-scrollbar": "^4.0.2",
     "three": "^0.169.0",
     "three-stdlib": "^2.33.0",
-    "typewriter-effect": "^2.22.0"
+    "typewriter-effect": "^2.22.0",
+    "url": "^0.11.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
