@@ -149,11 +149,14 @@ const ChatBox = () => {
   const getResponse = async () => {
     try {
       // Use the Express server URL instead of relative path
-      const response = await fetch("http://localhost:3001/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: currMsg }),
-      });
+      const response = await fetch(
+        "https://portfolio-server-91gu.onrender.com/api/chat",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: currMsg }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`API responded with status: ${response.status}`);
