@@ -51,7 +51,7 @@ const FloatingNavigation = () => {
       icon: (
         <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-yellow-400" />
       ),
-      link: "https://github.com/kharedev247",
+      link: "https://github.com/KhareV",
     },
   ];
 
