@@ -66,7 +66,7 @@ const Github = () => {
             <ItemLayout className="flex-1 min-w-0 flex items-center justify-center p-4 border rounded-lg shadow-lg">
               <img
                 className="w-full h-auto"
-                src={`${GITHUB_STATS_URL}/api/top-langs?username=${USERNAME}&${new URLSearchParams(
+                src={`https://github-readme-stats.vercel.app/api/top-langs?username=${USERNAME}&${new URLSearchParams(
                   commonProps
                 )}`}
                 alt="Most Used Programming Languages"
@@ -78,7 +78,7 @@ const Github = () => {
             <ItemLayout className="flex-1 min-w-0 flex items-center justify-center p-4 border rounded-lg shadow-lg">
               <img
                 className="w-full h-auto"
-                src={`${GITHUB_STATS_URL}/api?username=${USERNAME}&${new URLSearchParams(
+                src={`https://github-readme-stats.vercel.app/api?username=${USERNAME}&${new URLSearchParams(
                   commonProps
                 )}`}
                 alt="GitHub Statistics"
@@ -103,7 +103,7 @@ const Github = () => {
             <ItemLayout className="flex-1 min-w-0 flex items-center justify-center p-4 border rounded-lg shadow-lg">
               <img
                 className="w-full h-auto"
-                src={`${GITHUB_STREAK_STATS_URL}?user=${USERNAME}&theme=dark&hide_border=true&type=svg&background=EB545400&ring=FEFE5B&currStreakLabel=FEFE5B`}
+                src={`https://github-readme-streak-stats.herokuapp.com?user=${USERNAME}&theme=dark&hide_border=true&type=svg&background=EB545400&ring=FEFE5B&currStreakLabel=FEFE5B`}
                 alt="GitHub Contribution Streak"
                 loading="lazy"
               />
@@ -119,7 +119,7 @@ const Github = () => {
               >
                 <img
                   className="w-full h-auto"
-                  src={`${GITHUB_STATS_URL}/api/pin/?username=${USERNAME}&repo=Property-Dhundo-Property-Buying-and-Selling
+                  src={`https://github-readme-stats.vercel.app/api/pin/?username=${USERNAME}&repo=Property-Dhundo-Property-Buying-and-Selling
 &${new URLSearchParams({
                     ...commonProps,
                     description_lines_count: "2",
