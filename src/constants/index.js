@@ -25,45 +25,10 @@ export const navLinks = [
   },
 ];
 
-export const clientReviews = [
-  {
-    id: 1,
-    name: "Emily Johnson",
-    position: "Marketing Director at GreenLeaf",
-    img: "assets/review1.png",
-    review:
-      "Working with Adrian was a fantastic experience. He transformed our outdated website into a modern, user-friendly platform. His attention to detail and commitment to quality are unmatched. Highly recommend him for any web dev projects.",
-  },
-  {
-    id: 2,
-    name: "Mark Rogers",
-    position: "Founder of TechGear Shop",
-    img: "assets/review2.png",
-    review:
-      "Adrian’s expertise in web development is truly impressive. He delivered a robust and scalable solution for our e-commerce site, and our online sales have significantly increased since the launch. He’s a true professional! Fantastic work.",
-  },
-  {
-    id: 3,
-    name: "John Dohsas",
-    position: "Project Manager at UrbanTech ",
-    img: "assets/review3.png",
-    review:
-      "I can’t say enough good things about Adrian. He was able to take our complex project requirements and turn them into a seamless, functional website. His problem-solving abilities are outstanding.",
-  },
-  {
-    id: 4,
-    name: "Ether Smith",
-    position: "CEO of BrightStar Enterprises",
-    img: "assets/review4.png",
-    review:
-      "Adrian was a pleasure to work with. He understood our requirements perfectly and delivered a website that exceeded our expectations. His skills in both frontend backend dev are top-notch.",
-  },
-];
-
 export const myProjects = [
   {
     title: "PropertyDhundo-Your Own Broker",
-    desc: "PropertyDhundo - Your Own Broker simplifies property buying and selling by connecting buyers and sellers directly, eliminating traditional brokers. It offers the tools needed for informed decisions and easy transaction management in one place.",
+    desc: "Property platform connecting buyers and sellers directly, eliminating traditional brokers with tools for informed decisions.",
     href: "https://github.com/KhareV/Property-Dhundo-Property-Buying-and-Selling",
     texture: "/textures/project/project1.mp4",
     logo: "/image/logo.png",
@@ -94,16 +59,11 @@ export const myProjects = [
         name: "MongoDB",
         path: "/textures/project/mongodb.png",
       },
-      {
-        id: 5,
-        name: "NextAuth",
-        path: "/textures/project/nextauth.png",
-      },
     ],
   },
   {
     title: "MedWe - Your One-Stop Pharmacy",
-    desc: "MedWe is your all-in-one pharmacy solution, offering a wide range of medications, health products, and expert advice to meet all your healthcare needs in one convenient location.",
+    desc: "All-in-one pharmacy solution offering medications, health products, and expert healthcare advice.",
     href: "https://github.com/KhareV/SIH-MedWE-Pharmacy-Website",
     texture: "/textures/project/project2.mp4",
     logo: "/image/logo2.png",
@@ -134,16 +94,11 @@ export const myProjects = [
         name: "MongoDB",
         path: "/textures/project/mongodb.png",
       },
-      {
-        id: 5,
-        name: "NextAuth",
-        path: "/textures/project/nextauth.png",
-      },
     ],
   },
   {
     title: "ChatApp",
-    desc: "ChatApp is a real-time messaging platform that enables seamless communication among users through instant messaging and group chats, ensuring an engaging user experience.",
+    desc: "Real-time messaging platform with instant messaging and group chat functionality.",
     href: "https://github.com/KhareV/ChatApp",
     texture: "/textures/project/project3.mp4",
     logo: "/assets/project-logo3.png",
@@ -175,7 +130,7 @@ export const myProjects = [
   },
   {
     title: "Pixabay Gallery",
-    desc: "Pixabay Gallery is a user-friendly platform that showcases stunning images and videos sourced from Pixabay. Discover and download high-quality, royalty-free content for your creative projects with ease.",
+    desc: "Image gallery platform showcasing high-quality, royalty-free content from Pixabay.",
     href: "https://github.com/KhareV/Pixabay-Gallery",
     texture: "/textures/project/project4.mp4",
     logo: "/assets/project-logo4.png",
@@ -205,7 +160,7 @@ export const myProjects = [
   },
   {
     title: "Imaginify - AI Photo Manipulation App",
-    desc: "Imaginify is a groundbreaking Software-as-a-Service application that empowers users to create stunning photo manipulations using AI technology. With features like AI-driven image editing, a payments system, and a credits-based model.",
+    desc: "AI-powered SaaS application for photo editing with credits-based system and payment integration.",
     href: "https://github.com/KhareV/Nodejs-OpenAI-Image-Generator",
     texture: "/textures/project/project5.mp4",
     logo: "/assets/project-logo5.png",
@@ -242,35 +197,41 @@ export const myProjects = [
 
 export const calculateSizes = (isSmall, isMobile, isTablet) => {
   return {
-    deskScale: isSmall ? 0.05 : isMobile ? 0.06 : 0.065,
-    deskPosition: isMobile ? [0.5, -4.5, 0] : [0.25, -5.5, 0],
-    cubePosition: isSmall
-      ? [4, -5, 0]
+    deskScale: isSmall ? 0.04 : isMobile ? 0.05 : isTablet ? 0.06 : 0.065,
+    deskPosition: isSmall
+      ? [0.5, -4, 0]
       : isMobile
-      ? [5, -5, 0]
+      ? [0.5, -4.5, 0]
+      : isTablet
+      ? [0.3, -5, 0]
+      : [0.25, -5.5, 0],
+    cubePosition: isSmall
+      ? [3, -4.5, 0]
+      : isMobile
+      ? [4, -5, 0]
       : isTablet
       ? [5, -5, 0]
       : [9, -5.5, 0],
     reactLogoPosition: isSmall
-      ? [3, 4, 0]
+      ? [2.5, 3.5, 0]
       : isMobile
-      ? [5, 4, 0]
+      ? [3, 4, 0]
       : isTablet
       ? [5, 4, 0]
       : [12, 3, 0],
     ringPosition: isSmall
-      ? [-5, 7, 0]
+      ? [-4, 6, 0]
       : isMobile
-      ? [-10, 10, 0]
+      ? [-5, 7, 0]
       : isTablet
-      ? [-12, 10, 0]
+      ? [-10, 10, 0]
       : [-24, 10, 0],
     targetPosition: isSmall
-      ? [-5, -10, -10]
+      ? [-4, -8, -8]
       : isMobile
-      ? [-9, -10, -10]
+      ? [-5, -10, -10]
       : isTablet
-      ? [-11, -7, -10]
+      ? [-9, -7, -10]
       : [-13, -13, -10],
   };
 };
