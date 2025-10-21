@@ -86,8 +86,180 @@
   }
 }
 
+/* ====== TABLET OPTIMIZATIONS (768px - 1024px) ====== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Hero section tablet fixes */
+  section#home {
+    padding: 1.5rem 1rem !important;
+  }
+
+  .hero-title {
+    font-size: 2.5rem !important;
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem !important;
+  }
+
+  /* About section tablet */
+  section#about > div {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.25rem !important;
+    padding: 1rem !important;
+  }
+
+  section#about .grid-container {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 320px !important;
+    padding: 1.5rem !important;
+  }
+
+  .about-globe {
+    height: 300px !important;
+    max-width: 350px !important;
+    margin: 0 auto !important;
+  }
+
+  .grid-headtext {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .grid-subtext {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Profile image sizing */
+  section#about img {
+    max-height: 300px !important;
+    object-fit: cover !important;
+  }
+
+  /* Projects section tablet */
+  .project-canvas-container {
+    height: 350px !important;
+    max-width: 450px;
+  }
+
+  .project-title {
+    font-size: 2.25rem !important;
+  }
+
+  /* Contact section tablet */
+  section#contact {
+    padding: 2rem 1.5rem !important;
+  }
+
+  .contact-container {
+    padding: 2rem 1.5rem !important;
+    max-width: 95% !important;
+    margin: 0 auto !important;
+  }
+
+  .contact-container .head-text {
+    font-size: 2.25rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .contact-container p {
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+  }
+
+  .contact-container form {
+    width: 100% !important;
+  }
+
+  .contact-container input,
+  .contact-container textarea {
+    font-size: 1rem !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Work experience tablet */
+  .work-container {
+    grid-template-columns: 1fr 2fr !important;
+    gap: 2rem !important;
+  }
+
+  .work-canvas {
+    height: 380px !important;
+  }
+
+  .work-content {
+    padding: 1.5rem !important;
+  }
+
+  /* Navigation tablet */
+  .floating-navigation {
+    bottom: 1.5rem;
+    right: 2rem;
+  }
+
+  /* Global container fixes for tablets */
+  .c-space {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .max-w-7xl {
+    max-width: 100% !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* Prevent text overflow and ensure proper spacing */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  section {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Prevent text overflow */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+}
+
 /* Tablet landscape optimizations */
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .hero-container {
+    flex-direction: row !important;
+    min-height: 100vh;
+  }
+
+  .chatbox-container {
+    position: absolute !important;
+    right: 2rem !important;
+    top: 50% !important;
+    transform: translateY(-50%);
+    height: 80vh !important;
+    max-height: 700px !important;
+  }
+
+  .about-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
   .floating-navigation {
     bottom: 1rem;
     right: 2rem;
@@ -522,5 +694,73 @@
 
   .about-marquee-text {
     font-size: 2rem !important;
+  }
+}
+
+/* ====== IPAD PORTRAIT SPECIFIC (768px - 834px) ====== */
+@media (min-width: 768px) and (max-width: 834px) and (orientation: portrait) {
+  /* Hero adjustments for iPad portrait */
+  .hero-container {
+    flex-direction: column !important;
+    padding: 2rem 1.5rem !important;
+  }
+
+  .chatbox-container {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 600px !important;
+    height: 600px !important;
+    margin: 2rem auto 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+  }
+
+  /* About grid for iPad portrait */
+  .about-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
+    padding: 1rem !important;
+  }
+
+  /* Projects for iPad portrait */
+  .project-section {
+    flex-direction: column !important;
+    padding: 2rem 1.5rem !important;
+  }
+
+  .project-canvas-container {
+    width: 100% !important;
+    height: 400px !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+  }
+
+  /* Contact for iPad portrait */
+  .contact-container {
+    max-width: 90% !important;
+    margin: 0 auto !important;
+  }
+
+  /* Work experience for iPad portrait */
+  .work-container {
+    grid-template-columns: 1fr 1.5fr !important;
+  }
+}
+
+/* ====== IPAD PRO PORTRAIT (1024px - 1112px) ====== */
+@media (min-width: 1024px) and (max-width: 1112px) and (orientation: portrait) {
+  .hero-container {
+    flex-direction: row !important;
+    gap: 2rem !important;
+  }
+
+  .chatbox-container {
+    height: 700px !important;
+    max-width: 450px !important;
+  }
+
+  .about-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }

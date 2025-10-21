@@ -48,12 +48,13 @@ const About = () => {
           layout.grid.cols3,
           "xl:grid-rows-6",
           spacing.grid.gap,
-          "h-full"
+          "h-full",
+          "px-4 sm:px-6 md:px-8"
         )}
       >
         {/* First Grid Item */}
         <motion.div
-          className="col-span-1 xl:row-span-3 relative"
+          className="col-span-1 md:col-span-1 xl:row-span-3 relative"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -61,7 +62,7 @@ const About = () => {
           transition={{ delay: 0.3 }}
         >
           {/* Background Container */}
-          <div className="w-4/5 mx-auto bg-gray-920 rounded-lg relative">
+          <div className="w-full md:w-4/5 mx-auto bg-gray-920 rounded-lg relative">
             {/* Marquee Container */}
             <div className="absolute inset-0 w-full h-full">
               <div className={cn(spacing.section.paddingY, "mt-96 pt-48")}>
@@ -240,7 +241,7 @@ const About = () => {
 
         {/* Second Grid Item */}
         <motion.div
-          className="col-span-1 xl:row-span-3"
+          className="col-span-1 md:col-span-1 xl:row-span-3"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -269,7 +270,7 @@ const About = () => {
 
         {/* Third Grid Item */}
         <motion.div
-          className="col-span-1 xl:row-span-4"
+          className="col-span-1 md:col-span-1 xl:row-span-4"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -432,7 +433,7 @@ const About = () => {
 
         {/* Fourth Grid Item */}
         <motion.div
-          className="xl:col-span-2 xl:row-span-3"
+          className="col-span-1 md:col-span-2 xl:col-span-2 xl:row-span-3"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -465,7 +466,7 @@ const About = () => {
 
         {/* Fifth Grid Item */}
         <motion.div
-          className="xl:col-span-1 xl:row-span-2"
+          className="col-span-1 md:col-span-1 xl:col-span-1 xl:row-span-2"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}

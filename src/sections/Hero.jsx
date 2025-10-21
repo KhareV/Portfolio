@@ -217,16 +217,16 @@ const Hero = () => {
           className={cn(
             "relative z-10 w-full max-w-7xl mx-auto",
             layout.flex.between,
-            "flex-col lg:flex-row items-start gap-8 lg:gap-12",
+            "flex-col md:flex-row lg:flex-row items-start gap-6 md:gap-8 lg:gap-12",
             spacing.container.padding,
-            "pt-20 sm:pt-20 md:pt-20 lg:pt-20 min-h-screen"
+            "pt-16 md:pt-20 min-h-screen"
           )}
         >
           <motion.div
             className={cn(
               "flex-1",
               layout.flex.col,
-              "items-start w-full lg:max-w-[60%]"
+              "items-start w-full md:max-w-[55%] lg:max-w-[60%]"
             )}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -421,13 +421,13 @@ const Hero = () => {
 
           <motion.div
             className={cn(
-              "flex-1 h-[500px] sm:h-[600px] md:h-[700px] lg:h-[800px] w-full max-w-[450px] relative mt-8 sm:mt-0"
+              "w-full md:w-[45%] lg:w-[40%] h-[500px] sm:h-[550px] md:h-[600px] lg:h-[700px] xl:h-[800px] relative mt-8 md:mt-0 flex-shrink-0"
             )}
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.5, delay: 0.8 }}
           >
-            <div className="chatbox-container absolute top-12 right-0 w-full h-full">
+            <div className="chatbox-container relative md:absolute top-0 md:top-12 right-0 w-full h-full">
               <div className="chatbox-wrapper relative w-full h-full rounded-2xl shadow-2xl">
                 <MessageProvider>
                   <Suspense
