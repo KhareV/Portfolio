@@ -13,13 +13,40 @@ const Modal = ({ onClose, toggle }) => {
 
   useEffect(() => {
     // Prevent body scroll when modal is open
+    const originalOverflow = document.body.style.overflow;
+
     document.body.style.overflow = "hidden";
 
     return () => {
-      document.body.style.overflow = "unset";
+      // Restore original overflow only
+      document.body.style.overflow = originalOverflow || "";
+      
+      // Force reset cursor state when modal closes
+      setTimeout(() => {
+        // Trigger mouseleave on all buttons to reset cursor
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+          const leaveEvent = new MouseEvent('mouseleave', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          });
+          button.dispatchEvent(leaveEvent);
+        });
+        
+        // Reset cursor classes
+        const cursor = document.querySelector('.cursor');
+        const cursorOuter = document.querySelector('.cursor-outer');
+        if (cursor) {
+          cursor.classList.remove('cursor-hover', 'cursor-link', 'cursor-button', 'cursor-clicked');
+          cursor.style.transition = '';
+        }
+        if (cursorOuter) {
+          cursorOuter.classList.remove('cursor-outer-hover', 'cursor-outer-clicked');
+        }
+      }, 50);
     };
   }, []);
-
   if (!modalRoot) {
     console.warn("Modal root element not found");
     return null;

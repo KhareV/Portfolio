@@ -9,11 +9,8 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import FloatingNavigation from "../components/FloatingNavigation.jsx";
 gsap.registerPlugin(ScrollTrigger);
-import TopBoxBar from "../components/TopBoxBar.jsx";
 const ChatBox = lazy(() => import("../components/Chatbox.jsx"));
-import Messagebar from "../components/Messagebar.jsx";
 import { MessageProvider } from "../MessageContext.jsx";
-import Head from "../components/Head.jsx";
 import {
   spacing,
   layout,

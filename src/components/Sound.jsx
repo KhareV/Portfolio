@@ -2,41 +2,28 @@ import { motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Modal from "./Modal";
+import { useLoadingContext } from "../contexts/LoadingContext";
 
 const Sound = () => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const initialRenderRef = useRef(true);
+  const hasShownModalRef = useRef(false);
+  const { isAppReady } = useLoadingContext();
 
   useEffect(() => {
-    if (!initialRenderRef.current) return;
+    if (!isAppReady) return; // Wait for loading to complete
+    if (hasShownModalRef.current) return; // Already shown modal this session
 
-    // Small delay to ensure modal root is ready
+    console.log("App is ready, showing music prompt...");
+
+    // Small delay after loading completes to ensure smooth transition
     const initTimer = setTimeout(() => {
-      const consent = localStorage.getItem("musicConsent");
-      const consentTime = localStorage.getItem("consentTime");
-      const consentIsValid =
-        consent &&
-        consentTime &&
-        new Date(consentTime).getTime() + 3 * 24 * 60 * 60 * 1000 >
-          new Date().getTime();
-
-      if (!consentIsValid) {
-        // Show modal after a brief delay
-        setShowModal(true);
-      } else {
-        setIsPlaying(consent === "true");
-        if (consent === "true") {
-          // Add event listeners for first interaction
-          document.addEventListener("click", handleFirstUserInteraction);
-          document.addEventListener("keydown", handleFirstUserInteraction);
-          document.addEventListener("touchstart", handleFirstUserInteraction);
-        }
-      }
-
-      initialRenderRef.current = false;
-    }, 500);
+      // Always show modal on page load (removed localStorage check)
+      console.log("Showing music modal...");
+      setShowModal(true);
+      hasShownModalRef.current = true;
+    }, 1500); // Delay after loading completes
 
     return () => {
       clearTimeout(initTimer);
@@ -44,7 +31,7 @@ const Sound = () => {
       document.removeEventListener("keydown", handleFirstUserInteraction);
       document.removeEventListener("touchstart", handleFirstUserInteraction);
     };
-  }, []);
+  }, [isAppReady]);
 
   // Effect to handle audio when isPlaying changes
   useEffect(() => {
@@ -77,23 +64,79 @@ const Sound = () => {
     document.addEventListener("click", handleFirstUserInteraction);
     document.addEventListener("keydown", handleFirstUserInteraction);
     document.addEventListener("touchstart", handleFirstUserInteraction);
-    localStorage.setItem("musicConsent", "true");
-    localStorage.setItem("consentTime", new Date().toISOString());
     setShowModal(false);
+
+    // Restore overflow and force complete cursor reset
+    setTimeout(() => {
+      document.body.style.overflow = "";
+
+      // Remove hover classes from cursor elements
+      const cursor = document.querySelector(".cursor");
+      const cursorOuter = document.querySelector(".cursor-outer");
+      if (cursor) {
+        cursor.classList.remove(
+          "cursor-hover",
+          "cursor-link",
+          "cursor-button",
+          "cursor-clicked"
+        );
+      }
+      if (cursorOuter) {
+        cursorOuter.classList.remove(
+          "cursor-outer-hover",
+          "cursor-outer-clicked"
+        );
+      }
+
+      // Force a mouse move event to reactivate custom cursor
+      const moveEvent = new MouseEvent("mousemove", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      });
+      document.dispatchEvent(moveEvent);
+    }, 100);
   };
 
   const handleClose = () => {
     setIsPlaying(false);
-    localStorage.setItem("musicConsent", "false");
-    localStorage.setItem("consentTime", new Date().toISOString());
     setShowModal(false);
+
+    // Restore overflow and force complete cursor reset
+    setTimeout(() => {
+      document.body.style.overflow = "";
+
+      // Remove hover classes from cursor elements
+      const cursor = document.querySelector(".cursor");
+      const cursorOuter = document.querySelector(".cursor-outer");
+      if (cursor) {
+        cursor.classList.remove(
+          "cursor-hover",
+          "cursor-link",
+          "cursor-button",
+          "cursor-clicked"
+        );
+      }
+      if (cursorOuter) {
+        cursorOuter.classList.remove(
+          "cursor-outer-hover",
+          "cursor-outer-clicked"
+        );
+      }
+
+      // Force a mouse move event to reactivate custom cursor
+      const moveEvent = new MouseEvent("mousemove", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      });
+      document.dispatchEvent(moveEvent);
+    }, 100);
   };
 
   const toggle = () => {
     const newState = !isPlaying;
     setIsPlaying(newState);
-    localStorage.setItem("musicConsent", String(newState));
-    localStorage.setItem("consentTime", new Date().toISOString());
   };
 
   return (
