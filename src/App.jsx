@@ -40,31 +40,28 @@ const AppContent = () => {
     isFullyLoaded,
   });
 
-  // Enhanced mobile detection logic
+  // Enhanced mobile detection logic - ONLY show construction page for actual phones
   const isMobileDevice = () => {
-    // Primary detection: User Agent + Screen Size + Touch Support
+    // Only redirect if screen is actually small (phone-sized)
+    const isPhoneSize = screenWidth > 0 && screenWidth < 768;
+
+    if (!isPhoneSize) {
+      return false; // Desktop/laptop/tablet - show full site
+    }
+
+    // Additional check: User Agent must indicate mobile device
     const userAgent = navigator.userAgent.toLowerCase();
     const mobileUA =
-      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(
+      /android|webos|iphone|ipod|blackberry|iemobile|opera mini|mobile/i.test(
         userAgent
       );
-    const smallScreen = screenWidth <= 768 && screenWidth > 0;
 
-    // Secondary detection: Check for mobile-specific features
-    const hasTouchScreen = touchSupport || "ontouchstart" in window;
-    const hasSmallViewport =
-      window.innerHeight < 800 && window.innerWidth < 1024;
+    // Exclude iPads and tablets (they should see full site)
+    const isTablet = /ipad|tablet/i.test(userAgent);
 
-    // Tablet detection (we'll allow tablets to see the full site)
-    const isTabletDevice =
-      /ipad|android(?!.*mobile)|tablet/i.test(userAgent) && screenWidth >= 768;
-
-    // Final decision: Show mobile page if it's clearly a mobile phone
-    return (
-      (mobileUA && smallScreen) ||
-      (smallScreen && hasTouchScreen && !isTabletDevice) ||
-      isMobile
-    );
+    // Only show construction page if it's a phone-sized screen AND mobile user agent
+    // AND not a tablet
+    return isPhoneSize && mobileUA && !isTablet;
   };
 
   // Show construction page for mobile devices (but allow tablets)

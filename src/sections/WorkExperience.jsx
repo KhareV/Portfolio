@@ -25,7 +25,7 @@ const WorkExperience = () => {
       initial={{ opacity: 0 }}
       whileInView={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-      viewport={{ once: true, amount: 0.5 }}
+      viewport={{ once: true, amount: 0.1 }}
     >
       <div className="w-full text-white-600">
         <motion.p
@@ -33,7 +33,7 @@ const WorkExperience = () => {
           initial={{ x: -50, opacity: 0 }}
           whileInView={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-          viewport={{ once: true, amount: 0.5 }}
+          viewport={{ once: true, amount: 0.1 }}
         >
           My Work Experience
         </motion.p>
@@ -61,15 +61,17 @@ const WorkExperience = () => {
             initial={{ x: 50, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-            viewport={{ once: true, amount: 0.5 }}
+            viewport={{ once: true, amount: 0.1 }}
           >
             <div className={cn(spacing.section.paddingY, spacing.card.padding)}>
               {workExperiences.map((item, index) => (
                 <motion.div
                   key={index}
-                  onClick={() => setAnimationName(item.animation.toLowerCase())}
+                  onClick={() =>
+                    setAnimationName(item.animation?.toLowerCase() || "idle")
+                  }
                   onPointerOver={() =>
-                    setAnimationName(item.animation.toLowerCase())
+                    setAnimationName(item.animation?.toLowerCase() || "idle")
                   }
                   onPointerOut={() => setAnimationName("idle")}
                   className="work-content_container group"
@@ -81,7 +83,7 @@ const WorkExperience = () => {
                     delay: index * 0.1 + 0.3,
                     ease: "easeOut",
                   }}
-                  viewport={{ once: true, amount: 0.5 }}
+                  viewport={{ once: true, amount: 0.1 }}
                 >
                   <div
                     className={cn(

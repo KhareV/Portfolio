@@ -86,7 +86,7 @@ const Contact = () => {
         {/* Marquee Background */}
         <div
           className={cn(
-            "absolute inset-0 opacity-10 z-0 overflow-hidden",
+            "absolute inset-0 opacity-5 md:opacity-10 z-0 overflow-hidden pointer-events-none",
             layout.flex.col,
             "gap-32 mt-56",
             spacing.container.paddingX,

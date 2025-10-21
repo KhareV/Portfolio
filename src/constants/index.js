@@ -267,4 +267,14 @@ export const workExperiences = [
     icon: "/assets/hackathons.png",
     animation: "salute",
   },
+  {
+    id: 4,
+    name: "Dandiya Night Organizer",
+    pos: "Event Organizer",
+    duration: "Nov 2022",
+    title:
+      "Organized a legendary dandiya night, bringing sticks and spins to 500+ attendees with more energy than my coding marathons!",
+    icon: "/assets/dandiya.png",
+    animation: "clapping",
+  },
 ];

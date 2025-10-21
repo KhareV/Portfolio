@@ -205,7 +205,7 @@ const Hero = () => {
     <>
       <section
         ref={sectionRef}
-        className={cn("relative w-full min-h-screen mx-auto overflow-visible")}
+        className={cn("relative w-screen min-h-screen overflow-visible")}
       >
         <div className="absolute inset-0 overflow-hidden opacity-30">
           <div className="stars-sm"></div>
@@ -215,9 +215,9 @@ const Hero = () => {
 
         <div
           className={cn(
-            "relative z-10",
+            "relative z-10 w-full max-w-7xl mx-auto",
             layout.flex.between,
-            "flex-col lg:flex-row items-start",
+            "flex-col lg:flex-row items-start gap-8 lg:gap-12",
             spacing.container.padding,
             "pt-20 sm:pt-20 md:pt-20 lg:pt-20 min-h-screen"
           )}
@@ -421,8 +421,7 @@ const Hero = () => {
 
           <motion.div
             className={cn(
-              responsive.hideOnMobile,
-              "lg:block flex-1 h-[800px] w-full max-w-[450px] relative"
+              "flex-1 h-[500px] sm:h-[600px] md:h-[700px] lg:h-[800px] w-full max-w-[450px] relative mt-8 sm:mt-0"
             )}
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
