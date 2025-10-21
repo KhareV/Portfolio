@@ -13,6 +13,13 @@ const CustomCursor = () => {
     "button, a, input, textarea, select, .interactive";
 
   useEffect(() => {
+    // Initialize cursor position immediately
+    let mousePosition = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    let currentPosition = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    };
+
     const TRAIL_COUNT = 5; // Increasing trail count for smoother effect
     const trails = Array.from({ length: TRAIL_COUNT }, (_, index) => {
       const trail = document.createElement("div");
@@ -24,8 +31,6 @@ const CustomCursor = () => {
     });
     trailsRef.current = trails;
 
-    let mousePosition = { x: 0, y: 0 };
-    let currentPosition = { x: 0, y: 0 };
     let previousTimestamp = 0;
     let velocity = { x: 0, y: 0 };
 
@@ -220,6 +225,16 @@ const CustomCursor = () => {
 
     // Start animation
     requestRef.current = requestAnimationFrame(animate);
+
+    // Initialize cursor position immediately
+    if (cursorRef.current) {
+      cursorRef.current.style.transform = `translate(${currentPosition.x}px, ${currentPosition.y}px)`;
+      cursorRef.current.style.opacity = "1";
+    }
+    if (cursorOuterRef.current) {
+      cursorOuterRef.current.style.transform = `translate(${currentPosition.x}px, ${currentPosition.y}px)`;
+      cursorOuterRef.current.style.opacity = "1";
+    }
 
     // Observe DOM changes to reapply cursor settings if elements reappear
     mutationObserverRef.current = new MutationObserver(() => {

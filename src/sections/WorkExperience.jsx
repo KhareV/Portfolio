@@ -7,13 +7,20 @@ import Developer from "../components/Developer.jsx";
 import CanvasLoader from "../components/CanvasLoader.jsx";
 import { workExperiences } from "../constants/index.js";
 import { useEffect } from "react";
+import {
+  spacing,
+  layout,
+  responsive,
+  transitions,
+  cn,
+} from "../styles/spacing.js";
 
 const WorkExperience = () => {
   const [animationName, setAnimationName] = useState("idle");
 
   return (
     <motion.section
-      className="c-space my-32"
+      className={cn("c-space", spacing.section.marginY, "relative z-10")}
       id="work"
       initial={{ opacity: 0 }}
       whileInView={{ x: 0, opacity: 1 }}
@@ -56,7 +63,7 @@ const WorkExperience = () => {
             transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
             viewport={{ once: true, amount: 0.5 }}
           >
-            <div className="sm:py-10 py-5 sm:px-5 px-2.5">
+            <div className={cn(spacing.section.paddingY, spacing.card.padding)}>
               {workExperiences.map((item, index) => (
                 <motion.div
                   key={index}
@@ -76,7 +83,13 @@ const WorkExperience = () => {
                   }}
                   viewport={{ once: true, amount: 0.5 }}
                 >
-                  <div className="flex flex-col h-full justify-start items-center py-2">
+                  <div
+                    className={cn(
+                      layout.flex.col,
+                      "h-full justify-start items-center",
+                      spacing.text.paddingX
+                    )}
+                  >
                     <div className="work-content_logo">
                       <img className="w-full h-full" src={item.icon} alt="" />
                     </div>
@@ -84,12 +97,22 @@ const WorkExperience = () => {
                     <div className="work-content_bar" />
                   </div>
 
-                  <div className="sm:p-5 px-2.5 py-5">
+                  <div className={cn(spacing.card.padding)}>
                     <p className="font-bold text-white-800">{item.name}</p>
-                    <p className="text-sm mb-5">
+                    <p
+                      className={cn(
+                        responsive.text.sm,
+                        spacing.text.marginBottom
+                      )}
+                    >
                       {item.pos} -- <span>{item.duration}</span>
                     </p>
-                    <p className="group-hover:text-white transition-all ease-in-out duration-500">
+                    <p
+                      className={cn(
+                        "group-hover:text-white",
+                        transitions.default
+                      )}
+                    >
                       {item.title}
                     </p>
                   </div>

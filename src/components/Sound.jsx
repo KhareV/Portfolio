@@ -12,30 +12,34 @@ const Sound = () => {
   useEffect(() => {
     if (!initialRenderRef.current) return;
 
-    const consent = localStorage.getItem("musicConsent");
-    const consentTime = localStorage.getItem("consentTime");
-    const consentIsValid =
-      consent &&
-      consentTime &&
-      new Date(consentTime).getTime() + 3 * 24 * 60 * 60 * 1000 >
-        new Date().getTime();
+    // Small delay to ensure modal root is ready
+    const initTimer = setTimeout(() => {
+      const consent = localStorage.getItem("musicConsent");
+      const consentTime = localStorage.getItem("consentTime");
+      const consentIsValid =
+        consent &&
+        consentTime &&
+        new Date(consentTime).getTime() + 3 * 24 * 60 * 60 * 1000 >
+          new Date().getTime();
 
-    if (!consentIsValid) {
-      // Show modal immediately on mount
-      setShowModal(true);
-    } else {
-      setIsPlaying(consent === "true");
-      if (consent === "true") {
-        // Add event listeners for first interaction
-        document.addEventListener("click", handleFirstUserInteraction);
-        document.addEventListener("keydown", handleFirstUserInteraction);
-        document.addEventListener("touchstart", handleFirstUserInteraction);
+      if (!consentIsValid) {
+        // Show modal after a brief delay
+        setShowModal(true);
+      } else {
+        setIsPlaying(consent === "true");
+        if (consent === "true") {
+          // Add event listeners for first interaction
+          document.addEventListener("click", handleFirstUserInteraction);
+          document.addEventListener("keydown", handleFirstUserInteraction);
+          document.addEventListener("touchstart", handleFirstUserInteraction);
+        }
       }
-    }
 
-    initialRenderRef.current = false;
+      initialRenderRef.current = false;
+    }, 500);
 
     return () => {
+      clearTimeout(initTimer);
       document.removeEventListener("click", handleFirstUserInteraction);
       document.removeEventListener("keydown", handleFirstUserInteraction);
       document.removeEventListener("touchstart", handleFirstUserInteraction);
@@ -57,12 +61,11 @@ const Sound = () => {
   }, [isPlaying]);
 
   const handleFirstUserInteraction = () => {
-    if (!isPlaying && audioRef.current) {
+    if (isPlaying && audioRef.current) {
       audioRef.current.play().catch(() => {
         // Handle play() promise rejection
         console.log("Playback failed, waiting for explicit user interaction");
       });
-      setIsPlaying(true);
     }
     document.removeEventListener("click", handleFirstUserInteraction);
     document.removeEventListener("keydown", handleFirstUserInteraction);

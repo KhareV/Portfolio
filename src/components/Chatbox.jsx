@@ -1,5 +1,13 @@
 "use client";
-import { useState, useContext, useEffect, useRef } from "react";
+import {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  memo,
+  useMemo,
+  useCallback,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Typewriter from "typewriter-effect";
 import {
@@ -14,6 +22,14 @@ import {
   FaArrowRight,
 } from "react-icons/fa6";
 import { useMessage } from "../MessageContext";
+import {
+  spacing,
+  layout,
+  responsive,
+  transitions,
+  borders,
+  cn,
+} from "../styles/spacing";
 
 const ChatBox = () => {
   const { messages, setMessages } = useMessage();
@@ -49,30 +65,47 @@ const ChatBox = () => {
     "↳ i ranked among top 60 teams in multiple hackathons",
   ];
 
-  // Get current date for TopBoxBar
-  const currDate = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  // Get current date for TopBoxBar - memoize to avoid recalculating
+  const currDate = useMemo(() => {
+    return new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }, []);
 
-  const scrollToBottom = () => {
-    if (chatboxRef.current && !isScrolling) {
-      bottomRef.current?.scrollIntoView({
+  const scrollToBottom = useCallback(() => {
+    if (chatboxRef.current && !isScrolling && !isHovered) {
+      // Use scrollTop instead of scrollIntoView to prevent page jump
+      const chatContainer = chatboxRef.current;
+      const targetScroll = chatContainer.scrollHeight;
+
+      // Smooth scroll within the container only
+      chatContainer.scrollTo({
+        top: targetScroll,
         behavior: "smooth",
-        block: "end",
       });
     }
-  };
+  }, [isScrolling, isHovered]);
 
   // Only scroll to bottom when content changes, not on every render
   useEffect(() => {
     // Only auto-scroll if not currently hovering or manually scrolling
     if (!isHovered && !isScrolling) {
-      scrollToBottom();
+      const timeoutId = setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+      return () => clearTimeout(timeoutId);
     }
-  }, [currSection, showResponse, messages, isHovered, isScrolling]);
+  }, [
+    currSection,
+    showResponse,
+    messages.length,
+    isHovered,
+    isScrolling,
+    scrollToBottom,
+  ]);
 
   useEffect(() => {
     const waitBeforeChat = setTimeout(() => setCurrSection(0), 2500);
@@ -90,39 +123,34 @@ const ChatBox = () => {
     };
   }, []);
 
-  // Handle wheel events to prevent propagation when chatbox is scrolled
-  const handleWheel = (e) => {
-    if (chatboxRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = chatboxRef.current;
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
-      const isAtTop = scrollTop <= 0;
+  // Handle wheel events to prevent propagation when chatbox is scrolled - optimized
+  const handleWheel = useCallback(
+    (e) => {
+      if (chatboxRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = chatboxRef.current;
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+        const isAtTop = scrollTop <= 0;
 
-      // Just stop propagation without trying to prevent default
-      // This avoids the passive event listener error
-      if ((e.deltaY > 0 && !isAtBottom) || (e.deltaY < 0 && !isAtTop)) {
-        e.stopPropagation();
-        // Removed preventDefault() call which was causing the error
+        // Just stop propagation without trying to prevent default
+        // This avoids the passive event listener error
+        if ((e.deltaY > 0 && !isAtBottom) || (e.deltaY < 0 && !isAtTop)) {
+          e.stopPropagation();
+        }
+
+        // Set scrolling state to prevent automatic scrolling while user is manually scrolling
+        if (!isScrolling) {
+          setIsScrolling(true);
+        }
       }
-
-      // Set scrolling state to prevent automatic scrolling while user is manually scrolling
-      if (!isScrolling) {
-        setIsScrolling(true);
-
-        // Reset scrolling state after user stops scrolling
-        const scrollTimeout = setTimeout(() => {
-          setIsScrolling(false);
-        }, 1000);
-
-        return () => clearTimeout(scrollTimeout);
-      }
-    }
-  };
+    },
+    [isScrolling]
+  );
 
   // Add passive wheel event listener via useEffect
   useEffect(() => {
     const scrollableDiv = chatboxRef.current;
     if (scrollableDiv) {
-      // Add the wheel event listener with the passive option set to false
+      // Add the wheel event listener with the passive option set to true
       const wheelHandler = (e) => handleWheel(e);
       scrollableDiv.addEventListener("wheel", wheelHandler, { passive: true });
 
@@ -131,22 +159,33 @@ const ChatBox = () => {
         scrollableDiv.removeEventListener("wheel", wheelHandler);
       };
     }
-  }, [isScrolling]); // Re-add when isScrolling changes
+  }, [handleWheel]); // Re-add when handleWheel changes
 
-  // Add touch support for mobile devices
-  const handleTouchStart = () => {
+  // Reset scrolling state after user stops scrolling
+  useEffect(() => {
+    if (isScrolling) {
+      const scrollTimeout = setTimeout(() => {
+        setIsScrolling(false);
+      }, 1000);
+
+      return () => clearTimeout(scrollTimeout);
+    }
+  }, [isScrolling]);
+
+  // Add touch support for mobile devices - optimized with useCallback
+  const handleTouchStart = useCallback(() => {
     setIsHovered(true); // Treat touch as hover for behavior consistency
-  };
+  }, []);
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     // Set a small delay before resetting hover state to avoid immediate auto-scrolling
     setTimeout(() => {
       setIsHovered(false);
     }, 1500);
-  };
+  }, []);
 
-  // Handle form submission for new messages
-  const getResponse = async () => {
+  // Handle form submission for new messages - optimized with useCallback
+  const getResponse = useCallback(async (question) => {
     try {
       // Use the Express server URL instead of relative path
       const response = await fetch(
@@ -154,7 +193,7 @@ const ChatBox = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: currMsg }),
+          body: JSON.stringify({ question }),
         }
       );
 
@@ -169,88 +208,128 @@ const ChatBox = () => {
       // Fallback response if the API call fails
       return "Sorry, I'm having trouble connecting to the server right now. Please try again later or contact Vedant directly at kharevedant05@gmail.com";
     }
-  };
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
 
-    if (currMsg.trim()) {
-      // Add user question immediately for better UX
-      const newMessage = { question: currMsg, answer: "Thinking..." };
-      setMessages([...messages, newMessage]);
+      if (currMsg.trim()) {
+        // Add user question immediately for better UX
+        const newMessage = { question: currMsg, answer: "Thinking..." };
+        setMessages((prev) => [...prev, newMessage]);
 
-      // Stop auto predefined messages when user sends their own message
-      setCurrSection(999);
-      setStopAutomatedMessages(true); // Set flag to stop automated messages
+        // Stop auto predefined messages when user sends their own message
+        setCurrSection(999);
+        setStopAutomatedMessages(true); // Set flag to stop automated messages
 
-      // Clear input immediately
-      const userQuestion = currMsg;
-      setCurrMsg("");
+        // Clear input immediately
+        const userQuestion = currMsg;
+        setCurrMsg("");
 
-      try {
-        // Get answer from API
-        const answer = await getResponse();
+        try {
+          // Get answer from API
+          const answer = await getResponse(userQuestion);
 
-        // Update the message with the real answer
-        setMessages((prevMessages) =>
-          prevMessages.map((msg, idx) =>
-            idx === prevMessages.length - 1
-              ? { question: userQuestion, answer }
-              : msg
-          )
-        );
-      } catch (error) {
-        console.error("Error in handleSubmit:", error);
-        // Update with error message if something goes wrong
-        setMessages((prevMessages) =>
-          prevMessages.map((msg, idx) =>
-            idx === prevMessages.length - 1
-              ? {
-                  question: userQuestion,
-                  answer: "Sorry, something went wrong. Please try again.",
-                }
-              : msg
-          )
-        );
+          // Update the message with the real answer
+          setMessages((prevMessages) =>
+            prevMessages.map((msg, idx) =>
+              idx === prevMessages.length - 1
+                ? { question: userQuestion, answer }
+                : msg
+            )
+          );
+        } catch (error) {
+          console.error("Error in handleSubmit:", error);
+          // Update with error message if something goes wrong
+          setMessages((prevMessages) =>
+            prevMessages.map((msg, idx) =>
+              idx === prevMessages.length - 1
+                ? {
+                    question: userQuestion,
+                    answer: "Sorry, something went wrong. Please try again.",
+                  }
+                : msg
+            )
+          );
+        }
       }
-    }
-  };
+    },
+    [currMsg, getResponse, setMessages]
+  );
 
-  // Question component
-  const Question = ({ question }) => {
+  // Question component - memoized to prevent unnecessary re-renders
+  const Question = memo(({ question }) => {
     return (
       <motion.div
-        whileHover={{ scale: 1.1, x: 30 }}
-        className="flex gap-2 justify-center items-center font-sans bg-dark text-xs sm:text-sm p-3 w-fit rounded-lg shadow-2xl"
+        whileHover={{ scale: 1.05, x: 10 }}
+        className={cn(
+          layout.flex.center,
+          spacing.chat.padding,
+          "font-sans bg-gradient-to-r from-purple-600/80 to-blue-600/80 backdrop-blur-sm w-fit border-2 border-purple-400/50",
+          responsive.text.xs,
+          borders.rounded.lg,
+          "shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)]",
+          "transition-all duration-300"
+        )}
       >
-        <img src="snoopy.png" className="rounded-full w-6 h-6 object-cover" />
-        <h2 className="">{question}</h2>
+        <img
+          src="snoopy.png"
+          className="rounded-full w-6 h-6 object-cover border-2 border-white/30"
+          alt="Snoopy avatar"
+        />
+        <h2 className="text-white font-semibold">{question}</h2>
       </motion.div>
     );
-  };
+  });
+
+  Question.displayName = "Question";
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className={cn(layout.flex.col, "h-full w-full")}>
       {/* Top Box Bar */}
-      <div className="flex justify-center items-center font-sans text-xs sm:text-sm font-bold sm:rounded-t-3xl w-full p-2 bg-accent shadow-2xl gap-4">
-        <div className="sm:flex hidden justify-center items-center gap-1">
+      <div
+        className={cn(
+          layout.flex.center,
+          "font-sans font-bold sm:rounded-t-3xl w-full bg-accent shadow-2xl",
+          responsive.text.xs,
+          spacing.form.padding,
+          spacing.grid.gap
+        )}
+      >
+        <div
+          className={cn(responsive.hideOnMobile, layout.flex.center, "gap-1")}
+        >
           <FaRocket /> Software Engineer
         </div>
-        <span className="hidden sm:flex">•</span>
-        <div className="flex justify-center items-center gap-1">
+        <span className={responsive.hideOnMobile}>•</span>
+        <div className={cn(layout.flex.center, "gap-1")}>
           <FaLocationPin /> Chennai, India
         </div>
         •
-        <div className="flex justify-center items-center gap-1">
+        <div className={cn(layout.flex.center, "gap-1")}>
           <FaCalendar /> {currDate}
         </div>
       </div>
 
-      <div className="h-[calc(100%-40px)] bg-background/80 backdrop-blur-lg rounded-b-2xl border border-white/10 flex flex-col">
+      <div className="h-[calc(100%-40px)] bg-gradient-to-br from-gray-900/95 via-purple-900/20 to-blue-900/20 backdrop-blur-xl rounded-b-2xl border-2 border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.4)] flex flex-col">
         {/* Head Section - Fixed layout to prevent overlapping */}
-        <div className="text-sm sm:text-lg flex flex-col w-full py-4">
+        <div
+          className={cn(
+            responsive.text.base,
+            layout.flex.col,
+            "w-full",
+            spacing.container.paddingY
+          )}
+        >
           {/* Profile section with fixed positioning */}
-          <div className="flex items-start gap-4 px-4">
+          <div
+            className={cn(
+              layout.flex.start,
+              spacing.grid.gap,
+              spacing.container.padding
+            )}
+          >
             {/* Left side - Avatar and resume button */}
             <div className="relative w-24 sm:w-36">
               <motion.div
@@ -336,7 +415,7 @@ const ChatBox = () => {
               delay: 0.6,
               duration: 1,
             }}
-            className="hover:border-hubspot border-2 border-accent transition hover:duration-300 ease-in-out bg-dark rounded-lg flex items-center w-full h-16 px-4 mt-4 mx-4"
+            className="hover:border-purple-500 hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] border-2 border-purple-500/50 transition hover:duration-300 ease-in-out bg-gradient-to-r from-purple-900/40 to-blue-900/40 backdrop-blur-sm rounded-lg flex items-center w-full h-16 px-4 mt-4 mx-4"
             style={{ maxWidth: "calc(100% - 2rem)" }}
           >
             <div className="flex items-center gap-2 w-full">
@@ -379,14 +458,14 @@ const ChatBox = () => {
               delay: 1.5,
               duration: 1,
             }}
-            className="mt-3 w-full bg-accent h-0.5 rounded-full shadow-3xl"
+            className="mt-3 w-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 h-0.5 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.8)]"
           />
         </div>
 
         {/* Chat Messages Area */}
         <div
           ref={chatboxRef}
-          className="overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent flex flex-col justify-left items-start w-full gap-8 text-base sm:text-xl flex-1"
+          className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent flex flex-col justify-left items-start w-full gap-8 text-base sm:text-xl flex-1"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           // Use a ref instead of the onWheel prop for proper passive event handling
@@ -409,7 +488,7 @@ const ChatBox = () => {
                   <Question question="tell me about yourself" />
                 </motion.div>
                 {showResponse >= 1 && (
-                  <div className="hover:shadow-2xl hover:p-4 hover:bg-dark rounded-2xl transition-all duration-300 ease-in-out">
+                  <div className="hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:p-4 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-blue-900/30 hover:border-2 hover:border-purple-500/40 rounded-2xl transition-all duration-300 ease-in-out p-2 text-gray-100">
                     <Typewriter
                       onInit={(typewriter) => {
                         typewriter
@@ -449,7 +528,7 @@ const ChatBox = () => {
                 </motion.div>
 
                 {showResponse >= 2 && (
-                  <div className="hover:shadow-2xl hover:p-4 hover:bg-dark rounded-2xl transition-all duration-300 ease-in-out">
+                  <div className="hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:p-4 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-blue-900/30 hover:border-2 hover:border-purple-500/40 rounded-2xl transition-all duration-300 ease-in-out p-2 text-gray-100">
                     <Typewriter
                       onInit={(typewriter) => {
                         typewriter
@@ -496,7 +575,7 @@ const ChatBox = () => {
                 </motion.div>
 
                 {showResponse >= 3 && (
-                  <div className="hover:shadow-2xl hover:p-4 hover:bg-dark rounded-2xl transition-all duration-300 ease-in-out text-lg">
+                  <div className="hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:p-4 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-blue-900/30 hover:border-2 hover:border-purple-500/40 rounded-2xl transition-all duration-300 ease-in-out p-2 text-gray-100 text-lg">
                     <Typewriter
                       onInit={(typewriter) => {
                         typewriter
@@ -539,7 +618,7 @@ const ChatBox = () => {
                 </motion.div>
 
                 {showResponse >= 4 && (
-                  <div className="hover:shadow-2xl hover:p-4 hover:bg-dark rounded-2xl transition-all duration-300 ease-in-out">
+                  <div className="hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:p-4 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-blue-900/30 hover:border-2 hover:border-purple-500/40 rounded-2xl transition-all duration-300 ease-in-out p-2 text-gray-100">
                     <Typewriter
                       onInit={(typewriter) => {
                         typewriter
@@ -580,7 +659,7 @@ const ChatBox = () => {
                 </motion.div>
 
                 {showResponse >= 5 && (
-                  <div className="hover:shadow-2xl hover:p-4 hover:bg-dark rounded-2xl transition-all duration-300 ease-in-out">
+                  <div className="hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:p-4 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-blue-900/30 hover:border-2 hover:border-purple-500/40 rounded-2xl transition-all duration-300 ease-in-out p-2 text-gray-100">
                     <Typewriter
                       onInit={(typewriter) => {
                         typewriter
@@ -619,7 +698,7 @@ const ChatBox = () => {
                 </motion.div>
 
                 {showResponse >= 6 && (
-                  <div className="hover:shadow-2xl hover:p-4 hover:bg-dark rounded-2xl transition-all duration-300 ease-in-out">
+                  <div className="hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:p-4 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-blue-900/30 hover:border-2 hover:border-purple-500/40 rounded-2xl transition-all duration-300 ease-in-out p-2 text-gray-100">
                     <Typewriter
                       onInit={(typewriter) => {
                         typewriter
@@ -655,7 +734,7 @@ const ChatBox = () => {
                     >
                       <Question question={question} />
                     </motion.div>
-                    <div className="hover:shadow-2xl hover:p-4 hover:bg-dark rounded-2xl transition-all duration-300 ease-in-out">
+                    <div className="hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:p-4 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-blue-900/30 hover:border-2 hover:border-purple-500/40 rounded-2xl transition-all duration-300 ease-in-out p-2 text-gray-100">
                       {answer === "Thinking..." ? (
                         <Typewriter
                           onInit={(typewriter) => {
@@ -794,4 +873,5 @@ const ChatBox = () => {
   );
 };
 
-export default ChatBox;
+// Memoize the entire ChatBox component to prevent unnecessary re-renders
+export default memo(ChatBox);

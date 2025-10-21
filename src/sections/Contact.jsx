@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 import useAlert from "../hooks/useAlert.js";
 import Alert from "../components/Alert.jsx";
+import { spacing, layout, responsive, cn } from "../styles/spacing.js";
 
 const Contact = () => {
   const formRef = useRef();
@@ -65,141 +66,311 @@ const Contact = () => {
 
   return (
     <motion.section
-      className="c-space my-20"
+      className={cn("c-space", spacing.section.paddingY, "relative z-10")}
       id="contact"
       initial={{ x: -150, opacity: 0 }}
       whileInView={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }} // Reduced duration
-      viewport={{ once: true, amount: 0.5 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      viewport={{ once: true, amount: 0.1 }}
     >
       {alert.show && <Alert {...alert} />}
 
-      <div className="relative min-h-screen flex items-center justify-center flex-col">
+      <div
+        className={cn("relative", layout.flex.colCenter, "py-20 min-h-screen")}
+      >
         <img
           src="/assets/terminal.png"
           alt="terminal-bg"
-          className="absolute inset-0 min-h-screen"
+          className="absolute inset-0 h-full w-full object-contain z-0"
         />
         {/* Marquee Background */}
-        <div className="mx-10 text-white-800 absolute inset-0 opacity-10 z-0 flex flex-col gap-32 mt-56">
+        <div
+          className={cn(
+            "absolute inset-0 opacity-10 z-0 overflow-hidden",
+            layout.flex.col,
+            "gap-32 mt-56",
+            spacing.container.paddingX,
+            "text-white-800"
+          )}
+        >
           {/* Row 1 */}
-          <div className="relative flex overflow-x-hidden">
-            <div className="animate-marquee whitespace-nowrap flex items-center">
-              <span className="mx-4 text-3xl">
+          <div className={cn("relative", layout.flex.row, "overflow-x-hidden")}>
+            <div
+              className={cn(
+                "animate-marquee whitespace-nowrap",
+                layout.flex.center
+              )}
+            >
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
             </div>
-            <div className="absolute top-0 animate-marquee2 whitespace-nowrap flex items-center">
-              <span className="mx-4 text-3xl">
+            <div
+              className={cn(
+                "absolute top-0 animate-marquee2 whitespace-nowrap",
+                layout.flex.center
+              )}
+            >
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 Let's build something interesting
               </span>
             </div>
           </div>
 
           {/* Row 2 */}
-          <div className="relative flex overflow-x-hidden">
-            <div className="animate-marquee-reverse whitespace-nowrap flex items-center">
-              <span className="mx-4 text-3xl">
+          <div className={cn("relative", layout.flex.row, "overflow-x-hidden")}>
+            <div
+              className={cn(
+                "animate-marquee-reverse whitespace-nowrap",
+                layout.flex.center
+              )}
+            >
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
             </div>
-            <div className="absolute top-0 animate-marquee2-reverse whitespace-nowrap flex items-center">
-              <span className="mx-4 text-3xl">
+            <div
+              className={cn(
+                "absolute top-0 animate-marquee2-reverse whitespace-nowrap",
+                layout.flex.center
+              )}
+            >
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
-              <span className="mx-4 text-3xl">
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
                 I am cool, you are cool, let's build something
               </span>
             </div>
           </div>
 
           {/* Row 3 */}
-          <div className="relative flex overflow-x-hidden">
-            <div className="animate-marquee whitespace-nowrap flex items-center">
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
+          <div className={cn("relative", layout.flex.row, "overflow-x-hidden")}>
+            <div
+              className={cn(
+                "animate-marquee whitespace-nowrap",
+                layout.flex.center
+              )}
+            >
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
             </div>
-            <div className="absolute top-0 animate-marquee2 whitespace-nowrap flex items-center">
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
-              <span className="mx-4 text-3xl">Together, we make it happen</span>
+            <div
+              className={cn(
+                "absolute top-0 animate-marquee2 whitespace-nowrap",
+                layout.flex.center
+              )}
+            >
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Together, we make it happen
+              </span>
             </div>
           </div>
 
           {/* Row 4 */}
-          <div className="relative flex overflow-x-hidden">
-            <div className="animate-marquee-reverse whitespace-nowrap flex items-center">
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+          <div className={cn("relative", layout.flex.row, "overflow-x-hidden")}>
+            <div
+              className={cn(
+                "animate-marquee-reverse whitespace-nowrap",
+                layout.flex.center
+              )}
+            >
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
             </div>
-            <div className="absolute top-0 animate-marquee2-reverse whitespace-nowrap flex items-center">
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
-              <span className="mx-4 text-3xl">Inspiration meets creation</span>
+            <div
+              className={cn(
+                "absolute top-0 animate-marquee2-reverse whitespace-nowrap",
+                layout.flex.center
+              )}
+            >
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
+              <span
+                className={cn(spacing.container.paddingX, responsive.text.xl)}
+              >
+                Inspiration meets creation
+              </span>
             </div>
           </div>
         </div>
         <motion.div
-          className="contact-container"
+          className="contact-container relative z-20"
           initial={{ x: -100, opacity: 0 }}
           whileInView={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }} // Reduced duration
-          viewport={{ once: true, amount: 0.5 }}
+          transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
+          viewport={{ once: true, amount: 0.1 }}
         >
           <h3 className="head-text">Let's talk</h3>
           <p className="text-3xl text-white-600 mt-3">
@@ -213,10 +384,10 @@ const Contact = () => {
             className="mt-12 flex flex-col space-y-7"
             initial={{ x: -100, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }} // Reduced duration
-            viewport={{ once: true, amount: 0.5 }}
+            transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+            viewport={{ once: true, amount: 0.1 }}
           >
-            <label className="space-y-3">
+            <label className={cn(layout.flex.col, spacing.form.gap)}>
               <span className="field-label">Full Name</span>
               <input
                 type="text"
@@ -229,7 +400,7 @@ const Contact = () => {
               />
             </label>
 
-            <label className="space-y-3">
+            <label className={cn(layout.flex.col, spacing.form.gap)}>
               <span className="field-label">Email address</span>
               <input
                 type="email"
@@ -242,7 +413,7 @@ const Contact = () => {
               />
             </label>
 
-            <label className="space-y-3">
+            <label className={cn(layout.flex.col, spacing.form.gap)}>
               <span className="field-label">Your message</span>
               <textarea
                 name="message"

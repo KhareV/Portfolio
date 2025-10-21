@@ -1,5 +1,12 @@
 import { useState } from "react";
 import { navLinks } from "../constants/index.js";
+import {
+  spacing,
+  layout,
+  responsive,
+  transitions,
+  cn,
+} from "../styles/spacing.js";
 
 const NavItems = ({ onClick = () => {} }) => (
   <ul className="nav-ul">
@@ -20,19 +27,32 @@ const Navbar = () => {
   const closeMenu = () => setIsOpen(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/90">
-      <div className="max-w-7xl mx-auto pr-12">
-        <div className="flex justify-between items-center py-5 mx-auto c-space">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md">
+      <div className={cn(layout.maxWidth["7xl"], layout.centered.x, "pr-12")}>
+        <div
+          className={cn(
+            layout.flex.between,
+            spacing.container.paddingY,
+            "c-space"
+          )}
+        >
           <a
             href="/"
-            className="font-bold text-xl text-white hover:text-yellow-500 transition-colors"
+            className={cn(
+              "font-bold text-white hover:text-yellow-500",
+              responsive.text.lg,
+              transitions.default
+            )}
           >
             Vedant Khare
           </a>
 
           <button
             onClick={toggleMenu}
-            className="text-neutral-400 hover:text-white focus:outline-none sm:hidden flex"
+            className={cn(
+              "text-neutral-400 hover:text-white focus:outline-none sm:hidden",
+              layout.flex.center
+            )}
             aria-label="Toggle menu"
           >
             <img
@@ -49,7 +69,7 @@ const Navbar = () => {
       </div>
 
       <div className={`nav-sidebar ${isOpen ? "max-h-screen" : "max-h-0"}`}>
-        <nav className="p-5">
+        <nav className={spacing.card.padding}>
           <NavItems onClick={closeMenu} />
         </nav>
       </div>

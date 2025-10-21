@@ -13,34 +13,52 @@ import {
   FaPython,
   FaVuejs,
 } from "react-icons/fa";
-import CustomCursor from "./CustomCursor";
 
-const LoadingSpinner = ({ onLoadComplete }) => {
-  const [loading, setLoading] = useState(true);
+const LoadingSpinner = ({ onLoadComplete, shouldHide = false }) => {
+  const [isVisible, setIsVisible] = useState(true);
+  const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // Hide overflow when component mounts
+    // Lock body scroll while loading
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+    document.body.style.height = "100%";
 
-    const timer = setTimeout(() => {
-      setLoading(false);
-      onLoadComplete();
-    }, 5500);
-
-    // Cleanup function
     return () => {
-      clearTimeout(timer);
-      // Ensure overflow is reset to auto, irrespective of loading state
-      document.body.style.overflow = "auto";
+      // Cleanup: restore body scroll
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.body.style.height = "";
     };
-  }, [onLoadComplete]);
+  }, []);
 
   useEffect(() => {
-    // When loading state changes, toggle overflow
-    if (!loading) {
-      document.body.style.overflow = "auto";
+    if (shouldHide && isVisible) {
+      // Start fade out animation after a slight delay
+      const startFadeTimer = setTimeout(() => {
+        setFadeOut(true);
+      }, 500); // Extra 500ms delay before starting fade
+
+      // Wait for fade animation to complete before hiding
+      const fadeTimer = setTimeout(() => {
+        setIsVisible(false);
+        onLoadComplete();
+
+        // Restore body scroll
+        document.body.style.overflow = "auto";
+        document.body.style.position = "";
+        document.body.style.width = "";
+        document.body.style.height = "";
+      }, 1500); // Increased: 500ms delay + 1000ms fade duration
+
+      return () => {
+        clearTimeout(startFadeTimer);
+        clearTimeout(fadeTimer);
+      };
     }
-  }, [loading]);
+  }, [shouldHide, isVisible, onLoadComplete]);
 
   const icons = [
     { Icon: FaReact, color: "#61DAFB" },
@@ -57,28 +75,30 @@ const LoadingSpinner = ({ onLoadComplete }) => {
     { Icon: FaVuejs, color: "#4FC08D" },
   ];
 
+  if (!isVisible) return null;
+
   return (
-    <>
-      <CustomCursor />
-      loading ? (
-      <div className="loading-screen">
-        <div className="snake">
-          {icons.map((icon, index) => (
-            <div
-              key={index}
-              className="icon-wrapper"
-              style={{
-                "--color": icon.color,
-                "--delay": `${index * 0.15}s`,
-              }}
-            >
-              <icon.Icon />
-            </div>
-          ))}
+    <div className={`loading-screen ${fadeOut ? "fade-out" : ""}`}>
+      <div className="loading-content">
+        <div className="snake-container">
+          <div className="snake">
+            {icons.map((icon, index) => (
+              <div
+                key={index}
+                className="icon-wrapper"
+                style={{
+                  "--color": icon.color,
+                  "--delay": `${index * 0.12}s`,
+                  "--index": index,
+                }}
+              >
+                <icon.Icon />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      ) : null
-    </>
+    </div>
   );
 };
 

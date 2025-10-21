@@ -1,5 +1,6 @@
 import React from "react";
 import ItemLayout from "../components/ItemLayout";
+import { spacing, layout, borders, cn } from "../styles/spacing.js";
 
 const Github = () => {
   const GITHUB_STATS_URL = import.meta.env.VITE_GITHUB_STATS_URL;
@@ -57,13 +58,35 @@ const Github = () => {
   ];
 
   return (
-    <div className="w-full flex items-center justify-center bg-transparent">
-      <div className="w-full max-w-7xl mx-auto px-6">
-        <div className="flex flex-col gap-6">
+    <div className={cn("w-full", layout.flex.center, "bg-transparent")}>
+      <div
+        className={cn(
+          "w-full",
+          layout.maxWidth["7xl"],
+          layout.centered.x,
+          spacing.container.paddingX
+        )}
+      >
+        <div className={cn(layout.flex.col, spacing.card.gap)}>
           {/* Top Row - Language and Stats Cards */}
-          <div className="flex flex-col md:flex-row gap-6 w-full">
+          <div
+            className={cn(
+              layout.flex.col,
+              "md:flex-row w-full",
+              spacing.card.gap
+            )}
+          >
             {/* Top Languages Card */}
-            <ItemLayout className="flex-1 min-w-0 flex items-center justify-center p-4 border rounded-lg shadow-lg">
+            <ItemLayout
+              className={cn(
+                "flex-1 min-w-0",
+                layout.flex.center,
+                spacing.interactive.padding,
+                borders.default,
+                borders.rounded.lg,
+                "shadow-lg"
+              )}
+            >
               <img
                 className="w-full h-auto"
                 src={`https://github-readme-stats.vercel.app/api/top-langs?username=${USERNAME}&${new URLSearchParams(
@@ -75,7 +98,16 @@ const Github = () => {
             </ItemLayout>
 
             {/* GitHub Stats Card */}
-            <ItemLayout className="flex-1 min-w-0 flex items-center justify-center p-4 border rounded-lg shadow-lg">
+            <ItemLayout
+              className={cn(
+                "flex-1 min-w-0",
+                layout.flex.center,
+                spacing.interactive.padding,
+                borders.default,
+                borders.rounded.lg,
+                "shadow-lg"
+              )}
+            >
               <img
                 className="w-full h-auto"
                 src={`https://github-readme-stats.vercel.app/api?username=${USERNAME}&${new URLSearchParams(
@@ -88,7 +120,16 @@ const Github = () => {
           </div>
 
           {/* Skills Icons - Full Width */}
-          <ItemLayout className="w-full flex items-center justify-center p-4 border rounded-lg shadow-lg">
+          <ItemLayout
+            className={cn(
+              "w-full",
+              layout.flex.center,
+              spacing.interactive.padding,
+              borders.default,
+              borders.rounded.lg,
+              "shadow-lg"
+            )}
+          >
             <img
               className="w-full h-auto"
               src={`https://skillicons.dev/icons?i=${skills.join(",")}`}
@@ -98,9 +139,24 @@ const Github = () => {
           </ItemLayout>
 
           {/* Bottom Row - Streak and Pinned Repo */}
-          <div className="flex flex-col md:flex-row gap-6 w-full">
+          <div
+            className={cn(
+              layout.flex.col,
+              "md:flex-row w-full",
+              spacing.card.gap
+            )}
+          >
             {/* GitHub Streak Stats */}
-            <ItemLayout className="flex-1 min-w-0 flex items-center justify-center p-4 border rounded-lg shadow-lg">
+            <ItemLayout
+              className={cn(
+                "flex-1 min-w-0",
+                layout.flex.center,
+                spacing.interactive.padding,
+                borders.default,
+                borders.rounded.lg,
+                "shadow-lg"
+              )}
+            >
               <img
                 className="w-full h-auto"
                 src={`https://github-readme-streak-stats.herokuapp.com?user=${USERNAME}&theme=dark&hide_border=true&type=svg&background=EB545400&ring=FEFE5B&currStreakLabel=FEFE5B`}
@@ -110,7 +166,16 @@ const Github = () => {
             </ItemLayout>
 
             {/* Pinned Repository */}
-            <ItemLayout className="flex-1 min-w-0 flex items-center justify-center p-4 border rounded-lg shadow-lg">
+            <ItemLayout
+              className={cn(
+                "flex-1 min-w-0",
+                layout.flex.center,
+                spacing.interactive.padding,
+                borders.default,
+                borders.rounded.lg,
+                "shadow-lg"
+              )}
+            >
               <a
                 href={`https://github.com/${USERNAME}/Nextjs-contentlayer-blog`}
                 target="_blank"

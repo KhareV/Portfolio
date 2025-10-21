@@ -4,6 +4,14 @@ import Globe from "react-globe.gl";
 import Button from "../components/Button.jsx";
 import TechMarquee from "../components/TechMarquee.jsx";
 import ItemLayout from "../components/ItemLayout.jsx";
+import {
+  spacing,
+  layout,
+  responsive,
+  transitions,
+  cn,
+} from "../styles/spacing";
+
 const About = () => {
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -27,8 +35,22 @@ const About = () => {
   };
 
   return (
-    <section className="c-space mt-20 pt-20" id="about">
-      <div className="grid xl:grid-cols-3 xl:grid-rows-6 md:grid-cols-2 grid-cols-1 gap-5 h-full">
+    <section
+      className={cn(
+        "c-space",
+        spacing.section.marginTop,
+        spacing.section.paddingY
+      )}
+      id="about"
+    >
+      <div
+        className={cn(
+          layout.grid.cols3,
+          "xl:grid-rows-6",
+          spacing.grid.gap,
+          "h-full"
+        )}
+      >
         {/* First Grid Item */}
         <motion.div
           className="col-span-1 xl:row-span-3 relative"
@@ -42,51 +64,145 @@ const About = () => {
           <div className="w-4/5 mx-auto bg-gray-920 rounded-lg relative">
             {/* Marquee Container */}
             <div className="absolute inset-0 w-full h-full">
-              <div className="py-8 mt-96 pt-48">
+              <div className={cn(spacing.section.paddingY, "mt-96 pt-48")}>
                 <div className="relative flex overflow-x-hidden overflow-y-hidden">
-                  <div className="animate-profile-scroll-1 whitespace-nowrap flex items-center">
-                    <span className="mx-4 text-6xl text-gray-300">
+                  <div
+                    className={cn(
+                      "animate-profile-scroll-1 whitespace-nowrap",
+                      layout.flex.center
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
                   </div>
-                  <div className="absolute top-0 animate-profile-scroll-2 whitespace-nowrap flex items-center">
-                    <span className="mx-4 text-6xl text-gray-300">
+                  <div
+                    className={cn(
+                      "absolute top-0 animate-profile-scroll-2 whitespace-nowrap",
+                      layout.flex.center
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
-                    <span className="mx-4 text-6xl text-gray-300">
+                    <span
+                      className={cn(
+                        "mx-4",
+                        responsive.text["3xl"],
+                        "text-gray-300"
+                      )}
+                    >
                       Vedant Khare
                     </span>
                   </div>
@@ -95,7 +211,11 @@ const About = () => {
             </div>
 
             {/* Content Container */}
-            <div className="relative z-10 profile-container hover:profile-transform hover:bg-tertiary">
+            <div
+              className={cn(
+                "relative z-10 profile-container hover:profile-transform hover:bg-tertiary"
+              )}
+            >
               <img
                 src="image/WhatsApp Image 2025-04-29 at 16.36.35_6c693daa.jpg"
                 alt="grid-1"
@@ -103,7 +223,9 @@ const About = () => {
               />
               <div className="absolute top-0 left-0 w-full h-full bg-black/30"></div>
               <div className="relative">
-                <p className="profile-heading mt-9">Hi, I'm Vedant Khare</p>
+                <p className={cn("profile-heading", spacing.section.marginTop)}>
+                  Hi, I'm Vedant Khare
+                </p>
                 <p className="profile-description">
                   With experience in web development, I have honed my skills in
                   both frontend and backend technologies, including HTML, CSS,
@@ -301,7 +423,7 @@ const About = () => {
                 <Button
                   name="Contact Me"
                   isBeam
-                  containerClass="w-full mt-10"
+                  containerClass={cn("w-full", spacing.section.marginTop)}
                 />
               </a>
             </div>
@@ -317,7 +439,12 @@ const About = () => {
           variants={slideIn}
           transition={{ delay: 1.2 }}
         >
-          <div className="grid-container hover:transform-card hover:bg-tertiary relative">
+          <div
+            className={cn(
+              "grid-container hover:transform-card hover:bg-tertiary relative",
+              transitions.default
+            )}
+          >
             <img
               src="assets/grid3.png"
               alt="grid-3"
@@ -345,28 +472,38 @@ const About = () => {
           variants={slideIn}
           transition={{ delay: 1.5 }}
         >
-          <div className="grid-container hover:transform-card hover:bg-tertiary relative">
+          <div
+            className={cn(
+              "grid-container hover:transform-card hover:bg-tertiary relative",
+              transitions.default
+            )}
+          >
             <img
               src="assets/grid4.png"
               alt="grid-4"
               className="w-full md:h-[126px] sm:h-[276px] h-fit object-cover sm:object-top filter brightness-50"
             />
             <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30"></div>
-            <div className="space-y-2 relative">
+            <div className={cn("space-y-2 relative")}>
               <p className="grid-subtext text-center">Contact me</p>
               <div
-                className="copy-container transition-all duration-300 ease-in-out cursor-pointer hover:scale-105"
+                className={cn(
+                  "copy-container cursor-pointer hover:scale-105",
+                  transitions.default
+                )}
                 onClick={handleCopy}
               >
                 <img
                   src={hasCopied ? "assets/tick.svg" : "assets/copy.svg"}
                   alt="copy"
-                  className="transition-transform duration-300 ease-in-out hover:scale-125"
+                  className={cn("hover:scale-125", transitions.default)}
                 />
                 <p
-                  className={`lg:text-2xl md:text-xl font-medium text-white transition-transform duration-300 ease-in-out ${
+                  className={cn(
+                    "lg:text-2xl md:text-xl font-medium text-white hover:scale-105",
+                    transitions.default,
                     hasCopied ? "text-green-400" : "text-gray-400"
-                  } hover:scale-105`}
+                  )}
                 >
                   kharevedant05@gmail.com
                 </p>

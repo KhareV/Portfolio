@@ -56,7 +56,7 @@ const FloatingNavigation = () => {
   ];
 
   return (
-    <div className="absolute right-80 top-3/4 md:bottom-16 z-50">
+    <div className="w-auto">
       <FloatingDock
         navigationItems={navigationItems}
         desktopClassName="backdrop-blur-md bg-opacity-80 border border-yellow-500/20 shadow-xl"

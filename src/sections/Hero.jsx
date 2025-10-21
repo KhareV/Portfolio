@@ -1,5 +1,5 @@
 // Hero.jsx
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { motion } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
@@ -18,10 +18,18 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import FloatingNavigation from "../components/FloatingNavigation.jsx";
 gsap.registerPlugin(ScrollTrigger);
 import TopBoxBar from "../components/TopBoxBar.jsx";
-import ChatBox from "../components/Chatbox.jsx";
+const ChatBox = lazy(() => import("../components/Chatbox.jsx"));
 import Messagebar from "../components/Messagebar.jsx";
 import { MessageProvider } from "../MessageContext.jsx";
 import Head from "../components/Head.jsx";
+import {
+  spacing,
+  layout,
+  responsive,
+  transitions,
+  cn,
+} from "../styles/spacing";
+import { useLoadingContext } from "../contexts/LoadingContext";
 
 const Hero = () => {
   const [isButtonVisible, setIsButtonVisible] = useState(true);
@@ -29,6 +37,7 @@ const Hero = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const { setHeroReady, setModelsReady } = useLoadingContext();
 
   const sectionRef = useRef(null);
   const textRef = useRef(null);
@@ -96,6 +105,29 @@ const Hero = () => {
       if (footerSection) observer.unobserve(footerSection);
     };
   }, []);
+
+  // Signal when Hero component is mounted and ready
+  useEffect(() => {
+    console.log("Hero component mounted");
+    // Give a small delay to ensure DOM is painted
+    const timer = setTimeout(() => {
+      setHeroReady(true);
+      console.log("Hero marked as ready");
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [setHeroReady]);
+
+  // Signal when 3D models are ready (after a buffer period)
+  useEffect(() => {
+    console.log("Starting 3D model buffer...");
+    const timer = setTimeout(() => {
+      setModelsReady(true);
+      console.log("3D models marked as ready");
+    }, 3000); // 3 seconds for 3D models to load
+
+    return () => clearTimeout(timer);
+  }, [setModelsReady]);
 
   useEffect(() => {
     let timeout;
@@ -184,7 +216,7 @@ const Hero = () => {
     <>
       <section
         ref={sectionRef}
-        className="relative w-full min-h-screen mx-auto overflow-visible pb-24 mt-36"
+        className={cn("relative w-full min-h-screen mx-auto overflow-visible")}
       >
         <div className="absolute inset-0 overflow-hidden opacity-30">
           <div className="stars-sm"></div>
@@ -192,14 +224,26 @@ const Hero = () => {
           <div className="stars-lg"></div>
         </div>
 
-        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center max-w-7xl mx-auto px-6 pt-20 h-screen">
+        <div
+          className={cn(
+            "relative z-10",
+            layout.flex.between,
+            "flex-col lg:flex-row items-start",
+            spacing.container.padding,
+            "pt-20 sm:pt-20 md:pt-20 lg:pt-20 min-h-screen"
+          )}
+        >
           <motion.div
-            className="flex-1 flex flex-col items-start w-full lg:max-w-[60%]"
+            className={cn(
+              "flex-1",
+              layout.flex.col,
+              "items-start w-full lg:max-w-[60%]"
+            )}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, ease: "easeInOut" }}
           >
-            <div className="flex flex-col justify-center items-center mt-5">
+            <div className={cn(layout.flex.colCenter, spacing.text.marginTop)}>
               <motion.div
                 className="w-5 h-5 rounded-full bg-yellow-600"
                 initial={{ scale: 0 }}
@@ -220,15 +264,30 @@ const Hero = () => {
                 className={`${styles.heroHeadText} text-white`}
               >
                 Hi, I'm{" "}
-                <span className="text-yellow-600 hover:text-yellow-500 transition-colors duration-300">
+                <span
+                  className={cn(
+                    "text-yellow-600 hover:text-yellow-500",
+                    transitions.default
+                  )}
+                >
                   Vedant
                 </span>
                 <span className="waving-hand ml-2">👋</span>
               </h1>
 
-              <div className="h-[40px] overflow-hidden mt-2">
-                <div ref={textRef} className="flex items-center">
-                  <span className="typing-text-gradient text-[22px] sm:text-[28px] md:text-[32px] font-medium">
+              <div
+                className={cn(
+                  "h-[40px] overflow-hidden",
+                  spacing.text.marginTop
+                )}
+              >
+                <div ref={textRef} className={layout.flex.center}>
+                  <span
+                    className={cn(
+                      responsive.text.lg,
+                      "font-medium typing-text-gradient"
+                    )}
+                  >
                     {displayText}
                   </span>
                   <span
@@ -242,7 +301,12 @@ const Hero = () => {
               </div>
 
               <motion.p
-                className={`${styles.heroSubText} mt-6 text-white-100 max-w-lg`}
+                className={cn(
+                  styles.heroSubText,
+                  spacing.section.marginTop,
+                  "text-white-100",
+                  layout.maxWidth.lg
+                )}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1.4, ease: "easeInOut", delay: 1 }}
@@ -252,9 +316,20 @@ const Hero = () => {
                 blockchain solutions, and AI integration.
               </motion.p>
 
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div
+                className={cn(
+                  spacing.section.marginTop,
+                  layout.flex.wrap,
+                  spacing.grid.gapSmall
+                )}
+              >
                 <motion.span
-                  className="px-3 py-1 bg-purple-900/30 border border-purple-500/30 rounded-full text-sm text-purple-300"
+                  className={cn(
+                    spacing.interactive.padding,
+                    "bg-purple-900/30 border border-purple-500/30 rounded-full",
+                    responsive.text.xs,
+                    "text-purple-300"
+                  )}
                   whileHover={{
                     scale: 1.05,
                     backgroundColor: "rgba(139, 92, 246, 0.3)",
@@ -266,7 +341,12 @@ const Hero = () => {
                   Top Hackathon Finalist
                 </motion.span>
                 <motion.span
-                  className="px-3 py-1 bg-blue-900/30 border border-blue-500/30 rounded-full text-sm text-blue-300"
+                  className={cn(
+                    spacing.interactive.padding,
+                    "bg-blue-900/30 border border-blue-500/30 rounded-full",
+                    responsive.text.xs,
+                    "text-blue-300"
+                  )}
                   whileHover={{
                     scale: 1.05,
                     backgroundColor: "rgba(59, 130, 246, 0.3)",
@@ -278,7 +358,12 @@ const Hero = () => {
                   40+ Projects
                 </motion.span>
                 <motion.span
-                  className="px-3 py-1 bg-green-900/30 border border-green-500/30 rounded-full text-sm text-green-300"
+                  className={cn(
+                    spacing.interactive.padding,
+                    "bg-green-900/30 border border-green-500/30 rounded-full",
+                    responsive.text.xs,
+                    "text-green-300"
+                  )}
                   whileHover={{
                     scale: 1.05,
                     backgroundColor: "rgba(34, 197, 94, 0.3)",
@@ -294,7 +379,14 @@ const Hero = () => {
 
             <motion.div
               ref={projectsRef}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 w-full max-w-xl mb-20"
+              className={cn(
+                layout.grid.cols2,
+                spacing.grid.gap,
+                spacing.section.marginTop,
+                "w-full",
+                layout.maxWidth.xl,
+                spacing.section.marginBottom
+              )}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2, duration: 0.8 }}
@@ -302,7 +394,13 @@ const Hero = () => {
               {projects.map((project, index) => (
                 <motion.div
                   key={index}
-                  className="project-card backdrop-blur-sm bg-black/40 border border-gray-800 p-5 rounded-lg hover:border-yellow-600/50 transition-all duration-300"
+                  className={cn(
+                    "project-card backdrop-blur-sm bg-black/40",
+                    "border border-gray-800",
+                    spacing.card.padding,
+                    "rounded-lg hover:border-yellow-600/50",
+                    transitions.default
+                  )}
                   whileHover={{
                     y: -5,
                     boxShadow: `0 10px 25px -5px ${project.color}20`,
@@ -310,13 +408,21 @@ const Hero = () => {
                   }}
                 >
                   <h3
-                    className="text-xl font-bold"
+                    className={cn(responsive.text.lg, "font-bold")}
                     style={{ color: project.color }}
                   >
                     {project.name}
                   </h3>
-                  <p className="text-gray-300 mt-1">{project.description}</p>
-                  <p className="text-sm text-gray-400 mt-3">
+                  <p className={cn("text-gray-300", spacing.text.marginTop)}>
+                    {project.description}
+                  </p>
+                  <p
+                    className={cn(
+                      responsive.text.xs,
+                      "text-gray-400",
+                      spacing.text.marginTop
+                    )}
+                  >
                     {project.users || project.achievement || project.tech}
                   </p>
                 </motion.div>
@@ -325,15 +431,31 @@ const Hero = () => {
           </motion.div>
 
           <motion.div
-            className="hidden lg:block flex-1 h-[600px] w-full max-w-[450px] relative"
+            className={cn(
+              responsive.hideOnMobile,
+              "lg:block flex-1 h-[800px] w-full max-w-[450px] relative"
+            )}
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.5, delay: 0.8 }}
           >
-            <div className="chatbox-container absolute top-0 right-0 w-full h-full">
+            <div className="chatbox-container absolute top-12 right-0 w-full h-full">
               <div className="chatbox-wrapper relative w-full h-full rounded-2xl shadow-2xl">
                 <MessageProvider>
-                  <ChatBox />
+                  <Suspense
+                    fallback={
+                      <div
+                        className={cn(
+                          layout.flex.center,
+                          "h-full bg-black/40 backdrop-blur-sm rounded-2xl border border-gray-800"
+                        )}
+                      >
+                        <div className="text-white">Loading chat...</div>
+                      </div>
+                    }
+                  >
+                    <ChatBox />
+                  </Suspense>
                 </MessageProvider>
               </div>
             </div>
@@ -342,7 +464,10 @@ const Hero = () => {
 
         {isButtonVisible && (
           <motion.div
-            className="fixed bottom-20 right-24 w-full z-20 flex justify-center"
+            className={cn(
+              "fixed bottom-8 left-0 right-0 z-50",
+              layout.flex.center
+            )}
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 2, duration: 0.5 }}

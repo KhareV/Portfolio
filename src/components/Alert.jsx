@@ -1,16 +1,28 @@
+import { spacing, layout, borders, cn } from "../styles/spacing.js";
+
 const Alert = ({ type, text }) => {
   return (
-    <div className="fixed bottom-5 right-5 flex justify-center items-center z-50">
+    <div className={cn("fixed bottom-5 right-5 z-50", layout.flex.center)}>
       <div
-        className={`p-2 ${
-          type === "danger" ? "bg-red-800" : "bg-blue-800"
-        } items-center text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex rounded-md p-5`}
+        className={cn(
+          spacing.interactive.padding,
+          type === "danger" ? "bg-red-800" : "bg-blue-800",
+          "items-center text-indigo-100 leading-none lg:rounded-full",
+          layout.flex.center,
+          "lg:inline-flex",
+          borders.rounded.md
+        )}
         role="alert"
       >
         <p
-          className={`flex rounded-full ${
-            type === "danger" ? "bg-red-500" : "bg-blue-500"
-          } uppercase px-2 py-1 text-xs font-semibold mr-3`}
+          className={cn(
+            layout.flex.center,
+            borders.rounded.full,
+            type === "danger" ? "bg-red-500" : "bg-blue-500",
+            "uppercase font-semibold",
+            spacing.interactive.padding,
+            "text-xs mr-3"
+          )}
         >
           {type === "danger" ? "Failed" : "Success"}
         </p>

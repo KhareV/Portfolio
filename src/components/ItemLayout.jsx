@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { spacing, layout, borders, cn } from "../styles/spacing.js";
 
 const ItemLayout = ({ children, className }) => {
   return (
@@ -9,7 +10,11 @@ const ItemLayout = ({ children, className }) => {
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
       className={clsx(
-        "custom-bg p-6 sm:p-8 rounded-xl flex items-center justify-center space-y-8",
+        "custom-bg",
+        spacing.card.padding,
+        borders.rounded.xl,
+        layout.flex.center,
+        "space-y-8",
         className
       )}
     >

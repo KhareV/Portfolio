@@ -86,14 +86,39 @@ app.post("/api/chat", async (req, res) => {
 
       if (response) {
         // Fix: text is a method, not a property - need to call it as a function
-        const answer = response.text();
+        let answer = response.text();
 
-        // Make sure answer is a string before using substring
+        // Make sure answer is a string before formatting
         if (typeof answer === "string") {
           console.log(
             "AI response generated:",
             answer.substring(0, 50) + "..."
           );
+
+          // Format the answer with better styling
+          // Add line breaks for better readability
+          answer = answer
+            .replace(/\n/g, "<br>")
+            .replace(
+              /\*\*(.*?)\*\*/g,
+              "<strong class='text-purple-400 font-bold'>$1</strong>"
+            ) // Bold text
+            .replace(/\*(.*?)\*/g, "<em class='text-blue-300 italic'>$1</em>") // Italic text
+            .replace(
+              /`(.*?)`/g,
+              "<code class='bg-purple-900/50 px-2 py-1 rounded text-pink-300 font-mono text-sm'>$1</code>"
+            ) // Code blocks
+            .replace(
+              /^- (.*?)$/gm,
+              "<div class='flex items-start gap-2 ml-4'><span class='text-purple-400'>•</span><span>$1</span></div>"
+            ) // Bullet points
+            .replace(
+              /^(\d+)\. (.*?)$/gm,
+              "<div class='flex items-start gap-2 ml-4'><span class='text-purple-400 font-bold'>$1.</span><span>$2</span></div>"
+            ); // Numbered lists
+
+          // Wrap the entire answer in a styled container
+          answer = `<div class="text-gray-100 leading-relaxed space-y-2">${answer}</div>`;
         } else {
           console.log(
             "AI response generated but not a string, type:",
@@ -112,17 +137,17 @@ app.post("/api/chat", async (req, res) => {
       // Fallback to mock responses if AI fails
       const mockResponses = {
         hello:
-          "<span class='text-green-500 text-xl font-bold'>Hello there! How can I help you today?</span>",
+          "<div class='text-gray-100 leading-relaxed'><span class='text-purple-400 text-lg font-bold'>👋 Hello there!</span><br>How can I help you learn more about Vedant today?</div>",
         "who are you":
-          "<span class='text-blue-500 text-xl font-bold'>I'm Vedant's virtual assistant. I'm here to chat about Vedant's projects, skills, and experience. I try to respond in his casual style!</span>",
+          "<div class='text-gray-100 leading-relaxed'><span class='text-purple-400 text-lg font-bold'>🤖 I'm Vedant's AI Assistant</span><br>I'm here to chat about Vedant's projects, skills, and experience. Ask me anything!</div>",
         "who r u":
-          "<span class='text-blue-500 text-xl font-bold'>hey! i'm vedant's virtual assistant. i chat about vedant's projects, skills, and background in his casual style.</span>",
+          "<div class='text-gray-100 leading-relaxed'><span class='text-purple-400 text-lg font-bold'>hey! 👋</span><br>i'm vedant's virtual assistant. i chat about his projects, skills, and background in his casual style.</div>",
         "what projects":
-          "<span class='text-purple-500 text-xl font-bold'>i've worked on several exciting projects: <br>- MedWE: medicine delivery platform (SIH Finalist)<br>- SkillBridge: educational lending platform with blockchain<br>- Voyageur: AI Travel Recommendation System<br>- PropertyDhundo: Real Estate Marketplace</span>",
+          "<div class='text-gray-100 leading-relaxed space-y-2'><span class='text-purple-400 text-lg font-bold'>🚀 Notable Projects:</span><br><div class='ml-4 space-y-1'><div class='flex items-start gap-2'><span class='text-purple-400'>•</span><span><strong class='text-blue-300'>MedWE:</strong> Medicine delivery platform (SIH Finalist)</span></div><div class='flex items-start gap-2'><span class='text-purple-400'>•</span><span><strong class='text-blue-300'>SkillBridge:</strong> Educational lending with blockchain</span></div><div class='flex items-start gap-2'><span class='text-purple-400'>•</span><span><strong class='text-blue-300'>Voyageur:</strong> AI Travel Recommendation System</span></div><div class='flex items-start gap-2'><span class='text-purple-400'>•</span><span><strong class='text-blue-300'>PropertyDhundo:</strong> Real Estate Marketplace</span></div></div></div>",
         contact:
-          "<span class='text-amber-500 text-xl font-bold'>you can reach me at kharevedant05@gmail.com or through <a href='https://www.linkedin.com/in/kharevedant05/' target='_blank' class='text-blue-500 hover:underline'>linkedin</a></span>",
+          "<div class='text-gray-100 leading-relaxed'><span class='text-purple-400 text-lg font-bold'>📬 Let's Connect!</span><br>Email: <a href='mailto:kharevedant05@gmail.com' class='text-blue-400 hover:text-blue-300 underline'>kharevedant05@gmail.com</a><br>LinkedIn: <a href='https://www.linkedin.com/in/kharevedant05/' target='_blank' class='text-blue-400 hover:text-blue-300 underline'>Connect with Vedant</a></div>",
         default:
-          "<span class=\"font-mono bg-black text-xl p-3 border-4 border-double border-green-400 text-green-400 uppercase tracking-widest\">hey! i'm vedant's chatbot. ask me anything about vedant's projects, skills or background!</span>",
+          "<div class='text-gray-100 leading-relaxed'><span class='text-purple-400 text-lg font-bold'>✨ Hey there!</span><br>I'm Vedant's AI assistant. Feel free to ask me about:<br><div class='ml-4 mt-2 space-y-1'><div class='flex items-start gap-2'><span class='text-purple-400'>•</span><span>His projects and achievements</span></div><div class='flex items-start gap-2'><span class='text-purple-400'>•</span><span>Technical skills and experience</span></div><div class='flex items-start gap-2'><span class='text-purple-400'>•</span><span>Hackathon wins and background</span></div><div class='flex items-start gap-2'><span class='text-purple-400'>•</span><span>How to get in touch</span></div></div></div>",
       };
 
       // Simple keyword matching with more flexible matching
