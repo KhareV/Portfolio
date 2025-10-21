@@ -1,17 +1,9 @@
 // Hero.jsx
 import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { motion } from "framer-motion";
-import { Canvas } from "@react-three/fiber";
-import { Environment, OrbitControls } from "@react-three/drei";
-import Developer from "../components/Developer";
-import LoadingSpinner from "../components/LoadingSpinner";
-import Button from "../components/Button";
-import CanvasLoader from "../components/CanvasLoader";
+
 import { styles } from "../styles";
-import ComputerCanvas from "../components/HackerRoom.jsx";
-import Wizard from "../components/Wizard.jsx";
-import ComputersCanvas from "../components/HackerRoom.jsx";
-import WizardSec from "./WizardSec.jsx";
+
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
