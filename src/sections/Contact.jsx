@@ -1,15 +1,19 @@
 import emailjs from "@emailjs/browser";
 import { useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { Send, Mail, User, MessageSquare } from "lucide-react";
-
-import useAlert from "../hooks/useAlert.js";
-import Alert from "../components/Alert.jsx";
-import { spacing, layout, responsive, cn } from "../styles/spacing.js";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Send,
+  Mail,
+  User,
+  MessageSquare,
+  Check,
+  AlertCircle,
+} from "lucide-react";
+import Prism from "./Prism";
 
 const Contact = () => {
   const formRef = useRef();
-  const { alert, showAlert, hideAlert } = useAlert();
+  const [alert, setAlert] = useState({ show: false, text: "", type: "" });
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
@@ -17,8 +21,8 @@ const Contact = () => {
     setForm({ ...form, [name]: value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    if (!form.name || !form.email || !form.message) return;
     setLoading(true);
 
     emailjs
@@ -37,497 +41,242 @@ const Contact = () => {
       .then(
         () => {
           setLoading(false);
-          showAlert({
+          setAlert({
             show: true,
-            text: "Thank you for your message 😃",
+            text: "Message sent successfully!",
             type: "success",
           });
 
           setTimeout(() => {
-            hideAlert(false);
-            setForm({
-              name: "",
-              email: "",
-              message: "",
-            });
+            setAlert({ show: false, text: "", type: "" });
+            setForm({ name: "", email: "", message: "" });
           }, 3000);
         },
         (error) => {
           setLoading(false);
           console.error(error);
-
-          showAlert({
+          setAlert({
             show: true,
-            text: "I didn't receive your message 😢",
-            type: "danger",
+            text: "Failed to send message. Please try again.",
+            type: "error",
           });
         }
       );
   };
 
   return (
-    <motion.section
-      className={cn(
-        "c-space",
-        spacing.section.paddingY,
-        "relative z-10 overflow-hidden"
-      )}
+    <section
+      className="relative min-h-screen overflow-hidden bg-black"
       id="contact"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      viewport={{ once: true, amount: 0.1 }}
     >
-      {alert.show && <Alert {...alert} />}
+      {/* Prism Background */}
+      <div className="absolute inset-0 opacity-100">
+        <Prism
+          animationType="3drotate"
+          timeScale={0.5}
+          height={3.6}
+          baseWidth={5.5}
+          scale={3.6}
+          hueShift={0}
+          colorFrequency={1}
+          noise={0}
+          glow={1.2}
+          hoverStrength={1.5}
+          inertia={0.08}
+          transparent={true}
+        />
+      </div>
 
-      <div
-        className={cn("relative", layout.flex.colCenter, "py-20 min-h-screen")}
-      >
-        {/* Terminal Background with overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/assets/terminal.png"
-            alt="terminal-bg"
-            className="absolute inset-0 h-full w-full object-contain opacity-60"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80" />
-        </div>
-        {/* Marquee Background */}
-        <div
-          className={cn(
-            "absolute inset-0 opacity-5 md:opacity-10 z-0 overflow-hidden pointer-events-none",
-            layout.flex.col,
-            "gap-32 mt-56",
-            spacing.container.paddingX,
-            "text-white-800"
-          )}
-        >
-          {/* Row 1 */}
-          <div className={cn("relative", layout.flex.row, "overflow-x-hidden")}>
-            <div
-              className={cn(
-                "animate-marquee whitespace-nowrap",
-                layout.flex.center
-              )}
-            >
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-            </div>
-            <div
-              className={cn(
-                "absolute top-0 animate-marquee2 whitespace-nowrap",
-                layout.flex.center
-              )}
-            >
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Let's build something interesting
-              </span>
-            </div>
-          </div>
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
 
-          {/* Row 2 */}
-          <div className={cn("relative", layout.flex.row, "overflow-x-hidden")}>
-            <div
-              className={cn(
-                "animate-marquee-reverse whitespace-nowrap",
-                layout.flex.center
-              )}
-            >
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-            </div>
-            <div
-              className={cn(
-                "absolute top-0 animate-marquee2-reverse whitespace-nowrap",
-                layout.flex.center
-              )}
-            >
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                I am cool, you are cool, let's build something
-              </span>
-            </div>
-          </div>
-
-          {/* Row 3 */}
-          <div className={cn("relative", layout.flex.row, "overflow-x-hidden")}>
-            <div
-              className={cn(
-                "animate-marquee whitespace-nowrap",
-                layout.flex.center
-              )}
-            >
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-            </div>
-            <div
-              className={cn(
-                "absolute top-0 animate-marquee2 whitespace-nowrap",
-                layout.flex.center
-              )}
-            >
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Together, we make it happen
-              </span>
-            </div>
-          </div>
-
-          {/* Row 4 */}
-          <div className={cn("relative", layout.flex.row, "overflow-x-hidden")}>
-            <div
-              className={cn(
-                "animate-marquee-reverse whitespace-nowrap",
-                layout.flex.center
-              )}
-            >
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-            </div>
-            <div
-              className={cn(
-                "absolute top-0 animate-marquee2-reverse whitespace-nowrap",
-                layout.flex.center
-              )}
-            >
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-              <span
-                className={cn(spacing.container.paddingX, responsive.text.xl)}
-              >
-                Inspiration meets creation
-              </span>
-            </div>
-          </div>
-        </div>
-        <motion.div
-          className="contact-container relative z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
-          viewport={{ once: true, amount: 0.1 }}
-        >
-          {/* Header Section */}
+      {/* Alert Notification */}
+      <AnimatePresence>
+        {alert.show && (
           <motion.div
-            className="text-center mb-12"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+            className="fixed top-8 left-1/2 -translate-x-1/2 z-50"
           >
-            <h3 className="head-text mb-6 bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
-              Let's Connect
-            </h3>
-            <p className="text-lg sm:text-xl md:text-2xl text-white-600 leading-relaxed max-w-2xl mx-auto">
-              Whether you're looking to build a new website, improve your
-              existing platform, or bring a unique project to life, I'm here to
-              help.
-            </p>
+            <div
+              className={`px-6 py-3 rounded-full backdrop-blur-md border flex items-center gap-2 shadow-2xl ${
+                alert.type === "success"
+                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                  : "bg-red-500/10 border-red-500/30 text-red-400"
+              }`}
+            >
+              {alert.type === "success" ? (
+                <Check className="w-4 h-4" />
+              ) : (
+                <AlertCircle className="w-4 h-4" />
+              )}
+              <span className="text-sm font-medium">{alert.text}</span>
+            </div>
           </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Contact Form Card */}
-          <motion.div
-            className="bg-gradient-to-br from-black-200/80 via-black-300/80 to-black-200/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 md:p-10 border border-black-300/50 shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300"
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <motion.form
-              ref={formRef}
-              onSubmit={handleSubmit}
-              className="flex flex-col space-y-6"
-            >
+      {/* Main Content */}
+      <div className="relative z-10 max-w-5xl mx-auto px-6 py-24 flex flex-col items-center justify-center min-h-screen">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">
+            Let's Talk
+          </h2>
+          <p className="text-lg text-gray-400 max-w-xl mx-auto">
+            Whether you're looking to build something new or improve what
+            exists, I'm here to help bring your vision to life.
+          </p>
+        </motion.div>
+
+        {/* Form Container */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="w-full max-w-2xl"
+        >
+          <div className="relative backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl">
+            <div className="space-y-6">
               {/* Name Field */}
-              <motion.label
-                className={cn(layout.flex.col, spacing.form.gap, "group")}
-                initial={{ x: -50, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <span className="field-label flex items-center gap-2 text-white-800 font-medium">
-                  <User className="w-5 h-5 text-yellow-500" />
-                  Full Name
-                </span>
-                <div className="relative">
+                <label className="block">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-300">
+                      Name
+                    </span>
+                  </div>
                   <input
                     type="text"
                     name="name"
                     value={form.name}
                     onChange={handleChange}
                     required
-                    className="field-input w-full bg-black-300 border-2 border-black-300 focus:border-yellow-500 rounded-xl px-4 py-3 text-white placeholder-white-600 transition-all duration-300 focus:ring-2 focus:ring-yellow-500/20 focus:outline-none"
-                    placeholder="John Doe"
+                    placeholder="Your name"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/30 focus:outline-none transition-all"
                   />
-                </div>
-              </motion.label>
+                </label>
+              </motion.div>
 
               {/* Email Field */}
-              <motion.label
-                className={cn(layout.flex.col, spacing.form.gap, "group")}
-                initial={{ x: -50, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <span className="field-label flex items-center gap-2 text-white-800 font-medium">
-                  <Mail className="w-5 h-5 text-yellow-500" />
-                  Email Address
-                </span>
-                <div className="relative">
+                <label className="block">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Mail className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-300">
+                      Email
+                    </span>
+                  </div>
                   <input
                     type="email"
                     name="email"
                     value={form.email}
                     onChange={handleChange}
                     required
-                    className="field-input w-full bg-black-300 border-2 border-black-300 focus:border-yellow-500 rounded-xl px-4 py-3 text-white placeholder-white-600 transition-all duration-300 focus:ring-2 focus:ring-yellow-500/20 focus:outline-none"
-                    placeholder="johndoe@gmail.com"
+                    placeholder="your@email.com"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/30 focus:outline-none transition-all"
                   />
-                </div>
-              </motion.label>
+                </label>
+              </motion.div>
 
               {/* Message Field */}
-              <motion.label
-                className={cn(layout.flex.col, spacing.form.gap, "group")}
-                initial={{ x: -50, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.7, duration: 0.5 }}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <span className="field-label flex items-center gap-2 text-white-800 font-medium">
-                  <MessageSquare className="w-5 h-5 text-yellow-500" />
-                  Your Message
-                </span>
-                <div className="relative">
+                <label className="block">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MessageSquare className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-300">
+                      Message
+                    </span>
+                  </div>
                   <textarea
                     name="message"
                     value={form.message}
                     onChange={handleChange}
                     required
                     rows={5}
-                    className="field-input w-full bg-black-300 border-2 border-black-300 focus:border-yellow-500 rounded-xl px-4 py-3 text-white placeholder-white-600 transition-all duration-300 focus:ring-2 focus:ring-yellow-500/20 focus:outline-none resize-none"
-                    placeholder="Share your thoughts or inquiries..."
+                    placeholder="Tell me about your project..."
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/30 focus:outline-none transition-all resize-none"
                   />
-                </div>
-              </motion.label>
+                </label>
+              </motion.div>
 
               {/* Submit Button */}
               <motion.button
-                className="field-btn w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-yellow-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group"
-                type="submit"
+                type="button"
+                onClick={handleSubmit}
                 disabled={loading}
-                initial={{ y: 30, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: loading ? 1 : 1.05 }}
-                whileTap={{ scale: loading ? 1 : 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative w-full py-4 rounded-lg font-medium text-white bg-white/10 hover:bg-white/15 border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 group"
               >
-                <span className="text-lg">
-                  {loading ? "Sending..." : "Send Message"}
-                </span>
-                <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                {loading ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                    />
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Send Message</span>
+                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
               </motion.button>
-            </motion.form>
-          </motion.div>
+            </div>
+          </div>
+        </motion.div>
 
-          {/* Social Links or Additional Info */}
-          <motion.div
-            className="mt-10 text-center"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.9, duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-white-600 text-sm sm:text-base">
-              Prefer email? Reach out directly at{" "}
-              <a
-                href="mailto:kharevedant05@gmail.com"
-                className="text-yellow-500 hover:text-yellow-400 underline transition-colors duration-300"
-              >
-                kharevedant05@gmail.com
-              </a>
-            </p>
-          </motion.div>
+        {/* Footer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          viewport={{ once: true }}
+          className="mt-8 text-center"
+        >
+          <p className="text-sm text-gray-500">
+            Or email me directly at{" "}
+            <a
+              href="mailto:kharevedant05@gmail.com"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              kharevedant05@gmail.com
+            </a>
+          </p>
         </motion.div>
       </div>
-    </motion.section>
+    </section>
   );
 };
 

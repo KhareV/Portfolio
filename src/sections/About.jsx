@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Globe from "react-globe.gl";
+import { Mail, Copy, Check, Code2, Globe2, Heart } from "lucide-react";
 import Button from "../components/Button.jsx";
 import TechMarquee from "../components/TechMarquee.jsx";
 import ItemLayout from "../components/ItemLayout.jsx";
@@ -238,8 +239,7 @@ const About = () => {
             </div>
           </div>
         </motion.div>
-
-        {/* Second Grid Item */}
+        {/* Second Grid Item - Tech Stack */}
         <motion.div
           className="col-span-1 md:col-span-1 xl:row-span-3"
           initial="hidden"
@@ -248,16 +248,23 @@ const About = () => {
           variants={slideIn}
           transition={{ delay: 0.6 }}
         >
-          <div className="grid-container hover:transform-card hover:bg-tertiary relative">
+          <div className="grid-container group hover:transform-card relative bg-gradient-to-br from-black-200/90 to-black-300/90 backdrop-blur-sm border border-black-300 hover:border-yellow-500/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-yellow-500/10 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <img
               src="assets/grid2.png"
               alt="grid-2"
-              className="w-full sm:h-[276px] h-fit object-contain filter brightness-50"
+              className="w-full sm:h-[276px] h-fit object-contain filter brightness-40 group-hover:brightness-50 transition-all duration-300"
             />
-            <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30"></div>
-            <div className="relative">
-              <p className="grid-headtext">Tech Stack</p>
-              <p className="grid-subtext">
+            <div className="relative p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+                  <Code2 className="w-6 h-6 text-yellow-500" />
+                </div>
+                <h3 className="grid-headtext text-2xl group-hover:text-yellow-500 transition-colors duration-300">
+                  Tech Stack
+                </h3>
+              </div>
+              <p className="grid-subtext leading-relaxed">
                 I specialize in a variety of languages, frameworks, and tools,
                 including HTML, CSS, JavaScript, React, Redux, Vue, Next.js,
                 Node.js, Express, MongoDB, MySQL, GraphQL, Apollo Client, and
@@ -268,7 +275,7 @@ const About = () => {
           </div>
         </motion.div>
 
-        {/* Third Grid Item */}
+        {/* Third Grid Item - Globe */}
         <motion.div
           className="col-span-1 md:col-span-1 xl:row-span-4"
           initial="hidden"
@@ -277,8 +284,9 @@ const About = () => {
           variants={slideIn}
           transition={{ delay: 0.9 }}
         >
-          <div className="grid-container hover:transform-card hover:bg-tertiary relative">
-            <div className="rounded-3xl w-full sm:h-[326px] h-fit flex justify-center items-center">
+          <div className="grid-container group hover:transform-card relative bg-gradient-to-br from-black-200/90 to-black-300/90 backdrop-blur-sm border border-black-300 hover:border-blue-500/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="rounded-3xl w-full sm:h-[326px] h-fit flex justify-center items-center bg-black/20">
               <Globe
                 height={326}
                 width={326}
@@ -412,11 +420,16 @@ const About = () => {
                 htmlAltitude={0.1}
               />
             </div>
-            <div className="relative">
-              <p className="grid-headtext">
-                I'm very flexible with time zone communications & locations
-              </p>
-              <p className="grid-subtext">
+            <div className="relative p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                  <Globe2 className="w-6 h-6 text-blue-500" />
+                </div>
+                <h3 className="grid-headtext text-xl">
+                  I'm very flexible with time zone communications & locations
+                </h3>
+              </div>
+              <p className="grid-subtext mb-6">
                 I&apos;m based in Chennai, India and open to remote work
                 worldwide.
               </p>
@@ -424,14 +437,14 @@ const About = () => {
                 <Button
                   name="Contact Me"
                   isBeam
-                  containerClass={cn("w-full", spacing.section.marginTop)}
+                  containerClass={cn("w-full")}
                 />
               </a>
             </div>
           </div>
         </motion.div>
 
-        {/* Fourth Grid Item */}
+        {/* Fourth Grid Item - Passion */}
         <motion.div
           className="col-span-1 md:col-span-2 xl:col-span-2 xl:row-span-3"
           initial="hidden"
@@ -442,19 +455,33 @@ const About = () => {
         >
           <div
             className={cn(
-              "grid-container hover:transform-card hover:bg-tertiary relative",
+              "grid-container group hover:transform-card relative bg-gradient-to-br from-black-200/90 to-black-300/90 backdrop-blur-sm border border-black-300 hover:border-purple-500/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-purple-500/10",
               transitions.default
             )}
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <img
               src="assets/grid3.png"
               alt="grid-3"
-              className="w-full sm:h-[266px] h-fit object-contain filter brightness-50"
+              className="w-full sm:h-[266px] h-fit object-contain filter brightness-40 group-hover:brightness-50 transition-all duration-300"
             />
-            <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30"></div>
-            <div className="relative">
-              <p className="grid-headtext">My Passion for Coding</p>
-              <p className="grid-subtext">
+            <div className="relative p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <motion.div
+                  className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400 }}
+                >
+                  <Heart
+                    className="w-6 h-6 text-purple-500"
+                    fill="currentColor"
+                  />
+                </motion.div>
+                <h3 className="grid-headtext text-2xl group-hover:text-purple-500 transition-colors duration-300">
+                  My Passion for Coding
+                </h3>
+              </div>
+              <p className="grid-subtext mb-6 leading-relaxed">
                 I love solving problems and building things through code.
                 Programming isn&apos;t just my profession—it&apos;s my passion.
                 I enjoy exploring new technologies, and enhancing my skills.
@@ -464,7 +491,7 @@ const About = () => {
           </div>
         </motion.div>
 
-        {/* Fifth Grid Item */}
+        {/* Fifth Grid Item - Contact */}
         <motion.div
           className="col-span-1 md:col-span-1 xl:col-span-1 xl:row-span-2"
           initial="hidden"
@@ -475,40 +502,63 @@ const About = () => {
         >
           <div
             className={cn(
-              "grid-container hover:transform-card hover:bg-tertiary relative",
+              "grid-container group hover:transform-card relative bg-gradient-to-br from-black-200/90 to-black-300/90 backdrop-blur-sm border border-black-300 hover:border-green-500/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-green-500/10",
               transitions.default
             )}
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <img
               src="assets/grid4.png"
               alt="grid-4"
-              className="w-full md:h-[126px] sm:h-[276px] h-fit object-cover sm:object-top filter brightness-50"
+              className="w-full md:h-[126px] sm:h-[276px] h-fit object-cover sm:object-top filter brightness-40 group-hover:brightness-50 transition-all duration-300"
             />
-            <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30"></div>
-            <div className={cn("space-y-2 relative")}>
-              <p className="grid-subtext text-center">Contact me</p>
-              <div
+            <div className={cn("space-y-4 relative p-6")}>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Mail className="w-5 h-5 text-green-500" />
+                <p className="grid-subtext text-center font-semibold text-white">
+                  Contact me
+                </p>
+              </div>
+              <motion.div
                 className={cn(
-                  "copy-container cursor-pointer hover:scale-105",
+                  "copy-container cursor-pointer flex items-center justify-center gap-3 p-4 bg-black-300/50 rounded-xl border border-black-300 hover:border-green-500/50",
                   transitions.default
                 )}
                 onClick={handleCopy}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <img
-                  src={hasCopied ? "assets/tick.svg" : "assets/copy.svg"}
-                  alt="copy"
-                  className={cn("hover:scale-125", transitions.default)}
-                />
+                <motion.div
+                  animate={hasCopied ? { scale: [1, 1.2, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  {hasCopied ? (
+                    <Check className="w-5 h-5 text-green-500" />
+                  ) : (
+                    <Copy className="w-5 h-5 text-gray-400 group-hover:text-green-500 transition-colors" />
+                  )}
+                </motion.div>
                 <p
                   className={cn(
-                    "text-sm md:text-base lg:text-2xl font-medium text-white hover:scale-105",
+                    "text-sm md:text-base lg:text-lg font-medium hover:scale-105",
                     transitions.default,
-                    hasCopied ? "text-green-400" : "text-gray-400"
+                    hasCopied
+                      ? "text-green-400"
+                      : "text-gray-400 group-hover:text-white"
                   )}
                 >
                   kharevedant05@gmail.com
                 </p>
-              </div>
+              </motion.div>
+              {hasCopied && (
+                <motion.p
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center text-green-400 text-sm"
+                >
+                  Email copied to clipboard!
+                </motion.p>
+              )}
             </div>
           </div>
         </motion.div>
