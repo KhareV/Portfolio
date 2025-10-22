@@ -40,50 +40,7 @@ const AppContent = () => {
     isFullyLoaded,
   });
 
-  // Enhanced mobile detection logic - ONLY show construction page for actual phones
-  const isMobileDevice = () => {
-    // Only redirect if screen is actually small (phone-sized)
-    const isPhoneSize = screenWidth > 0 && screenWidth < 768;
-
-    if (!isPhoneSize) {
-      return false; // Desktop/laptop/tablet - show full site
-    }
-
-    // Additional check: User Agent must indicate mobile device
-    const userAgent = navigator.userAgent.toLowerCase();
-    const mobileUA =
-      /android|webos|iphone|ipod|blackberry|iemobile|opera mini|mobile/i.test(
-        userAgent
-      );
-
-    // Exclude iPads and tablets (they should see full site)
-    const isTablet = /ipad|tablet/i.test(userAgent);
-
-    // Only show construction page if it's a phone-sized screen AND mobile user agent
-    // AND not a tablet
-    return isPhoneSize && mobileUA && !isTablet;
-  };
-
-  // Show construction page for mobile devices (but allow tablets)
-  if (isMobileDevice()) {
-    try {
-      return (
-        <Suspense fallback={<SectionLoader message="Loading mobile page..." />}>
-          <MobileConstructionPage />
-        </Suspense>
-      );
-    } catch (error) {
-      console.warn(
-        "Failed to load animated construction page, using fallback:",
-        error
-      );
-      return (
-        <Suspense fallback={<SectionLoader message="Loading fallback..." />}>
-          <MobileConstructionPageFallback />
-        </Suspense>
-      );
-    }
-  }
+  // Show full site on all screens - mobile construction page removed
 
   return (
     <>
