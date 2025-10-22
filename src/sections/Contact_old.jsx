@@ -375,156 +375,75 @@ const Contact = () => {
           </div>
         </div>
         <motion.div
-          className="contact-container relative z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
+          className="contact-container relative z-20"
+          initial={{ x: -100, opacity: 0 }}
+          whileInView={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
           viewport={{ once: true, amount: 0.1 }}
         >
-          {/* Header Section */}
-          <motion.div
-            className="text-center mb-12"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            viewport={{ once: true }}
+          <h3 className="head-text">Let's talk</h3>
+          <p className="text-3xl text-white-600 mt-3">
+            Whether you’re looking to build a new website, improve your existing
+            platform, or bring a unique project to life, I’m here to help.
+          </p>
+
+          <motion.form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            className="mt-12 flex flex-col space-y-7"
+            initial={{ x: -100, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+            viewport={{ once: true, amount: 0.1 }}
           >
-            <h3 className="head-text mb-6 bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
-              Let's Connect
-            </h3>
-            <p className="text-lg sm:text-xl md:text-2xl text-white-600 leading-relaxed max-w-2xl mx-auto">
-              Whether you're looking to build a new website, improve your
-              existing platform, or bring a unique project to life, I'm here to
-              help.
-            </p>
-          </motion.div>
+            <label className={cn(layout.flex.col, spacing.form.gap)}>
+              <span className="field-label">Full Name</span>
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                className="field-input"
+                placeholder="ex., John Doe"
+              />
+            </label>
 
-          {/* Contact Form Card */}
-          <motion.div
-            className="bg-gradient-to-br from-black-200/80 via-black-300/80 to-black-200/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 md:p-10 border border-black-300/50 shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300"
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <motion.form
-              ref={formRef}
-              onSubmit={handleSubmit}
-              className="flex flex-col space-y-6"
-            >
-              {/* Name Field */}
-              <motion.label
-                className={cn(layout.flex.col, spacing.form.gap, "group")}
-                initial={{ x: -50, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <span className="field-label flex items-center gap-2 text-white-800 font-medium">
-                  <User className="w-5 h-5 text-yellow-500" />
-                  Full Name
-                </span>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                    className="field-input w-full bg-black-300 border-2 border-black-300 focus:border-yellow-500 rounded-xl px-4 py-3 text-white placeholder-white-600 transition-all duration-300 focus:ring-2 focus:ring-yellow-500/20 focus:outline-none"
-                    placeholder="John Doe"
-                  />
-                </div>
-              </motion.label>
+            <label className={cn(layout.flex.col, spacing.form.gap)}>
+              <span className="field-label">Email address</span>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+                className="field-input"
+                placeholder="ex., johndoe@gmail.com"
+              />
+            </label>
 
-              {/* Email Field */}
-              <motion.label
-                className={cn(layout.flex.col, spacing.form.gap, "group")}
-                initial={{ x: -50, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <span className="field-label flex items-center gap-2 text-white-800 font-medium">
-                  <Mail className="w-5 h-5 text-yellow-500" />
-                  Email Address
-                </span>
-                <div className="relative">
-                  <input
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                    className="field-input w-full bg-black-300 border-2 border-black-300 focus:border-yellow-500 rounded-xl px-4 py-3 text-white placeholder-white-600 transition-all duration-300 focus:ring-2 focus:ring-yellow-500/20 focus:outline-none"
-                    placeholder="johndoe@gmail.com"
-                  />
-                </div>
-              </motion.label>
+            <label className={cn(layout.flex.col, spacing.form.gap)}>
+              <span className="field-label">Your message</span>
+              <textarea
+                name="message"
+                value={form.message}
+                onChange={handleChange}
+                required
+                rows={5}
+                className="field-input"
+                placeholder="Share your thoughts or inquiries..."
+              />
+            </label>
 
-              {/* Message Field */}
-              <motion.label
-                className={cn(layout.flex.col, spacing.form.gap, "group")}
-                initial={{ x: -50, opacity: 0 }}
-                whileInView={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.7, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <span className="field-label flex items-center gap-2 text-white-800 font-medium">
-                  <MessageSquare className="w-5 h-5 text-yellow-500" />
-                  Your Message
-                </span>
-                <div className="relative">
-                  <textarea
-                    name="message"
-                    value={form.message}
-                    onChange={handleChange}
-                    required
-                    rows={5}
-                    className="field-input w-full bg-black-300 border-2 border-black-300 focus:border-yellow-500 rounded-xl px-4 py-3 text-white placeholder-white-600 transition-all duration-300 focus:ring-2 focus:ring-yellow-500/20 focus:outline-none resize-none"
-                    placeholder="Share your thoughts or inquiries..."
-                  />
-                </div>
-              </motion.label>
-
-              {/* Submit Button */}
-              <motion.button
-                className="field-btn w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-yellow-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group"
-                type="submit"
-                disabled={loading}
-                initial={{ y: 30, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: loading ? 1 : 1.05 }}
-                whileTap={{ scale: loading ? 1 : 0.95 }}
-              >
-                <span className="text-lg">
-                  {loading ? "Sending..." : "Send Message"}
-                </span>
-                <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
-              </motion.button>
-            </motion.form>
-          </motion.div>
-
-          {/* Social Links or Additional Info */}
-          <motion.div
-            className="mt-10 text-center"
-            initial={{ y: 30, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.9, duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-white-600 text-sm sm:text-base">
-              Prefer email? Reach out directly at{" "}
-              <a
-                href="mailto:kharevedant05@gmail.com"
-                className="text-yellow-500 hover:text-yellow-400 underline transition-colors duration-300"
-              >
-                kharevedant05@gmail.com
-              </a>
-            </p>
-          </motion.div>
+            <button className="field-btn" type="submit" disabled={loading}>
+              {loading ? "Sending..." : "Send Message"}
+              <img
+                src="/assets/arrow-up.png"
+                alt="arrow-up"
+                className="field-btn_arrow"
+              />
+            </button>
+          </motion.form>
         </motion.div>
       </div>
     </motion.section>

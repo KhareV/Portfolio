@@ -226,13 +226,19 @@ const Hero = () => {
             className={cn(
               "flex-1",
               layout.flex.col,
-              "items-start w-full md:max-w-[55%] lg:max-w-[60%]"
+              "items-start md:items-center lg:items-start w-full md:max-w-[55%] lg:max-w-[60%]"
             )}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, ease: "easeInOut" }}
           >
-            <div className={cn(layout.flex.colCenter, spacing.text.marginTop)}>
+            <div
+              className={cn(
+                layout.flex.colCenter,
+                spacing.text.marginTop,
+                "md:hidden"
+              )}
+            >
               <motion.div
                 className="w-5 h-5 rounded-full bg-yellow-600"
                 initial={{ scale: 0 }}
@@ -247,12 +253,12 @@ const Hero = () => {
               />
             </div>
 
-            <div className="z-10">
+            <div className="z-10 md:text-center lg:text-left w-full">
               <h1
                 ref={headingRef}
-                className={`${styles.heroHeadText} text-white`}
+                className={`${styles.heroHeadText} text-white flex items-center flex-wrap md:justify-center lg:justify-start`}
               >
-                Hi, I'm{" "}
+                <span>Hi, I'm </span>
                 <span
                   className={cn(
                     "text-yellow-600 hover:text-yellow-500",
@@ -261,7 +267,7 @@ const Hero = () => {
                 >
                   Vedant
                 </span>
-                <span className="waving-hand ml-2">👋</span>
+                <span className="waving-hand ml-2 inline-block">👋</span>
               </h1>
 
               <div
@@ -270,7 +276,13 @@ const Hero = () => {
                   spacing.text.marginTop
                 )}
               >
-                <div ref={textRef} className={layout.flex.center}>
+                <div
+                  ref={textRef}
+                  className={cn(
+                    layout.flex.center,
+                    "md:justify-center lg:justify-start"
+                  )}
+                >
                   <span
                     className={cn(
                       responsive.text.lg,
@@ -294,7 +306,8 @@ const Hero = () => {
                   styles.heroSubText,
                   spacing.section.marginTop,
                   "text-white-100",
-                  layout.maxWidth.lg
+                  layout.maxWidth.lg,
+                  "md:mx-auto lg:mx-0"
                 )}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -309,7 +322,8 @@ const Hero = () => {
                 className={cn(
                   spacing.section.marginTop,
                   layout.flex.wrap,
-                  spacing.grid.gapSmall
+                  spacing.grid.gapSmall,
+                  "md:justify-center lg:justify-start"
                 )}
               >
                 <motion.span

@@ -65,7 +65,7 @@ const About = () => {
           <div className="w-full md:w-4/5 mx-auto bg-gray-920 rounded-lg relative">
             {/* Marquee Container */}
             <div className="absolute inset-0 w-full h-full">
-              <div className={cn(spacing.section.paddingY, "mt-96 pt-48")}>
+              <div className={cn(spacing.section.paddingY, "mt-52 pt-24")}>
                 <div className="relative flex overflow-x-hidden overflow-y-hidden">
                   <div
                     className={cn(
@@ -501,7 +501,7 @@ const About = () => {
                 />
                 <p
                   className={cn(
-                    "lg:text-2xl md:text-xl font-medium text-white hover:scale-105",
+                    "text-sm md:text-base lg:text-2xl font-medium text-white hover:scale-105",
                     transitions.default,
                     hasCopied ? "text-green-400" : "text-gray-400"
                   )}

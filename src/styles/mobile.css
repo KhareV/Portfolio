@@ -140,12 +140,31 @@
 
   /* Projects section tablet */
   .project-canvas-container {
-    height: 350px !important;
-    max-width: 450px;
+    height: 400px !important;
   }
 
   .project-title {
     font-size: 2.25rem !important;
+  }
+
+  /* Project details card */
+  section#projects .grid {
+    gap: 2rem !important;
+  }
+
+  section#projects .flex.flex-col {
+    padding: 2rem !important;
+  }
+
+  /* Project tech stack */
+  .tech-logo {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+  /* Project navigation */
+  .arrow-btn {
+    padding: 0.75rem !important;
   }
 
   /* Contact section tablet */
@@ -154,29 +173,38 @@
   }
 
   .contact-container {
-    padding: 2rem 1.5rem !important;
-    max-width: 95% !important;
+    padding: 0 !important;
+    max-width: 90% !important;
     margin: 0 auto !important;
   }
 
   .contact-container .head-text {
-    font-size: 2.25rem !important;
-    margin-bottom: 1rem !important;
+    font-size: 2.5rem !important;
+    margin-bottom: 1.5rem !important;
   }
 
   .contact-container p {
-    font-size: 1rem !important;
-    line-height: 1.6 !important;
+    font-size: 1.1rem !important;
+    line-height: 1.7 !important;
   }
 
   .contact-container form {
     width: 100% !important;
   }
 
+  .contact-container .bg-gradient-to-br {
+    padding: 2rem !important;
+  }
+
   .contact-container input,
   .contact-container textarea {
     font-size: 1rem !important;
-    padding: 0.75rem !important;
+    padding: 0.875rem 1rem !important;
+  }
+
+  .contact-container .field-btn {
+    padding: 1rem 2rem !important;
+    font-size: 1.1rem !important;
   }
 
   /* Work experience tablet */
@@ -315,86 +343,94 @@
 
 /* ====== PROJECTS SECTION MOBILE FIXES ====== */
 @media (max-width: 768px) {
-  /* Projects container adjustments */
-  .projects-container {
-    height: auto !important;
-    min-height: 100vh;
-    padding: 1rem;
+  /* Projects main container */
+  section#projects {
+    padding: 2rem 1rem !important;
   }
 
-  /* Project section layout fixes */
-  .project-section {
-    flex-direction: column !important;
-    gap: 2rem;
-    padding: 2rem 1rem;
-    min-height: 100vh;
-    justify-content: center;
+  /* Projects grid layout */
+  section#projects > div > .grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
   }
 
-  /* Project details mobile layout */
-  .project-details {
-    width: 100% !important;
-    order: 1;
+  /* Project card mobile */
+  section#projects .flex.flex-col {
+    padding: 1.5rem 1rem !important;
     margin-bottom: 2rem;
   }
 
-  /* Project 3D canvas mobile adjustments */
-  .project-canvas-container {
-    width: 100% !important;
-    height: 300px !important;
-    order: 2;
-    margin: 0 auto;
-    max-width: 400px;
+  /* Project logo */
+  section#projects .flex.flex-col > div:first-child {
+    width: fit-content !important;
+    padding: 0.75rem !important;
   }
 
-  /* Project navigation dots */
-  .project-navigation {
-    right: 1rem !important;
-    gap: 0.5rem;
+  section#projects .flex.flex-col > div:first-child img {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
   }
 
-  /* Project tech tags mobile layout */
-  .tech-tags-container {
-    max-width: 100%;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-  }
-
-  .tech-tag {
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  /* Project buttons mobile layout */
-  .project-buttons {
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
-  }
-
-  .project-button {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-  }
-
-  /* Project cards responsive */
-  .project-card {
-    padding: 1.5rem !important;
-    margin: 0.5rem 0;
-  }
-
-  /* Project title responsive */
-  .project-title {
-    font-size: 2rem !important;
-    line-height: 1.2;
-    margin: 1rem 0;
+  /* Project title */
+  section#projects h3 {
+    font-size: 1.75rem !important;
+    line-height: 1.2 !important;
   }
 
   /* Project description */
-  .project-description {
-    font-size: 0.95rem;
-    line-height: 1.6;
+  section#projects .flex.flex-col p {
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Project tech stack */
+  section#projects .tech-logo {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  section#projects .flex.items-center.gap-4 {
+    gap: 0.75rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Project live link button */
+  section#projects a {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.875rem 1.5rem !important;
+    text-align: center !important;
+  }
+
+  /* Project navigation buttons */
+  section#projects .arrow-btn {
+    padding: 0.625rem !important;
+  }
+
+  section#projects .arrow-btn svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  /* Project dots indicator */
+  section#projects .flex.gap-2 button {
+    width: 0.5rem !important;
+    height: 0.5rem !important;
+  }
+
+  section#projects .flex.gap-2 button.w-8 {
+    width: 1.5rem !important;
+  }
+
+  /* Project 3D canvas mobile */
+  section#projects .border-2 {
+    height: 300px !important;
+    margin-top: 1rem !important;
+  }
+
+  /* Spotlight image */
+  section#projects .absolute.top-0.right-0 img {
+    height: 250px !important;
   }
 }
 
@@ -604,7 +640,7 @@
 
   /* Contact section fixes */
   .contact-container {
-    padding: 1.5rem !important;
+    padding: 0 !important;
     margin: 0 auto;
     max-width: 100%;
   }
@@ -615,8 +651,45 @@
   }
 
   .contact-container p {
+    font-size: 0.95rem !important;
+    line-height: 1.6;
+  }
+
+  .contact-container .bg-gradient-to-br {
+    padding: 1.5rem !important;
+    border-radius: 1.5rem !important;
+  }
+
+  .contact-container input,
+  .contact-container textarea {
+    font-size: 0.95rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .contact-container .field-label {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .contact-container .field-label svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  .contact-container .field-btn {
+    width: 100% !important;
+    padding: 0.875rem 1.5rem !important;
     font-size: 1rem !important;
-    line-height: 1.5;
+  }
+
+  .contact-container .field-btn svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+
+  /* Contact email link */
+  .contact-container a {
+    word-break: break-word;
   }
 
   /* Work experience fixes */
@@ -650,13 +723,22 @@
     font-size: 1rem !important;
   }
 
-  /* Projects adjustments */
-  .project-title {
-    font-size: 1.75rem !important;
+  /* Projects adjustments for small screens */
+  section#projects h3 {
+    font-size: 1.5rem !important;
   }
 
-  .project-canvas-container {
+  section#projects .flex.flex-col {
+    padding: 1.25rem 0.75rem !important;
+  }
+
+  section#projects .border-2 {
     height: 250px !important;
+  }
+
+  section#projects .tech-logo {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
   }
 
   /* About adjustments */
@@ -668,9 +750,28 @@
     height: 200px !important;
   }
 
-  /* Navigation adjustments */
-  .project-navigation {
-    right: 0.5rem !important;
+  /* Contact adjustments for small screens */
+  .contact-container .head-text {
+    font-size: 1.75rem !important;
+  }
+
+  .contact-container p {
+    font-size: 0.875rem !important;
+  }
+
+  .contact-container .bg-gradient-to-br {
+    padding: 1.25rem !important;
+  }
+
+  .contact-container input,
+  .contact-container textarea {
+    padding: 0.625rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  .contact-container .field-btn {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.9rem !important;
   }
 }
 
@@ -680,12 +781,12 @@
     font-size: 1.75rem !important;
   }
 
-  .project-title {
-    font-size: 1.5rem !important;
+  section#projects h3 {
+    font-size: 1.35rem !important;
   }
 
-  .project-canvas-container {
-    height: 200px !important;
+  section#projects .border-2 {
+    height: 220px !important;
   }
 
   .about-globe {
@@ -694,6 +795,19 @@
 
   .about-marquee-text {
     font-size: 2rem !important;
+  }
+
+  /* Contact for very small screens */
+  .contact-container .head-text {
+    font-size: 1.5rem !important;
+  }
+
+  .contact-container p {
+    font-size: 0.8rem !important;
+  }
+
+  .contact-container .bg-gradient-to-br {
+    padding: 1rem !important;
   }
 }
 
@@ -729,11 +843,15 @@
     padding: 2rem 1.5rem !important;
   }
 
-  .project-canvas-container {
+  section#projects .border-2 {
     width: 100% !important;
-    height: 400px !important;
+    height: 420px !important;
     max-width: 600px !important;
     margin: 0 auto !important;
+  }
+
+  section#projects .flex.flex-col {
+    padding: 2rem !important;
   }
 
   /* Contact for iPad portrait */
