@@ -23,7 +23,7 @@ const Sound = () => {
       console.log("Showing music modal...");
       setShowModal(true);
       hasShownModalRef.current = true;
-    }, 2500); // Delay after loading completes (increased from 2500ms to 3500ms)
+    }, 3500); // Smooth delay after loading completes
 
     return () => {
       clearTimeout(initTimer);
