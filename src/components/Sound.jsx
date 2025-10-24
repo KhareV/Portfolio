@@ -3,6 +3,7 @@ import { Volume2, VolumeX } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Modal from "./Modal";
 import { useLoadingContext } from "../contexts/LoadingContext";
+import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const Sound = () => {
   const audioRef = useRef(null);
@@ -10,6 +11,7 @@ const Sound = () => {
   const [showModal, setShowModal] = useState(false);
   const hasShownModalRef = useRef(false);
   const { isAppReady } = useLoadingContext();
+  const { isMobile } = useDeviceDetection();
 
   useEffect(() => {
     if (!isAppReady) return; // Wait for loading to complete
@@ -154,7 +156,9 @@ const Sound = () => {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 1 }}
-        className="w-10 h-10 xs:w-14 xs:h-14 text-foreground rounded-full flex items-center justify-center cursor-pointer z-50 p-2.5 xs:p-4 custom-bg"
+        className={`${
+          isMobile ? "w-8 h-8 p-2" : "w-10 h-10 xs:w-14 xs:h-14 p-2.5 xs:p-4"
+        } text-foreground rounded-full flex items-center justify-center cursor-pointer z-50 custom-bg`}
         aria-label="Sound control button"
         name="Sound control button"
       >

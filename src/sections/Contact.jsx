@@ -10,6 +10,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Prism from "./Prism";
+import Beams from "./Beams";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const Contact = () => {
@@ -71,9 +72,9 @@ const Contact = () => {
       className="relative min-h-screen overflow-hidden bg-black"
       id="contact"
     >
-      {/* Prism Background */}
-      {!isMobile && (
-        <div className="absolute inset-0 opacity-100">
+      {/* Background - Prism for desktop, Beams for mobile */}
+      {!isMobile ? (
+        <div className="absolute inset-0 opacity-100 z-0">
           <Prism
             animationType="3drotate"
             timeScale={0.5}
@@ -89,10 +90,23 @@ const Contact = () => {
             transparent={true}
           />
         </div>
+      ) : (
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <Beams
+            beamWidth={2}
+            beamHeight={15}
+            beamNumber={12}
+            lightColor="#ffffff"
+            speed={2}
+            noiseIntensity={1.75}
+            scale={0.2}
+            rotation={0}
+          />
+        </div>
       )}
 
       {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-0" />
 
       {/* Alert Notification */}
       <AnimatePresence>

@@ -290,8 +290,8 @@ const About = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="rounded-3xl w-full sm:h-[326px] h-fit flex justify-center items-center bg-black/20">
               <Globe
-                height={isMobile ? 250 : 326}
-                width={isMobile ? 250 : 326}
+                height={isMobile ? 200 : 326}
+                width={isMobile ? 200 : 326}
                 backgroundColor="rgba(3, 3, 4, 2)"
                 backgroundImageOpacity={0.5}
                 showAtmosphere={!isMobile}
