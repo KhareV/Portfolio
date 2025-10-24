@@ -263,7 +263,7 @@ export const workExperiences = [
     pos: "Team Lead",
     duration: "Apr 2024 - Apr 2025",
     title:
-      "Led teams to build SkillBridge and MedWE, ranking top 60 nationally in Spectrum and achieving SIH Hackathon finalist status.",
+      "Led teams to build SkillBridge and MedWE, ranking top 3 nationally in Spectrum and achieving SIH Hackathon finalist status.",
     icon: "/assets/hackathons.png",
     animation: "salute",
   },

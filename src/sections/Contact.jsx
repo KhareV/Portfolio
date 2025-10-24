@@ -93,14 +93,14 @@ const Contact = () => {
       ) : (
         <div className="absolute inset-0 z-0 pointer-events-none">
           <Beams
-            beamWidth={2}
-            beamHeight={15}
-            beamNumber={12}
-            lightColor="#ffffff"
-            speed={2}
-            noiseIntensity={1.75}
-            scale={0.2}
-            rotation={0}
+            beamWidth={4}
+            beamHeight={30}
+            beamNumber={15}
+            lightColor="#ff00ff" // purple-magenta
+            speed={2.5}
+            noiseIntensity={3}
+            scale={0.4}
+            rotation={45}
           />
         </div>
       )}
