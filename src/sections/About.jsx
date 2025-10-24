@@ -12,8 +12,10 @@ import {
   transitions,
   cn,
 } from "../styles/spacing";
+import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const About = () => {
+  const { isMobile } = useDeviceDetection();
   const [hasCopied, setHasCopied] = useState(false);
 
   const handleCopy = () => {
@@ -288,14 +290,18 @@ const About = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="rounded-3xl w-full sm:h-[326px] h-fit flex justify-center items-center bg-black/20">
               <Globe
-                height={326}
-                width={326}
+                height={isMobile ? 250 : 326}
+                width={isMobile ? 250 : 326}
                 backgroundColor="rgba(3, 3, 4, 2)"
                 backgroundImageOpacity={0.5}
-                showAtmosphere
-                showGraticules
+                showAtmosphere={!isMobile}
+                showGraticules={!isMobile}
                 globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
-                bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+                bumpImageUrl={
+                  isMobile
+                    ? undefined
+                    : "//unpkg.com/three-globe/example/img/earth-topology.png"
+                }
                 cameraPosition={{ x: 1.5, y: 0, z: 0 }}
                 cameraRotation={{ x: 0, y: -Math.PI / 2, z: 0 }}
                 autoRotate={false}

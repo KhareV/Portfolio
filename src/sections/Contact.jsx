@@ -10,8 +10,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Prism from "./Prism";
+import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const Contact = () => {
+  const { isMobile } = useDeviceDetection();
   const formRef = useRef();
   const [alert, setAlert] = useState({ show: false, text: "", type: "" });
   const [loading, setLoading] = useState(false);
@@ -70,22 +72,24 @@ const Contact = () => {
       id="contact"
     >
       {/* Prism Background */}
-      <div className="absolute inset-0 opacity-100">
-        <Prism
-          animationType="3drotate"
-          timeScale={0.5}
-          height={3.6}
-          baseWidth={5.5}
-          scale={3.6}
-          hueShift={0}
-          colorFrequency={1}
-          noise={0}
-          glow={1.2}
-          hoverStrength={1.5}
-          inertia={0.08}
-          transparent={true}
-        />
-      </div>
+      {!isMobile && (
+        <div className="absolute inset-0 opacity-100">
+          <Prism
+            animationType="3drotate"
+            timeScale={0.5}
+            height={3.6}
+            baseWidth={5.5}
+            scale={3.6}
+            hueShift={0}
+            colorFrequency={1}
+            noise={0}
+            glow={1.2}
+            hoverStrength={1.5}
+            inertia={0.08}
+            transparent={true}
+          />
+        </div>
+      )}
 
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />

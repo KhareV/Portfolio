@@ -2,17 +2,22 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial, Preload } from "@react-three/drei";
 import * as random from "maath/random/dist/maath-random.esm";
+import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const Stars = (props) => {
+  const { isMobile } = useDeviceDetection();
   const ref = useRef();
   const [sphere] = useState(() =>
-    random.inSphere(new Float32Array(5000), { radius: 1.2 })
+    random.inSphere(new Float32Array(isMobile ? 1000 : 5000), { radius: 1.2 })
   );
 
   const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 });
   const [currentRotation, setCurrentRotation] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    // Disable mouse tracking on mobile devices
+    if (isMobile) return;
+
     const handleMouseMove = (event) => {
       const { innerWidth, innerHeight } = window;
       setTargetRotation({
@@ -23,7 +28,7 @@ const Stars = (props) => {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [isMobile]);
 
   useFrame(() => {
     // Apply a slow interpolation factor for a larger delay effect

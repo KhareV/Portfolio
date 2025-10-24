@@ -10,10 +10,12 @@ import { myProjects } from "../constants/index.js";
 import CanvasLoader from "../components/CanvasLoader.jsx";
 import DemoComputer from "../components/DemoComputer.jsx";
 import TechIcon from "../components/TechIcon.jsx";
+import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const projectCount = myProjects.length;
 
 const Projects = () => {
+  const { isMobile } = useDeviceDetection();
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
 
   const handleNavigation = (direction) => {
@@ -199,12 +201,22 @@ const Projects = () => {
           transition={{ duration: 0.5 }}
           className="border-2 border-black-300 bg-black-200 rounded-2xl h-96 md:h-full overflow-hidden hover:border-yellow-500/50 transition-all duration-300 shadow-xl hover:shadow-yellow-500/20"
         >
-          <Canvas>
+          <Canvas
+            dpr={isMobile ? [1, 1] : [1, 2]}
+            gl={{
+              antialias: !isMobile,
+              powerPreference: isMobile ? "low-power" : "high-performance",
+            }}
+          >
             <ambientLight intensity={Math.PI} />
             <directionalLight position={[10, 10, 5]} intensity={0.5} />
             <Center>
               <Suspense fallback={<CanvasLoader />}>
-                <group scale={2} position={[0, -3, 0]} rotation={[0, -0.1, 0]}>
+                <group
+                  scale={isMobile ? 1.5 : 2}
+                  position={[0, -3, 0]}
+                  rotation={[0, -0.1, 0]}
+                >
                   <DemoComputer texture={currentProject.texture} />
                 </group>
               </Suspense>

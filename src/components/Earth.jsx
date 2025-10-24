@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
 import StarsCanvas from "./Stars";
 import CanvasLoader from "./CanvasLoader";
+import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const Earth = () => {
   const earth = useGLTF("planet/scene.gltf");
@@ -18,6 +19,8 @@ const Earth = () => {
 };
 
 const EarthCanvas = () => {
+  const { isMobile } = useDeviceDetection();
+
   return (
     <>
       <div style={{ width: "100%", height: "100vh", position: "relative" }}>
@@ -25,8 +28,12 @@ const EarthCanvas = () => {
         <Canvas
           shadows
           frameloop="demand"
-          dpr={[1, 2]}
-          gl={{ preserveDrawingBuffer: true }}
+          dpr={isMobile ? [1, 1] : [1, 2]}
+          gl={{
+            preserveDrawingBuffer: true,
+            antialias: !isMobile,
+            powerPreference: isMobile ? "low-power" : "high-performance",
+          }}
           camera={{
             fov: 30,
             near: 0.1,
@@ -45,23 +52,27 @@ const EarthCanvas = () => {
           <Suspense fallback={<CanvasLoader />}>
             <OrbitControls
               autoRotate
-              autoRotateSpeed={5}
+              autoRotateSpeed={isMobile ? 3 : 5}
               enableZoom={false}
               maxPolarAngle={Math.PI}
               minPolarAngle={0}
             />
             <ambientLight intensity={0.8} />
-            <directionalLight position={[1, 1, 1]} intensity={1} castShadow />
+            <directionalLight
+              position={[1, 1, 1]}
+              intensity={1}
+              castShadow={!isMobile}
+            />
             <hemisphereLight intensity={0.3} groundColor="black" />
             <spotLight
               position={[-20, 50, 10]}
               angle={0.12}
               penumbra={1}
               intensity={1}
-              castShadow
+              castShadow={!isMobile}
             />
             <Earth />
-            <Preload all />
+            {!isMobile && <Preload all />}
           </Suspense>
         </Canvas>
       </div>
