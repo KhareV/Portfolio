@@ -73,7 +73,7 @@ const Footer = () => {
 
   return (
     <footer id="footer" className="relative w-full overflow-hidden">
-      <div className="relative mx-auto w-full aspect-[60/17] min-h-[320px] sm:min-h-[360px] md:min-h-[430px]">
+      <div className="relative mx-auto w-full aspect-[60/20] min-h-[340px] sm:min-h-[400px] md:min-h-[530px]">
         {backgrounds.map(([phase, src]) => (
           <img
             key={phase}
@@ -120,7 +120,7 @@ const Footer = () => {
           </div>
 
           <p className="font-site-default text-sm text-[#f4e8dc] md:text-base">
-            © 2026 Vedant Khare. All rights reserved.
+            © 2024 Vedant Khare. All rights reserved.
           </p>
         </div>
       </div>

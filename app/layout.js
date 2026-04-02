@@ -8,7 +8,7 @@ export const metadata = {
     "Full-Stack Developer, Blockchain, AI/ML, React, Next.js, Portfolio, Vedant, Web Development, Three.js",
   authors: [{ name: "Vedant" }],
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   ),
   openGraph: {
     title: "Vedant's Portfolio",
@@ -16,7 +16,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "/image/logo.png",
+        url: "/snoopy.png",
         width: 1200,
         height: 630,
         alt: "Vedant's Portfolio",
@@ -27,7 +27,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Vedant's Portfolio",
     description: "Full-Stack Developer & Blockchain Enthusiast",
-    images: ["/image/logo.png"],
+    images: ["/snoopy.png"],
   },
 };
 
@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="icon" type="image/x-icon" href="/image/logo.png" />
+        <link rel="icon" type="image/x-icon" href="/snoopy.png" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
         {children}
