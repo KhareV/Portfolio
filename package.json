@@ -1,0 +1,52 @@
+{
+  "name": "nextjs-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@emailjs/browser": "^4.4.1",
+    "@google/genai": "^1.34.0",
+    "@google/generative-ai": "^0.24.1",
+    "@gsap/react": "^2.1.2",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
+    "@react-three/postprocessing": "^3.0.4",
+    "@tabler/icons-react": "^3.36.0",
+    "autoprefixer": "^10.4.23",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.26",
+    "gsap": "^3.14.2",
+    "leaflet": "^1.9.4",
+    "lenis": "^1.3.16",
+    "leva": "^0.10.1",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.562.0",
+    "motion": "^12.23.26",
+    "next": "16.0.10",
+    "ogl": "^1.0.11",
+    "postcss": "^8.5.6",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "react-globe.gl": "^2.37.0",
+    "react-icons": "^5.5.0",
+    "react-leaflet": "^5.0.0",
+    "react-responsive": "^10.0.1",
+    "react-simple-maps": "^3.0.0",
+    "tailwind-scrollbar": "^4.0.2",
+    "three": "^0.182.0",
+    "three-stdlib": "^2.36.1",
+    "typewriter-effect": "^2.22.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.10",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^6.0.2"
+  }
+}
