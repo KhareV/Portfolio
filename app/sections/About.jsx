@@ -483,6 +483,9 @@ const About = () => {
                   containerClass={cn("w-full")}
                 />
               </a>
+              <div className="mt-4 flex justify-center">
+                <Sunflower className="w-[100px] h-[100px] md:w-[340px] md:h-[340px] mt-7" />
+              </div>
             </div>
           </div>
         </motion.div>

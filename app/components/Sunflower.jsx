@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
 const Sunflower = ({ className = "" }) => {
   return (
     <svg
-      ref={svgRef}
       width="100"
       height="100"
       viewBox="0 0 291 467"

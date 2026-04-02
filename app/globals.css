@@ -357,20 +357,6 @@ select,
 .sunflower-svg rect {
   transform-box: fill-box;
   transform-origin: center;
-  transition:
-    transform 440ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 440ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
-}
-
-.sunflower-svg:hover rect {
-  transform: scale(1.16);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sunflower-svg rect {
-    transition: none;
-  }
 }
 
 .logo-6 {
