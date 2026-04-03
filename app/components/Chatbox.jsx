@@ -34,28 +34,29 @@ const ChatBox = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [autoAnswerText, setAutoAnswerText] = useState("");
   const [autoAnswerDone, setAutoAnswerDone] = useState(false);
+  const isAutoIntroTyping = messages.length === 0 && !autoAnswerDone;
 
   const chatboxRef = useRef(null);
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = useCallback((behavior = "smooth") => {
     if (chatboxRef.current) {
       const chatContainer = chatboxRef.current;
       chatContainer.scrollTo({
         top: chatContainer.scrollHeight,
-        behavior: "smooth",
+        behavior,
       });
     }
   }, []);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      scrollToBottom();
+      scrollToBottom(isAutoIntroTyping ? "auto" : "smooth");
     }, 90);
 
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [messages.length, isLoading, autoAnswerText, scrollToBottom]);
+  }, [messages.length, isLoading, isAutoIntroTyping, scrollToBottom]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -215,7 +216,10 @@ const ChatBox = () => {
 
       <div
         ref={chatboxRef}
-        className="flex-1 space-y-4 overflow-y-auto px-4 py-4"
+        className={cn(
+          "flex-1 space-y-4 px-4 py-4",
+          isAutoIntroTyping ? "overflow-y-hidden" : "overflow-y-auto",
+        )}
         style={{ scrollBehavior: "smooth" }}
       >
         {messages.length === 0 ? (
