@@ -69,73 +69,11 @@ const Sound = () => {
     document.addEventListener("keydown", handleFirstUserInteraction);
     document.addEventListener("touchstart", handleFirstUserInteraction);
     setShowModal(false);
-
-    // Restore overflow and force complete cursor reset
-    setTimeout(() => {
-      document.body.style.overflow = "";
-
-      // Remove hover classes from cursor elements
-      const cursor = document.querySelector(".cursor");
-      const cursorOuter = document.querySelector(".cursor-outer");
-      if (cursor) {
-        cursor.classList.remove(
-          "cursor-hover",
-          "cursor-link",
-          "cursor-button",
-          "cursor-clicked",
-        );
-      }
-      if (cursorOuter) {
-        cursorOuter.classList.remove(
-          "cursor-outer-hover",
-          "cursor-outer-clicked",
-        );
-      }
-
-      // Force a mouse move event to reactivate custom cursor
-      const moveEvent = new MouseEvent("mousemove", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      });
-      document.dispatchEvent(moveEvent);
-    }, 100);
   };
 
   const handleClose = () => {
     setIsPlaying(false);
     setShowModal(false);
-
-    // Restore overflow and force complete cursor reset
-    setTimeout(() => {
-      document.body.style.overflow = "";
-
-      // Remove hover classes from cursor elements
-      const cursor = document.querySelector(".cursor");
-      const cursorOuter = document.querySelector(".cursor-outer");
-      if (cursor) {
-        cursor.classList.remove(
-          "cursor-hover",
-          "cursor-link",
-          "cursor-button",
-          "cursor-clicked",
-        );
-      }
-      if (cursorOuter) {
-        cursorOuter.classList.remove(
-          "cursor-outer-hover",
-          "cursor-outer-clicked",
-        );
-      }
-
-      // Force a mouse move event to reactivate custom cursor
-      const moveEvent = new MouseEvent("mousemove", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      });
-      document.dispatchEvent(moveEvent);
-    }, 100);
   };
 
   const toggle = () => {

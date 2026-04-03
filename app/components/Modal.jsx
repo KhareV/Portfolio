@@ -20,38 +20,6 @@ const Modal = ({ onClose, toggle }) => {
 
     return () => {
       document.body.style.overflow = originalOverflow || "";
-
-      setTimeout(() => {
-        const buttons = document.querySelectorAll("button");
-        buttons.forEach((button) => {
-          const leaveEvent = new MouseEvent("mouseleave", {
-            bubbles: true,
-            cancelable: true,
-            view: window,
-          });
-          button.dispatchEvent(leaveEvent);
-        });
-
-        const cursor = document.querySelector(".cursor");
-        const cursorOuter = document.querySelector(".cursor-outer");
-
-        if (cursor) {
-          cursor.classList.remove(
-            "cursor-hover",
-            "cursor-link",
-            "cursor-button",
-            "cursor-clicked",
-          );
-          cursor.style.transition = "";
-        }
-
-        if (cursorOuter) {
-          cursorOuter.classList.remove(
-            "cursor-outer-hover",
-            "cursor-outer-clicked",
-          );
-        }
-      }, 50);
     };
   }, []);
 

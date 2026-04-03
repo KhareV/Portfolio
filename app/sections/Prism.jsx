@@ -3,6 +3,14 @@
 import { useEffect, useRef } from "react";
 import { Renderer, Triangle, Program, Mesh } from "ogl";
 
+const clampShaderSteps = (value) => {
+  if (!Number.isFinite(value)) {
+    return 84;
+  }
+
+  return Math.max(36, Math.min(140, Math.floor(value)));
+};
+
 const Prism = ({
   height = 3.5,
   baseWidth = 5.5,
@@ -19,6 +27,7 @@ const Prism = ({
   bloom = 1,
   suspendWhenOffscreen = false,
   timeScale = 0.5,
+  steps,
 }) => {
   const containerRef = useRef(null);
 
@@ -44,6 +53,19 @@ const Prism = ({
     const TS = Math.max(0, timeScale || 1);
     const HOVSTR = Math.max(0, hoverStrength || 1);
     const INERT = Math.max(0, Math.min(1, inertia || 0.12));
+
+    const connection =
+      navigator.connection ||
+      navigator.mozConnection ||
+      navigator.webkitConnection;
+    const isConstrainedDevice =
+      Boolean(connection?.saveData) ||
+      (typeof navigator.hardwareConcurrency === "number" &&
+        navigator.hardwareConcurrency <= 4) ||
+      window.matchMedia("(max-width: 900px)").matches;
+    const resolvedSteps = clampShaderSteps(
+      Number.isFinite(steps) ? steps : isConstrainedDevice ? 64 : 96,
+    );
 
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const renderer = new Renderer({
@@ -159,7 +181,7 @@ const Prism = ({
           wob = mat2(c0, c1, c2, c0);
         }
 
-        const int STEPS = 100;
+        const int STEPS = ${resolvedSteps};
         for (int i = 0; i < STEPS; i++) {
           p = vec3(f, z);
           p.xz = p.xz * wob;
@@ -353,7 +375,7 @@ const Prism = ({
           yaw,
           pitch,
           roll,
-          rotBuf
+          rotBuf,
         );
 
         if (NOISE_IS_ZERO) {
@@ -372,7 +394,7 @@ const Prism = ({
           yaw,
           pitch,
           roll,
-          rotBuf
+          rotBuf,
         );
         if (TS < 1e-6) continueRAF = false;
       } else {
@@ -397,15 +419,15 @@ const Prism = ({
       }
     };
 
+    let io = null;
     if (suspendWhenOffscreen) {
-      const io = new IntersectionObserver((entries) => {
+      io = new IntersectionObserver((entries) => {
         const vis = entries.some((e) => e.isIntersecting);
         if (vis) startRAF();
         else stopRAF();
       });
       io.observe(container);
       startRAF();
-      container.__prismIO = io;
     } else {
       startRAF();
     }
@@ -419,13 +441,18 @@ const Prism = ({
         window.removeEventListener("mouseleave", onLeave);
         window.removeEventListener("blur", onBlur);
       }
-      if (suspendWhenOffscreen) {
-        const io = container.__prismIO;
-        if (io) io.disconnect();
-        delete container.__prismIO;
+      if (io) {
+        io.disconnect();
       }
-      if (gl.canvas.parentElement === container)
-        container.removeChild(gl.canvas);
+
+      if (gl.canvas.parentElement) {
+        gl.canvas.parentElement.removeChild(gl.canvas);
+      }
+
+      const loseContext = gl.getExtension("WEBGL_lose_context");
+      if (loseContext?.loseContext) {
+        loseContext.loseContext();
+      }
     };
   }, [
     height,
@@ -444,10 +471,10 @@ const Prism = ({
     inertia,
     bloom,
     suspendWhenOffscreen,
+    steps,
   ]);
 
   return <div className="w-full h-full relative" ref={containerRef} />;
 };
 
 export default Prism;
-

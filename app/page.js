@@ -1,22 +1,19 @@
 "use client";
 
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import LoadingSpinner from "./components/LoadingSpinner";
 import { LoadingProvider, useLoadingContext } from "./contexts/LoadingContext";
 import useDeviceDetection from "./hooks/useDeviceDetection";
 import usePreloadResources from "./hooks/usePreloadResources";
 
-// Force dynamic rendering
-export const dynamic = "force-dynamic";
-
 // Critical above-fold components - load immediately
 const loadNavbar = () => import("./sections/Navbar");
 const loadHero = () => import("./sections/Hero");
-const loadCustomCursor = () => import("./components/CustomCursor");
+const loadPointer = () => import("./components/Pointer");
 
 const Navbar = lazy(loadNavbar);
 const Hero = lazy(loadHero);
-const CustomCursor = lazy(loadCustomCursor);
+const Pointer = lazy(loadPointer);
 
 // Below-fold components - lazy load with lower priority
 const loadAbout = () => import("./sections/About");
@@ -50,19 +47,16 @@ const AppContent = () => {
   const isResourcesReady = usePreloadResources();
   const { isAppReady } = useLoadingContext();
   const { isMobile } = useDeviceDetection();
-  const [areLazyChunksReady, setAreLazyChunksReady] = useState(false);
 
-  const isFullyLoaded = isResourcesReady && isAppReady && areLazyChunksReady;
+  const isFullyLoaded = isResourcesReady && isAppReady;
 
   useEffect(() => {
     let mounted = true;
+    let idleTaskId = null;
 
-    const preloadLazyChunks = async () => {
+    const preloadNonCriticalChunks = async () => {
       try {
-        await Promise.all([
-          loadNavbar(),
-          loadHero(),
-          loadCustomCursor(),
+        await Promise.allSettled([
           loadAbout(),
           loadProjects(),
           loadContact(),
@@ -77,17 +71,38 @@ const AppContent = () => {
         ]);
       } catch (error) {
         console.warn("Lazy chunk preload warning:", error);
-      } finally {
-        if (mounted) {
-          setAreLazyChunksReady(true);
-        }
       }
     };
 
-    preloadLazyChunks();
+    if ("requestIdleCallback" in window) {
+      idleTaskId = window.requestIdleCallback(
+        () => {
+          if (mounted) {
+            preloadNonCriticalChunks();
+          }
+        },
+        { timeout: 2000 },
+      );
+    } else {
+      idleTaskId = window.setTimeout(() => {
+        if (mounted) {
+          preloadNonCriticalChunks();
+        }
+      }, 220);
+    }
 
     return () => {
       mounted = false;
+
+      if (idleTaskId == null) {
+        return;
+      }
+
+      if ("cancelIdleCallback" in window) {
+        window.cancelIdleCallback(idleTaskId);
+      } else {
+        clearTimeout(idleTaskId);
+      }
     };
   }, [isMobile]);
 
@@ -99,12 +114,9 @@ const AppContent = () => {
         <DeviceDebugInfo show={false} />
       </Suspense>
 
-      <div
-        className="overflow-x-hidden"
-        style={{ visibility: isFullyLoaded ? "visible" : "hidden" }}
-      >
+      <div className="overflow-x-hidden">
         <Suspense fallback={null}>
-          <CustomCursor />
+          <Pointer />
         </Suspense>
         <Suspense fallback={null}>
           <Navbar />

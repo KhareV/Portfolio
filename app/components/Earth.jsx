@@ -8,7 +8,7 @@ import CanvasLoader from "./CanvasLoader";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const Earth = () => {
-  const earth = useGLTF("planet/scene.gltf");
+  const earth = useGLTF("/planet/scene.opt.glb");
 
   return (
     <primitive
@@ -83,5 +83,7 @@ const EarthCanvas = () => {
     </>
   );
 };
+
+useGLTF.preload("/planet/scene.opt.glb");
 
 export default EarthCanvas;

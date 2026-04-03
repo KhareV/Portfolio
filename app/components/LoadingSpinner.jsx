@@ -38,7 +38,8 @@ const LoadingSpinner = ({ onLoadComplete, shouldHide = false }) => {
 
   useEffect(() => {
     if (shouldHide && isVisible) {
-      // Start fade out immediately when ready\n      setFadeOut(true);
+      // Start fade out immediately when ready
+      setFadeOut(true);
 
       // Wait for fade animation to complete before hiding
       const fadeTimer = setTimeout(() => {

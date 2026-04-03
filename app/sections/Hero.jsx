@@ -53,6 +53,63 @@ const getDayPhase = (hour) => {
 
 const HERO_INTRO_TEXT = "Hello,\nI'm Vedant Khare.";
 const HERO_SCRIPT_WORD = "Hello";
+const HERO_TYPING_INTERVAL_MS = 55;
+const HERO_TYPING_START_DELAY_MS = 2000;
+const HERO_OBSERVER_THRESHOLD = 0.3;
+const HERO_BACKGROUND_FADE_MS = 1400;
+const HERO_BACKGROUND_ENTRIES = Object.entries(HERO_BACKGROUNDS);
+
+class HeroChatErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error) {
+    console.error("ChatBox failed to render:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="grid h-full place-items-center rounded-[20px] bg-[#2b2120] text-[#ffe9d9]">
+          Chat is temporarily unavailable.
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+const runWhenIdle = (task, timeout = 1800) => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  if ("requestIdleCallback" in window) {
+    return window.requestIdleCallback(task, { timeout });
+  }
+
+  return window.setTimeout(task, 220);
+};
+
+const cancelIdleTask = (id) => {
+  if (typeof window === "undefined" || id == null) {
+    return;
+  }
+
+  if ("cancelIdleCallback" in window) {
+    window.cancelIdleCallback(id);
+    return;
+  }
+
+  clearTimeout(id);
+};
 
 const preloadAndDecodeImage = (src) => {
   return new Promise((resolve) => {
@@ -81,44 +138,48 @@ const preloadAndDecodeImage = (src) => {
 const Hero = () => {
   const [dayPhase, setDayPhase] = useState(() => getDayPhase(getLocalHour()));
   const [localClock, setLocalClock] = useState(() => getLocalClock());
-  const [areBackgroundsReady, setAreBackgroundsReady] = useState(false);
+  const [previousPhase, setPreviousPhase] = useState(null);
   const [typedIntro, setTypedIntro] = useState("");
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [shouldStartTyping, setShouldStartTyping] = useState(false);
   const headingRef = useRef(null);
+  const initialPhaseRef = useRef(dayPhase);
+  const latestPhaseRef = useRef(dayPhase);
   const { setHeroReady, setModelsReady } = useLoadingContext();
-
-  const backgrounds = useMemo(() => Object.entries(HERO_BACKGROUNDS), []);
 
   useEffect(() => {
     let mounted = true;
+    let idleTaskId = null;
+    const activeBackground = HERO_BACKGROUNDS[initialPhaseRef.current];
+    const remainingBackgrounds = HERO_BACKGROUND_ENTRIES.map(
+      ([, src]) => src,
+    ).filter((src) => src !== activeBackground);
 
     const warmBackgrounds = async () => {
-      await Promise.allSettled(
-        backgrounds.map(([, src]) => preloadAndDecodeImage(src)),
-      );
+      await preloadAndDecodeImage(activeBackground);
 
       if (mounted) {
-        setAreBackgroundsReady(true);
+        requestAnimationFrame(() => {
+          if (mounted) {
+            setHeroReady(true);
+          }
+        });
       }
+
+      idleTaskId = runWhenIdle(async () => {
+        await Promise.allSettled(
+          remainingBackgrounds.map((src) => preloadAndDecodeImage(src)),
+        );
+      });
     };
 
     warmBackgrounds();
 
     return () => {
       mounted = false;
+      cancelIdleTask(idleTaskId);
     };
-  }, [backgrounds]);
-
-  useEffect(() => {
-    if (!areBackgroundsReady) return;
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setHeroReady(true);
-      });
-    });
-  }, [areBackgroundsReady, setHeroReady]);
+  }, [setHeroReady]);
 
   useEffect(() => {
     if (setModelsReady) {
@@ -161,6 +222,26 @@ const Hero = () => {
   }, []);
 
   useEffect(() => {
+    if (dayPhase === latestPhaseRef.current) {
+      return;
+    }
+
+    const outgoingPhase = latestPhaseRef.current;
+    latestPhaseRef.current = dayPhase;
+    setPreviousPhase(outgoingPhase);
+
+    const clearPreviousTimer = window.setTimeout(() => {
+      setPreviousPhase((current) =>
+        current === outgoingPhase ? null : current,
+      );
+    }, HERO_BACKGROUND_FADE_MS);
+
+    return () => {
+      window.clearTimeout(clearPreviousTimer);
+    };
+  }, [dayPhase]);
+
+  useEffect(() => {
     const target = headingRef.current;
     if (!target) return;
 
@@ -171,7 +252,7 @@ const Hero = () => {
         observer.disconnect();
       },
       {
-        threshold: 0.55,
+        threshold: HERO_OBSERVER_THRESHOLD,
       },
     );
 
@@ -183,7 +264,7 @@ const Hero = () => {
   useEffect(() => {
     if (!shouldStartTyping) return;
 
-    let intervalId;
+    let intervalId = null;
     setTypedIntro("");
     setIsTypingDone(false);
 
@@ -198,16 +279,23 @@ const Hero = () => {
           window.clearInterval(intervalId);
           setIsTypingDone(true);
         }
-      }, 55);
-    }, 2000);
+      }, HERO_TYPING_INTERVAL_MS);
+    }, HERO_TYPING_START_DELAY_MS);
 
     return () => {
       window.clearTimeout(startDelay);
-      window.clearInterval(intervalId);
+
+      if (intervalId !== null) {
+        window.clearInterval(intervalId);
+      }
     };
   }, [shouldStartTyping]);
 
   const typedLines = useMemo(() => typedIntro.split("\n"), [typedIntro]);
+  const visibleBackgroundPhases =
+    previousPhase && previousPhase !== dayPhase
+      ? [dayPhase, previousPhase]
+      : [dayPhase];
 
   const renderTypedLine = (line, index) => {
     if (index !== 0 || !line) {
@@ -234,19 +322,20 @@ const Hero = () => {
       )}
     >
       <div className="absolute inset-0 overflow-hidden">
-        {backgrounds.map(([phase, src]) => (
+        {visibleBackgroundPhases.map((phase) => (
           <img
             key={phase}
-            src={src}
+            src={HERO_BACKGROUNDS[phase]}
             alt=""
             aria-hidden="true"
             className={cn(
-              "absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-[1400ms] ease-out",
-              dayPhase === phase ? "opacity-100" : "opacity-0",
+              "absolute inset-0 h-full w-full object-cover object-center transition-opacity ease-out",
+              phase === previousPhase ? "opacity-0" : "opacity-100",
             )}
-            loading="eager"
+            loading={dayPhase === phase ? "eager" : "lazy"}
             fetchPriority={dayPhase === phase ? "high" : "auto"}
             decoding="async"
+            style={{ transitionDuration: `${HERO_BACKGROUND_FADE_MS}ms` }}
           />
         ))}
       </div>
@@ -255,6 +344,8 @@ const Hero = () => {
         <motion.h1
           ref={headingRef}
           className="font-hero-display -mt-4 md:-mt-8 mx-auto max-w-[860px] text-center text-[clamp(1.95rem,3.45vw,3.6rem)] leading-[1.15] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
+          aria-live="polite"
+          aria-atomic="true"
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
@@ -278,7 +369,7 @@ const Hero = () => {
             transition={{ delay: 0.2, duration: 0.85, ease: "easeOut" }}
           >
             <h2 className="font-hero-serif text-[clamp(2.15rem,4.5vw,3.9rem)] leading-[1.03] text-[#fff7f1]">
-              Articulate, Poised, Pricipled, Vision-Driven
+              Articulate, Poised, Principled, Vision-Driven
             </h2>
             <p className="mt-4 max-w-[560px] font-hero-serif text-[clamp(0.9rem,1.2vw,1.08rem)] leading-[1.6] text-[#fff1e8]">
               B.Tech. CSE student at VIT Chennai with 40+ projects and multiple
@@ -288,15 +379,17 @@ const Hero = () => {
 
             <div className="mt-6 h-[560px]">
               <MessageProvider>
-                <Suspense
-                  fallback={
-                    <div className="grid h-full place-items-center rounded-[20px] bg-[#2b2120] text-[#ffe9d9]">
-                      Loading chat...
-                    </div>
-                  }
-                >
-                  <ChatBox />
-                </Suspense>
+                <HeroChatErrorBoundary>
+                  <Suspense
+                    fallback={
+                      <div className="grid h-full place-items-center rounded-[20px] bg-[#2b2120] text-[#ffe9d9]">
+                        Loading chat...
+                      </div>
+                    }
+                  >
+                    <ChatBox />
+                  </Suspense>
+                </HeroChatErrorBoundary>
               </MessageProvider>
             </div>
           </motion.article>

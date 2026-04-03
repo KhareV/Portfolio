@@ -15,6 +15,11 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { degToRad } from "three/src/math/MathUtils.js";
 
+const clampSegments = (value) => {
+  const numeric = Number.isFinite(value) ? value : 100;
+  return Math.max(12, Math.floor(numeric));
+};
+
 function extendMaterial(BaseMaterial, cfg) {
   const physical = THREE.ShaderLib.physical;
   const {
@@ -62,8 +67,12 @@ function extendMaterial(BaseMaterial, cfg) {
   return mat;
 }
 
-const CanvasWrapper = ({ children }) => (
-  <Canvas dpr={[1, 2]} frameloop="always" className="w-full h-full relative">
+const CanvasWrapper = ({ children, maxDpr = 2 }) => (
+  <Canvas
+    dpr={[1, Math.max(1, maxDpr)]}
+    frameloop="always"
+    className="w-full h-full relative"
+  >
     {children}
   </Canvas>
 );
@@ -162,8 +171,11 @@ const Beams = ({
   noiseIntensity = 1.75,
   scale = 0.2,
   rotation = 0,
+  heightSegments = 100,
+  maxDpr = 2,
 }) => {
   const meshRef = useRef(null);
+  const resolvedSegments = clampSegments(heightSegments);
   const beamMaterial = useMemo(
     () =>
       extendMaterial(THREE.MeshStandardMaterial, {
@@ -218,11 +230,11 @@ const Beams = ({
           uScale: scale,
         },
       }),
-    [speed, noiseIntensity, scale]
+    [speed, noiseIntensity, scale],
   );
 
   return (
-    <CanvasWrapper>
+    <CanvasWrapper maxDpr={maxDpr}>
       <group rotation={[0, 0, degToRad(rotation)]}>
         <PlaneNoise
           ref={meshRef}
@@ -230,6 +242,7 @@ const Beams = ({
           count={beamNumber}
           width={beamWidth}
           height={beamHeight}
+          heightSegments={resolvedSegments}
         />
         <DirLight color={lightColor} position={[0, 3, 10]} />
       </group>
@@ -245,7 +258,7 @@ function createStackedPlanesBufferGeometry(
   width,
   height,
   spacing,
-  heightSegments
+  heightSegments,
 ) {
   const geometry = new THREE.BufferGeometry();
   const numVertices = n * (heightSegments + 1) * 2;
@@ -274,7 +287,7 @@ function createStackedPlanesBufferGeometry(
       const uvY = j / heightSegments;
       uvs.set(
         [uvXOffset, uvY + uvYOffset, uvXOffset + 1, uvY + uvYOffset],
-        uvOffset
+        uvOffset,
       );
 
       if (j < heightSegments) {
@@ -297,18 +310,27 @@ function createStackedPlanesBufferGeometry(
   return geometry;
 }
 
-const MergedPlanes = forwardRef(({ material, width, count, height }, ref) => {
-  const mesh = useRef(null);
-  useImperativeHandle(ref, () => mesh.current);
-  const geometry = useMemo(
-    () => createStackedPlanesBufferGeometry(count, width, height, 0, 100),
-    [count, width, height]
-  );
-  useFrame((_, delta) => {
-    mesh.current.material.uniforms.time.value += 0.1 * delta;
-  });
-  return <mesh ref={mesh} geometry={geometry} material={material} />;
-});
+const MergedPlanes = forwardRef(
+  ({ material, width, count, height, heightSegments }, ref) => {
+    const mesh = useRef(null);
+    useImperativeHandle(ref, () => mesh.current);
+    const geometry = useMemo(
+      () =>
+        createStackedPlanesBufferGeometry(
+          count,
+          width,
+          height,
+          0,
+          clampSegments(heightSegments),
+        ),
+      [count, width, height, heightSegments],
+    );
+    useFrame((_, delta) => {
+      mesh.current.material.uniforms.time.value += 0.1 * delta;
+    });
+    return <mesh ref={mesh} geometry={geometry} material={material} />;
+  },
+);
 MergedPlanes.displayName = "MergedPlanes";
 
 const PlaneNoise = forwardRef((props, ref) => (
@@ -318,6 +340,7 @@ const PlaneNoise = forwardRef((props, ref) => (
     width={props.width}
     count={props.count}
     height={props.height}
+    heightSegments={props.heightSegments}
   />
 ));
 PlaneNoise.displayName = "PlaneNoise";
@@ -347,4 +370,3 @@ const DirLight = ({ position, color }) => {
 };
 
 export default Beams;
-

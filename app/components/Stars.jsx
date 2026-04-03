@@ -10,7 +10,7 @@ const Stars = (props) => {
   const { isMobile } = useDeviceDetection();
   const ref = useRef();
   const [sphere] = useState(() =>
-    random.inSphere(new Float32Array(isMobile ? 1000 : 5000), { radius: 1.2 }),
+    random.inSphere(new Float32Array(isMobile ? 900 : 3600), { radius: 1.2 }),
   );
 
   const targetRotation = useRef({ x: 0, y: 0 });
@@ -28,7 +28,7 @@ const Stars = (props) => {
       };
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [isMobile]);
 
@@ -66,7 +66,7 @@ const Stars = (props) => {
 const StarsCanvas = () => {
   return (
     <div className="w-full h-auto absolute inset-0 z-[-1]">
-      <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 1] }}>
+      <Canvas dpr={[1, 1.25]} camera={{ position: [0, 0, 1] }}>
         <Suspense fallback={null}>
           <Stars />
         </Suspense>

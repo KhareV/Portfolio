@@ -1,7 +1,7 @@
 "use client";
 
 import emailjs from "@emailjs/browser";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
@@ -15,58 +15,114 @@ import Prism from "./Prism";
 import Beams from "./Beams";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ALERT_RESET_DELAY_MS = 3200;
+const CONTACT_RECEIVER_NAME = "Vedant Khare";
+const CONTACT_RECEIVER_EMAIL = "kharevedant05@gmail.com";
+
+const EMAILJS_SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+const isValidEmail = (value) => EMAIL_REGEX.test(value.trim());
+
+const normalizeForm = (form) => ({
+  name: form.name.trim(),
+  email: form.email.trim(),
+  message: form.message.trim(),
+});
+
 const Contact = () => {
   const { isMobile } = useDeviceDetection();
-  const formRef = useRef();
+  const alertTimeoutRef = useRef(null);
   const [alert, setAlert] = useState({ show: false, text: "", type: "" });
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const isSuccessAlert = alert.type === "success";
+
+  const hasEmailValue = form.email.trim().length > 0;
+  const showEmailValidation = hasEmailValue && !isValidEmail(form.email);
+
+  useEffect(() => {
+    return () => {
+      if (alertTimeoutRef.current !== null) {
+        window.clearTimeout(alertTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const showAlert = useCallback(
+    (text, type = "error", autoHideMs = ALERT_RESET_DELAY_MS) => {
+      setAlert({ show: true, text, type });
+
+      if (alertTimeoutRef.current !== null) {
+        window.clearTimeout(alertTimeoutRef.current);
+      }
+
+      if (autoHideMs > 0) {
+        alertTimeoutRef.current = window.setTimeout(() => {
+          setAlert({ show: false, text: "", type: "" });
+        }, autoHideMs);
+      }
+    },
+    [],
+  );
 
   const handleChange = ({ target: { name, value } }) => {
-    setForm({ ...form, [name]: value });
+    setForm((prevForm) => ({ ...prevForm, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    if (!form.name || !form.email || !form.message) return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (loading) {
+      return;
+    }
+
+    const normalized = normalizeForm(form);
+
+    if (
+      !normalized.name ||
+      !normalized.message ||
+      !isValidEmail(normalized.email)
+    ) {
+      showAlert("Please enter a valid name, email, and message.", "error");
+      return;
+    }
+
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+      showAlert(
+        "Contact form is not configured. Please email directly.",
+        "error",
+        5000,
+      );
+      return;
+    }
+
     setLoading(true);
 
-    emailjs
-      .send(
-        "service_z35bjki",
-        "template_dmewlhk",
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
         {
-          from_name: form.name,
-          to_name: "Vedant Khare",
-          from_email: form.email,
-          to_email: "kharevedant05@gmail.com",
-          message: form.message,
+          from_name: normalized.name,
+          to_name: CONTACT_RECEIVER_NAME,
+          from_email: normalized.email,
+          to_email: CONTACT_RECEIVER_EMAIL,
+          message: normalized.message,
         },
-        "5SB9vIYuPZek1cZXG",
-      )
-      .then(
-        () => {
-          setLoading(false);
-          setAlert({
-            show: true,
-            text: "Message sent successfully!",
-            type: "success",
-          });
-
-          setTimeout(() => {
-            setAlert({ show: false, text: "", type: "" });
-            setForm({ name: "", email: "", message: "" });
-          }, 3000);
-        },
-        (error) => {
-          setLoading(false);
-          console.error(error);
-          setAlert({
-            show: true,
-            text: "Failed to send message. Please try again.",
-            type: "error",
-          });
-        },
+        EMAILJS_PUBLIC_KEY,
       );
+
+      setForm({ name: "", email: "", message: "" });
+      showAlert("Message sent successfully!", "success");
+    } catch (error) {
+      console.error("EmailJS send failed", error);
+      showAlert("Failed to send message. Please try again.", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -90,6 +146,7 @@ const Contact = () => {
             hoverStrength={1.5}
             inertia={0.08}
             transparent={true}
+            steps={84}
           />
         </div>
       ) : (
@@ -103,6 +160,8 @@ const Contact = () => {
             noiseIntensity={3}
             scale={0.4}
             rotation={45}
+            heightSegments={48}
+            maxDpr={1.25}
           />
         </div>
       )}
@@ -114,10 +173,16 @@ const Contact = () => {
       <AnimatePresence>
         {alert.show && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            initial={{ opacity: 0, y: isSuccessAlert ? 20 : -20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.9 }}
-            className="fixed top-8 left-1/2 -translate-x-1/2 z-50"
+            exit={{ opacity: 0, y: isSuccessAlert ? 20 : -20, scale: 0.9 }}
+            className={`fixed z-50 ${
+              isSuccessAlert
+                ? "bottom-6 right-6"
+                : "top-8 left-1/2 -translate-x-1/2"
+            }`}
+            role={alert.type === "error" ? "alert" : "status"}
+            aria-live="polite"
           >
             <div
               className={`px-6 py-3 rounded-full backdrop-blur-sm border flex items-center gap-2 shadow-2xl transform-gpu [will-change:transform] ${
@@ -165,7 +230,7 @@ const Contact = () => {
           className="w-full max-w-2xl"
         >
           <div className="relative backdrop-blur-sm bg-white/5 border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl transform-gpu [will-change:transform]">
-            <div className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               {/* Name Field */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -173,7 +238,7 @@ const Contact = () => {
                 transition={{ delay: 0.3, duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <label className="block">
+                <label className="block" htmlFor="contact-name">
                   <div className="flex items-center gap-2 mb-2">
                     <User className="w-4 h-4 text-gray-400" />
                     <span className="text-sm font-medium text-gray-300">
@@ -181,11 +246,14 @@ const Contact = () => {
                     </span>
                   </div>
                   <input
+                    id="contact-name"
                     type="text"
                     name="name"
                     value={form.name}
                     onChange={handleChange}
                     required
+                    autoComplete="name"
+                    aria-label="Your name"
                     placeholder="Your name"
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/30 focus:outline-none transition-all"
                   />
@@ -199,7 +267,7 @@ const Contact = () => {
                 transition={{ delay: 0.4, duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <label className="block">
+                <label className="block" htmlFor="contact-email">
                   <div className="flex items-center gap-2 mb-2">
                     <Mail className="w-4 h-4 text-gray-400" />
                     <span className="text-sm font-medium text-gray-300">
@@ -207,14 +275,33 @@ const Contact = () => {
                     </span>
                   </div>
                   <input
+                    id="contact-email"
                     type="email"
                     name="email"
                     value={form.email}
                     onChange={handleChange}
                     required
+                    autoComplete="email"
+                    aria-label="Your email address"
+                    aria-invalid={showEmailValidation}
+                    aria-describedby={
+                      showEmailValidation ? "contact-email-error" : undefined
+                    }
                     placeholder="your@email.com"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/30 focus:outline-none transition-all"
+                    className={`w-full px-4 py-3 bg-white/5 rounded-lg text-white placeholder-gray-500 focus:outline-none transition-all ${
+                      showEmailValidation
+                        ? "border border-red-400/70 focus:border-red-400"
+                        : "border border-white/10 focus:border-white/30"
+                    }`}
                   />
+                  {showEmailValidation && (
+                    <p
+                      id="contact-email-error"
+                      className="mt-2 text-xs text-red-300"
+                    >
+                      Enter a valid email address.
+                    </p>
+                  )}
                 </label>
               </motion.div>
 
@@ -225,7 +312,7 @@ const Contact = () => {
                 transition={{ delay: 0.5, duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <label className="block">
+                <label className="block" htmlFor="contact-message">
                   <div className="flex items-center gap-2 mb-2">
                     <MessageSquare className="w-4 h-4 text-gray-400" />
                     <span className="text-sm font-medium text-gray-300">
@@ -233,11 +320,13 @@ const Contact = () => {
                     </span>
                   </div>
                   <textarea
+                    id="contact-message"
                     name="message"
                     value={form.message}
                     onChange={handleChange}
                     required
                     rows={5}
+                    aria-label="Project message"
                     placeholder="Tell me about your project..."
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/30 focus:outline-none transition-all resize-none"
                   />
@@ -246,9 +335,9 @@ const Contact = () => {
 
               {/* Submit Button */}
               <motion.button
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={loading}
+                aria-busy={loading}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="relative w-full py-4 rounded-lg font-medium text-white bg-white/10 hover:bg-white/15 border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 group"
@@ -273,7 +362,7 @@ const Contact = () => {
                   </>
                 )}
               </motion.button>
-            </div>
+            </form>
           </div>
         </motion.div>
 

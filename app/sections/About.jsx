@@ -1,15 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { Mail, Copy, Check, Code2, Globe2, Heart } from "lucide-react";
-
-const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
 import Button from "../components/Button.jsx";
 import Sunflower from "../components/Sunflower.jsx";
 import TechMarquee from "../components/TechMarquee.jsx";
-import ItemLayout from "../components/ItemLayout.jsx";
 import {
   spacing,
   layout,
@@ -19,32 +17,224 @@ import {
 } from "../styles/spacing";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
+const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
+
+const EMAIL_ADDRESS = "kharevedant05@gmail.com";
+const PROFILE_NAME = "Vedant Khare";
+const PROFILE_IMAGE_SRC = "/newimages/vedant-profile.jpg";
+const PROFILE_MARQUEE_COUNT = 7;
+const COPY_RESET_DELAY_MS = 4000;
+
+const SLIDE_IN_VARIANTS = {
+  hidden: { opacity: 0, x: -50 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 1, ease: "easeInOut" },
+  },
+};
+
+const GLOBE_LOCATIONS = [
+  { lat: 55.7558, lng: 37.6173, size: 8, color: "#c17a57", isChennai: false },
+  {
+    lat: 45.4215,
+    lng: -75.6972,
+    size: 8,
+    color: "#c17a57",
+    isChennai: false,
+  },
+  {
+    lat: 39.9042,
+    lng: 116.4074,
+    size: 8,
+    color: "#c17a57",
+    isChennai: false,
+  },
+  {
+    lat: 38.8977,
+    lng: -77.0365,
+    size: 8,
+    color: "#c17a57",
+    isChennai: false,
+  },
+  {
+    lat: -15.7975,
+    lng: -47.8919,
+    size: 8,
+    color: "#c17a57",
+    isChennai: false,
+  },
+  {
+    lat: -35.2809,
+    lng: 149.13,
+    size: 8,
+    color: "#c17a57",
+    isChennai: false,
+  },
+  { lat: 28.6139, lng: 77.209, size: 8, color: "#c17a57", isChennai: false },
+  {
+    lat: -34.6037,
+    lng: -58.3816,
+    size: 8,
+    color: "#c17a57",
+    isChennai: false,
+  },
+  { lat: 51.1694, lng: 71.4491, size: 8, color: "#c17a57", isChennai: false },
+  { lat: 36.7538, lng: 3.0588, size: 8, color: "#c17a57", isChennai: false },
+  {
+    lat: 13.0827,
+    lng: 80.2707,
+    size: 10,
+    text: "Chennai, India",
+    color: "#5a4a3d",
+    isChennai: true,
+  },
+];
+
+const PROFILE_NAME_ITEMS = Array.from(
+  { length: PROFILE_MARQUEE_COUNT },
+  (_, index) => index,
+);
+
+const MARKER_PATH =
+  "M12 0C7.802 0 4 3.403 4 7.602C4 11.8 7.469 16.812 12 24C16.531 16.812 20 11.8 20 7.602C20 3.403 16.199 0 12 0ZM12 11C10.343 11 9 9.657 9 8C9 6.343 10.343 5 12 5C13.657 5 15 6.343 15 8C15 9.657 13.657 11 12 11Z";
+
+const fallbackCopyToClipboard = (text) => {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.setAttribute("readonly", "");
+  textArea.style.position = "fixed";
+  textArea.style.opacity = "0";
+  textArea.style.pointerEvents = "none";
+  document.body.appendChild(textArea);
+  textArea.select();
+
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } catch {
+    copied = false;
+  }
+
+  document.body.removeChild(textArea);
+  return copied;
+};
+
+const copyToClipboard = async (text) => {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  if (!fallbackCopyToClipboard(text)) {
+    throw new Error("Clipboard API unavailable");
+  }
+};
+
+const createGlobeMarkerElement = (location) => {
+  const root = document.createElement("div");
+  root.style.transform = "translate(-50%, -50%)";
+  root.style.display = "flex";
+  root.style.flexDirection = "column";
+  root.style.alignItems = "center";
+  root.style.position = "relative";
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("height", String(location.size * 2));
+  svg.setAttribute("width", String(location.size * 2));
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", location.color);
+  svg.style.transform = "translateY(50%)";
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", MARKER_PATH);
+  svg.appendChild(path);
+  root.appendChild(svg);
+
+  if (location.isChennai && location.text) {
+    const label = document.createElement("div");
+    label.textContent = location.text;
+    label.style.color = location.color;
+    label.style.fontSize = `${location.size * 0.8}px`;
+    label.style.marginTop = `${location.size * 0.3}px`;
+    label.style.textShadow = "2px 2px 3px rgba(0,0,0,0.9)";
+    label.style.whiteSpace = "nowrap";
+    label.style.pointerEvents = "none";
+    root.appendChild(label);
+  }
+
+  return root;
+};
+
+const AnimatedCard = ({ className, delay, children }) => (
+  <motion.div
+    className={className}
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true }}
+    variants={SLIDE_IN_VARIANTS}
+    transition={{ delay }}
+  >
+    {children}
+  </motion.div>
+);
+
+const ProfileTickerRow = ({ className, dimLastItem = false }) => (
+  <div className={cn(className, layout.flex.center)}>
+    {PROFILE_NAME_ITEMS.map((item) => (
+      <span
+        key={`${className}-${item}`}
+        className={cn(
+          "mx-4",
+          responsive.text["3xl"],
+          dimLastItem && item === PROFILE_NAME_ITEMS.length - 1
+            ? "text-gray-300"
+            : "text-[#8d9189]",
+        )}
+      >
+        {PROFILE_NAME}
+      </span>
+    ))}
+  </div>
+);
+
 const About = () => {
   const { isMobile } = useDeviceDetection();
   const [hasCopied, setHasCopied] = useState(false);
+  const copyResetTimeoutRef = useRef(null);
 
   const softCardClass =
     "relative overflow-hidden rounded-[30px] border border-[#d4d7cf] bg-[#f6f7f1] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_28px_rgba(121,126,112,0.12)]";
   const fixedSizeCardClass = "w-full h-full";
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText("kharevedant05@gmail.com");
-    setHasCopied(true);
+  useEffect(() => {
+    return () => {
+      if (copyResetTimeoutRef.current !== null) {
+        window.clearTimeout(copyResetTimeoutRef.current);
+      }
+    };
+  }, []);
 
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 4000);
-  };
+  const handleCopy = useCallback(async () => {
+    try {
+      await copyToClipboard(EMAIL_ADDRESS);
+      setHasCopied(true);
 
-  // Animation settings for Framer Motion
-  const slideIn = {
-    hidden: { opacity: 0, x: -50 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 1, ease: "easeInOut" },
-    },
-  };
+      if (copyResetTimeoutRef.current !== null) {
+        window.clearTimeout(copyResetTimeoutRef.current);
+      }
+
+      copyResetTimeoutRef.current = window.setTimeout(() => {
+        setHasCopied(false);
+      }, COPY_RESET_DELAY_MS);
+    } catch (error) {
+      console.error("Copy failed", error);
+    }
+  }, []);
 
   return (
     <section
@@ -75,13 +265,9 @@ const About = () => {
         )}
       >
         {/* First Grid Item */}
-        <motion.div
+        <AnimatedCard
           className="col-span-1 md:col-span-1 xl:row-span-3 relative"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={slideIn}
-          transition={{ delay: 0.3 }}
+          delay={0.3}
         >
           {/* Background Container */}
           <div className={cn("w-full md:w-4/5 mx-auto", softCardClass)}>
@@ -89,155 +275,24 @@ const About = () => {
             <div className="absolute inset-0 w-full h-full">
               <div className={cn(spacing.section.paddingY, "mt-52 pt-24")}>
                 <div className="relative flex overflow-x-hidden overflow-y-hidden">
-                  <div
-                    className={cn(
-                      "animate-profile-scroll-1 whitespace-nowrap",
-                      layout.flex.center,
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                  </div>
-                  <div
-                    className={cn(
-                      "absolute top-0 animate-profile-scroll-2 whitespace-nowrap",
-                      layout.flex.center,
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-[#8d9189]",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                    <span
-                      className={cn(
-                        "mx-4",
-                        responsive.text["3xl"],
-                        "text-gray-300",
-                      )}
-                    >
-                      Vedant Khare
-                    </span>
-                  </div>
+                  <ProfileTickerRow className="animate-profile-scroll-1 whitespace-nowrap" />
+                  <ProfileTickerRow
+                    className="absolute top-0 animate-profile-scroll-2 whitespace-nowrap"
+                    dimLastItem
+                  />
                 </div>
               </div>
             </div>
 
             {/* Content Container */}
             <div className={cn("relative z-10 profile-container")}>
-              <img
-                src="image/WhatsApp Image 2025-04-29 at 16.36.35_6c693daa.jpg"
-                alt="grid-1"
+              <Image
+                src={PROFILE_IMAGE_SRC}
+                alt="Portrait of Vedant Khare"
+                width={920}
+                height={720}
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
+                priority
                 className="w-full sm:h-[276px] h-fit object-cover"
               />
               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/6 to-transparent"></div>
@@ -260,15 +315,11 @@ const About = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </AnimatedCard>
         {/* Second Grid Item - Tech Stack */}
-        <motion.div
+        <AnimatedCard
           className="col-span-1 md:col-span-1 xl:row-span-3"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={slideIn}
-          transition={{ delay: 0.6 }}
+          delay={0.6}
         >
           <div
             className={cn(
@@ -279,9 +330,12 @@ const About = () => {
             )}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#f7efe6]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <img
+            <Image
               src="/newimages/cherry.png"
-              alt="grid-3"
+              alt="Cherry blossom illustration"
+              width={960}
+              height={640}
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
               className="object-contain opacity-90 transition-all duration-300"
             />
             <div className="relative p-6">
@@ -302,16 +356,12 @@ const About = () => {
               </p>
             </div>
           </div>
-        </motion.div>
+        </AnimatedCard>
 
         {/* Third Grid Item - Globe */}
-        <motion.div
+        <AnimatedCard
           className="col-span-1 md:col-span-1 xl:row-span-4"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={slideIn}
-          transition={{ delay: 0.9 }}
+          delay={0.9}
         >
           <div
             className={cn(
@@ -342,124 +392,9 @@ const About = () => {
                 cameraPosition={{ x: 1.5, y: 0, z: 0 }}
                 cameraRotation={{ x: 0, y: -Math.PI / 2, z: 0 }}
                 autoRotate={false}
-                pointOfView={[{ lat: 20, lng: 78, altitude: 0.6 }]}
-                htmlElementsData={[
-                  {
-                    lat: 55.7558,
-                    lng: 37.6173,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: 45.4215,
-                    lng: -75.6972,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: 39.9042,
-                    lng: 116.4074,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: 38.8977,
-                    lng: -77.0365,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: -15.7975,
-                    lng: -47.8919,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: -35.2809,
-                    lng: 149.13,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: 28.6139,
-                    lng: 77.209,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: -34.6037,
-                    lng: -58.3816,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: 51.1694,
-                    lng: 71.4491,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: 36.7538,
-                    lng: 3.0588,
-                    size: 8,
-                    color: "#c17a57",
-                    isChennai: false,
-                  },
-                  {
-                    lat: 13.0827,
-                    lng: 80.2707,
-                    size: 10,
-                    text: "Chennai, India",
-                    color: "#5a4a3d",
-                    isChennai: true,
-                  },
-                ]}
-                htmlElement={(d) => {
-                  const el = document.createElement("div");
-                  el.innerHTML = `
-            <div style="
-              transform: translate(-50%, -50%);
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              position: relative;
-            ">
-              <svg 
-                height="${d.size * 2}"
-                width="${d.size * 2}"
-                viewBox="0 0 24 24"
-                fill="${d.color}"
-                style="transform: translateY(50%);"
-              >
-                <path d="M12 0C7.802 0 4 3.403 4 7.602C4 11.8 7.469 16.812 12 24C16.531 16.812 20 11.8 20 7.602C20 3.403 16.199 0 12 0ZM12 11C10.343 11 9 9.657 9 8C9 6.343 10.343 5 12 5C13.657 5 15 6.343 15 8C15 9.657 13.657 11 12 11Z"/>
-              </svg>
-              ${
-                d.isChennai
-                  ? `
-                <div style="
-                  color: ${d.color};
-                  font-size: ${d.size * 0.8}px;
-                  margin-top: ${d.size * 0.3}px;
-                  text-shadow: 2px 2px 3px rgba(0,0,0,0.9);
-                  white-space: nowrap;
-                  pointer-events: none;
-                ">${d.text}</div>
-              `
-                  : ""
-              }
-            </div>
-          `;
-                  return el;
-                }}
+                pointOfView={{ lat: 20, lng: 78, altitude: 0.6 }}
+                htmlElementsData={GLOBE_LOCATIONS}
+                htmlElement={createGlobeMarkerElement}
                 htmlAltitude={0.1}
               />
             </div>
@@ -488,16 +423,12 @@ const About = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </AnimatedCard>
 
         {/* Fourth Grid Item - Passion */}
-        <motion.div
+        <AnimatedCard
           className="col-span-1 md:col-span-2 xl:col-span-2 xl:row-span-3"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={slideIn}
-          transition={{ delay: 1.2 }}
+          delay={1.2}
         >
           <div
             className={cn(
@@ -509,9 +440,12 @@ const About = () => {
             )}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#f0e8f6]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <img
+            <Image
               src="/newimages/coast.png"
-              alt="grid-3"
+              alt="Coastal landscape illustration"
+              width={960}
+              height={640}
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 66vw, 60vw"
               className="object-contain opacity-90 transition-all duration-300"
             />
             <div className="relative p-6">
@@ -538,16 +472,12 @@ const About = () => {
               <TechMarquee />
             </div>
           </div>
-        </motion.div>
+        </AnimatedCard>
 
         {/* Fifth Grid Item - Contact */}
-        <motion.div
+        <AnimatedCard
           className="col-span-1 md:col-span-1 xl:col-span-1 xl:row-span-2"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={slideIn}
-          transition={{ delay: 1.5 }}
+          delay={1.5}
         >
           <div
             className={cn(
@@ -559,9 +489,12 @@ const About = () => {
             )}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#e9f4ea]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <img
+            <Image
               src="/newimages/rooftop.png"
-              alt="grid-4"
+              alt="Rooftop city view"
+              width={960}
+              height={640}
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
               className="w-full md:h-[250px] sm:h-[276px] h-fit object-cover object-center opacity-90 transition-all duration-300"
             />
             <div className={cn("space-y-4 relative p-6")}>
@@ -571,7 +504,8 @@ const About = () => {
                   Contact me
                 </p>
               </div>
-              <motion.div
+              <motion.button
+                type="button"
                 className={cn(
                   "copy-container cursor-pointer flex items-center justify-center gap-3 p-4 bg-[#f0f3ea] rounded-xl border border-[#cfd8c4] hover:border-green-500/40",
                   transitions.default,
@@ -579,6 +513,7 @@ const About = () => {
                 onClick={handleCopy}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                aria-label="Copy email address to clipboard"
               >
                 <motion.div
                   animate={hasCopied ? { scale: [1, 1.2, 1] } : {}}
@@ -599,21 +534,22 @@ const About = () => {
                       : "text-[#5d645a] group-hover:text-[#2f3d2f]",
                   )}
                 >
-                  kharevedant05@gmail.com
+                  {EMAIL_ADDRESS}
                 </p>
-              </motion.div>
+              </motion.button>
               {hasCopied && (
                 <motion.p
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-center text-green-600 text-sm"
+                  aria-live="polite"
                 >
                   Email copied to clipboard!
                 </motion.p>
               )}
             </div>
           </div>
-        </motion.div>
+        </AnimatedCard>
       </div>
     </section>
   );

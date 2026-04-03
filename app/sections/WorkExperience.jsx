@@ -53,6 +53,7 @@ const WorkExperience = () => {
               <Canvas
                 dpr={[1, 1.5]}
                 gl={{ antialias: true, powerPreference: "low-power" }}
+                camera={{ position: [0, 0.2, 8], fov: 34 }}
               >
                 <ambientLight intensity={7} />
                 <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
@@ -61,8 +62,8 @@ const WorkExperience = () => {
 
                 <Suspense fallback={<CanvasLoader />}>
                   <Developer
-                    position-y={-3}
-                    scale={3}
+                    position-y={-2.2}
+                    scale={2.45}
                     animationName={animationName}
                   />
                 </Suspense>

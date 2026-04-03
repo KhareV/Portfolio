@@ -5,51 +5,62 @@ import { useGraph } from "@react-three/fiber";
 import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
 
+const DEVELOPER_MODEL_PATH = "/models/human/developer.glb";
+const ANIMATION_PATHS = {
+  idle: "/models/animations/idle.fbx",
+  salute: "/models/animations/salute.fbx",
+  clapping: "/models/animations/clapping.fbx",
+  victory: "/models/animations/victory.fbx",
+};
+
 const Developer = ({ animationName = "idle", ...props }) => {
   const group = useRef();
 
-  const { scene } = useGLTF("/models/human/developer.glb");
+  const { scene } = useGLTF(DEVELOPER_MODEL_PATH);
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes, materials } = useGraph(clone);
 
-  const { animations: idleAnimation } = useFBX("/models/animations/idle.fbx");
-  const { animations: saluteAnimation } = useFBX(
-    "/models/animations/salute.fbx"
-  );
-  const { animations: clappingAnimation } = useFBX(
-    "/models/animations/clapping.fbx"
-  );
-  const { animations: victoryAnimation } = useFBX(
-    "/models/animations/victory.fbx"
-  );
+  const { animations: idleAnimation } = useFBX(ANIMATION_PATHS.idle);
+  const { animations: saluteAnimation } = useFBX(ANIMATION_PATHS.salute);
+  const { animations: clappingAnimation } = useFBX(ANIMATION_PATHS.clapping);
+  const { animations: victoryAnimation } = useFBX(ANIMATION_PATHS.victory);
 
-  if (idleAnimation[0]) idleAnimation[0].name = "idle";
-  if (saluteAnimation[0]) saluteAnimation[0].name = "salute";
-  if (clappingAnimation[0]) clappingAnimation[0].name = "clapping";
-  if (victoryAnimation[0]) victoryAnimation[0].name = "victory";
+  const animationClips = React.useMemo(() => {
+    const toNamedClip = (clips, name) => {
+      const firstClip = clips?.[0];
+      if (!firstClip) {
+        return null;
+      }
 
-  const { actions } = useAnimations(
-    [
-      idleAnimation[0],
-      saluteAnimation[0],
-      clappingAnimation[0],
-      victoryAnimation[0],
-    ].filter(Boolean),
-    group
-  );
+      const clonedClip = firstClip.clone();
+      clonedClip.name = name;
+      return clonedClip;
+    };
+
+    return [
+      toNamedClip(idleAnimation, "idle"),
+      toNamedClip(saluteAnimation, "salute"),
+      toNamedClip(clappingAnimation, "clapping"),
+      toNamedClip(victoryAnimation, "victory"),
+    ].filter(Boolean);
+  }, [idleAnimation, saluteAnimation, clappingAnimation, victoryAnimation]);
+
+  const { actions } = useAnimations(animationClips, group);
 
   useEffect(() => {
+    const safeAnimationName = actions?.[animationName] ? animationName : "idle";
+
     try {
-      if (actions && actions[animationName]) {
-        actions[animationName].reset().fadeIn(0.5).play();
+      if (actions && actions[safeAnimationName]) {
+        actions[safeAnimationName].reset().fadeIn(0.5).play();
       }
     } catch (error) {
       console.warn("Animation play error:", error);
     }
     return () => {
       try {
-        if (actions && actions[animationName]) {
-          actions[animationName].fadeOut(0.5);
+        if (actions && actions[safeAnimationName]) {
+          actions[safeAnimationName].fadeOut(0.5);
         }
       } catch (error) {
         console.warn("Animation cleanup error:", error);
@@ -126,5 +137,9 @@ const Developer = ({ animationName = "idle", ...props }) => {
   );
 };
 
-useGLTF.preload("/models/human/developer.glb");
+useGLTF.preload(DEVELOPER_MODEL_PATH);
+useFBX.preload(ANIMATION_PATHS.idle);
+useFBX.preload(ANIMATION_PATHS.salute);
+useFBX.preload(ANIMATION_PATHS.clapping);
+useFBX.preload(ANIMATION_PATHS.victory);
 export default Developer;

@@ -192,8 +192,12 @@ const Projects = () => {
 
             <Canvas
               className="relative z-10 w-full h-full cursor-grab active:cursor-grabbing"
-              dpr={isMobile ? [1, 1.5] : [1, 2]}
-              gl={{ antialias: true, alpha: true }}
+              dpr={isMobile ? [1, 1.25] : [1, 1.5]}
+              gl={{
+                antialias: !isMobile,
+                alpha: true,
+                powerPreference: isMobile ? "low-power" : "high-performance",
+              }}
               camera={{ position: [0, 0, 12], fov: 45 }}
             >
               <Environment preset="studio" environmentIntensity={0.8} />
