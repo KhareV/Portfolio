@@ -1,48 +1,60 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import {
-  Center,
-  OrbitControls,
-  Environment,
-  ContactShadows,
-} from "@react-three/drei";
+import { useCallback, useMemo, useState } from "react";
 import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 import { myProjects } from "../constants/index.js";
-import CanvasLoader from "../components/CanvasLoader.jsx";
-import DemoComputer from "../components/DemoComputer.jsx";
 import TechIcon from "../components/TechIcon.jsx";
+import ProjectScene from "../components/ProjectScene.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection";
-
-const projectCount = myProjects.length;
 
 const Projects = () => {
   const { isMobile } = useDeviceDetection();
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  const projectCount = useMemo(() => myProjects.length, []);
+  const hasProjects = projectCount > 0;
 
-  const handleNavigation = (direction) => {
-    setSelectedProjectIndex((prevIndex) => {
-      if (direction === "previous") {
-        return prevIndex === 0 ? projectCount - 1 : prevIndex - 1;
+  const handleNavigation = useCallback(
+    (direction) => {
+      setSelectedProjectIndex((prevIndex) => {
+        if (direction === "previous") {
+          return prevIndex === 0 ? projectCount - 1 : prevIndex - 1;
+        }
+        return prevIndex === projectCount - 1 ? 0 : prevIndex + 1;
+      });
+    },
+    [projectCount],
+  );
+
+  const handleSectionKeyDown = useCallback(
+    (event) => {
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        handleNavigation("next");
       }
-      return prevIndex === projectCount - 1 ? 0 : prevIndex + 1;
-    });
-  };
 
-  const hasProjects = myProjects.length > 0;
-  const currentProject = hasProjects
-    ? (myProjects[selectedProjectIndex] ?? myProjects[0])
-    : null;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        handleNavigation("previous");
+      }
+    },
+    [handleNavigation],
+  );
+
+  const currentProject = useMemo(() => {
+    if (!hasProjects) {
+      return null;
+    }
+
+    return myProjects[selectedProjectIndex] ?? myProjects[0];
+  }, [hasProjects, selectedProjectIndex]);
 
   if (!hasProjects || !currentProject) {
     return (
       <section
-        className="font-site-default py-24 relative z-10 px-5 sm:px-10 overflow-hidden"
+        className="font-site-default py-24 relative z-10 px-5 sm:px-10 overflow-hidden bg-[#FEFFFC]"
         id="projects"
-        style={{ backgroundColor: "#FEFFFC" }}
       >
         <div className="max-w-7xl mx-auto rounded-[2rem] border border-slate-200 bg-white p-10 text-center">
           <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-slate-900 mb-3">
@@ -58,9 +70,12 @@ const Projects = () => {
 
   return (
     <section
-      className="projects-v2 font-site-default py-24 relative z-10 px-5 sm:px-10 overflow-hidden"
+      className="projects-v2 font-site-default py-24 relative z-10 px-5 sm:px-10 overflow-hidden bg-[#FEFFFC] focus-visible:outline-none"
       id="projects"
-      style={{ backgroundColor: "#FEFFFC" }}
+      tabIndex={0}
+      role="region"
+      aria-label="Projects showcase. Use left and right arrow keys to navigate projects."
+      onKeyDown={handleSectionKeyDown}
     >
       <div className="max-w-7xl mx-auto">
         <div className="mb-16 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -126,7 +141,7 @@ const Projects = () => {
               <div className="flex items-center gap-3 flex-wrap">
                 {(currentProject.tags ?? []).map((tag, index) => (
                   <div
-                    key={index}
+                    key={tag.id ?? `${tag.name}-${index}`}
                     className="group relative flex items-center gap-2 h-11 px-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-800 hover:bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
                   >
                     <TechIcon
@@ -146,7 +161,7 @@ const Projects = () => {
                 href={currentProject.href}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2.5 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-full transition-all duration-300 hover:shadow-[0_10px_20px_-10px_rgba(0,0,0,0.5)] w-fit group active:scale-[0.98]"
+                className="flex items-center gap-2.5 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-full transition-all duration-300 hover:shadow-[0_10px_20px_-10px_rgba(0,0,0,0.5)] w-fit group active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               >
                 <span className="text-[14px] font-medium tracking-wide">
                   Live Project
@@ -159,7 +174,7 @@ const Projects = () => {
 
               <div className="flex gap-2 w-full sm:w-auto justify-end">
                 <button
-                  className="group bg-transparent hover:bg-slate-50 border border-black/[0.06] hover:border-black/[0.15] transition-all duration-300 p-3 rounded-full flex items-center justify-center active:scale-90"
+                  className="group bg-transparent hover:bg-slate-50 border border-black/[0.06] hover:border-black/[0.15] transition-all duration-300 p-3 rounded-full flex items-center justify-center active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
                   onClick={() => handleNavigation("previous")}
                   aria-label="Previous project"
                 >
@@ -169,7 +184,7 @@ const Projects = () => {
                   />
                 </button>
                 <button
-                  className="group bg-transparent hover:bg-slate-50 border border-black/[0.06] hover:border-black/[0.15] transition-all duration-300 p-3 rounded-full flex items-center justify-center active:scale-90"
+                  className="group bg-transparent hover:bg-slate-50 border border-black/[0.06] hover:border-black/[0.15] transition-all duration-300 p-3 rounded-full flex items-center justify-center active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
                   onClick={() => handleNavigation("next")}
                   aria-label="Next project"
                 >
@@ -182,77 +197,27 @@ const Projects = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-white/70 backdrop-blur-sm border border-slate-200 rounded-[2.5rem] h-[28rem] lg:h-auto overflow-hidden transition-all duration-500 relative flex items-center justify-center group shadow-[inset_0_0_80px_rgba(15,23,42,0.04)] transform-gpu [will-change:transform]">
+          <div className="lg:col-span-7 bg-white/70 backdrop-blur-sm border border-slate-200 rounded-[2.5rem] h-[clamp(22rem,62vw,34rem)] lg:h-[40rem] overflow-hidden transition-all duration-500 relative flex items-center justify-center group shadow-[inset_0_0_80px_rgba(15,23,42,0.04)] transform-gpu [will-change:transform]">
             <div className="absolute top-8 right-8 z-20 flex gap-2 items-center bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-black/[0.03]">
               {myProjects.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedProjectIndex(index)}
-                  className={`h-1.5 rounded-full transition-all duration-500 ease-out ${
+                  className={`h-1.5 rounded-full transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
                     index === selectedProjectIndex
                       ? "bg-slate-800 w-6"
                       : "bg-slate-300 hover:bg-slate-400 w-1.5"
                   }`}
+                  aria-current={index === selectedProjectIndex}
                   aria-label={`Go to project ${index + 1}`}
                 />
               ))}
             </div>
 
-            <Canvas
-              className="relative z-10 w-full h-full cursor-grab active:cursor-grabbing"
-              dpr={isMobile ? [1, 1.25] : [1, 1.5]}
-              gl={{
-                antialias: !isMobile,
-                alpha: true,
-                powerPreference: isMobile ? "low-power" : "high-performance",
-              }}
-              camera={{ position: [0, 0, 12], fov: 45 }}
-            >
-              <Environment preset="studio" environmentIntensity={0.8} />
-              <ambientLight intensity={0.6} color="#ffffff" />
-              <directionalLight
-                position={[5, 10, 5]}
-                intensity={1.5}
-                color="#ffffff"
-                castShadow
-              />
-              <directionalLight
-                position={[-5, 5, -5]}
-                intensity={0.5}
-                color="#e2e8f0"
-              />
-
-              <Center>
-                <Suspense fallback={<CanvasLoader />}>
-                  <group
-                    scale={isMobile ? 1.4 : 1.7}
-                    position={[0, -1.8, 0]}
-                    rotation={[0, -0.2, 0]}
-                  >
-                    <DemoComputer texture={currentProject.texture} />
-                  </group>
-
-                  <ContactShadows
-                    position={[0, -2.5, 0]}
-                    opacity={0.3}
-                    scale={15}
-                    blur={2.5}
-                    far={4}
-                    color="#0f172a"
-                  />
-                </Suspense>
-              </Center>
-
-              <OrbitControls
-                maxPolarAngle={Math.PI / 2 + 0.1}
-                minPolarAngle={Math.PI / 3}
-                enableZoom={false}
-                enablePan={false}
-                autoRotate
-                autoRotateSpeed={0.8}
-                rotateSpeed={0.5}
-              />
-            </Canvas>
+            <ProjectScene
+              texture={currentProject.texture}
+              isMobile={isMobile}
+            />
           </div>
         </div>
       </div>

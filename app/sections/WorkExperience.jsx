@@ -1,15 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 
-import Developer from "../components/Developer.jsx";
-import CanvasLoader from "../components/CanvasLoader.jsx";
+import WorkExperienceScene from "../components/WorkExperienceScene.jsx";
 import { workExperiences } from "../constants/index.js";
-import { useEffect } from "react";
 import {
   spacing,
   layout,
@@ -19,12 +15,98 @@ import {
 } from "../styles/spacing.js";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
+const IDLE_ANIMATION_DELAY_MS = 180;
+const FALLBACK_ANIMATION = "idle";
+const SUPPORTED_ANIMATIONS = new Set(["idle", "salute", "clapping", "victory"]);
+
+const normalizeAnimationName = (animationName) => {
+  const normalizedName = String(
+    animationName || FALLBACK_ANIMATION,
+  ).toLowerCase();
+  return SUPPORTED_ANIMATIONS.has(normalizedName)
+    ? normalizedName
+    : FALLBACK_ANIMATION;
+};
+
 const WorkExperience = () => {
-  const [animationName, setAnimationName] = useState("idle");
   const { isMobile } = useDeviceDetection();
+  const sectionRef = useRef(null);
+  const developerRef = useRef(null);
+  const idleAnimationTimerRef = useRef(null);
+  const activeAnimationRef = useRef(FALLBACK_ANIMATION);
+  const [hasEnteredView, setHasEnteredView] = useState(false);
+  const isInView = useInView(sectionRef, {
+    amount: 0.18,
+    margin: "0px 0px -10% 0px",
+  });
+
+  useEffect(() => {
+    if (isInView) {
+      setHasEnteredView(true);
+    }
+  }, [isInView]);
+
+  const clearIdleAnimationTimer = useCallback(() => {
+    if (idleAnimationTimerRef.current == null) {
+      return;
+    }
+
+    window.clearTimeout(idleAnimationTimerRef.current);
+    idleAnimationTimerRef.current = null;
+  }, []);
+
+  const playAnimation = useCallback(
+    (animationName) => {
+      const safeAnimationName = normalizeAnimationName(animationName);
+
+      clearIdleAnimationTimer();
+
+      if (activeAnimationRef.current === safeAnimationName) {
+        return;
+      }
+
+      activeAnimationRef.current = safeAnimationName;
+      developerRef.current?.playAnimation?.(safeAnimationName);
+    },
+    [clearIdleAnimationTimer],
+  );
+
+  const scheduleIdleAnimation = useCallback(() => {
+    clearIdleAnimationTimer();
+
+    idleAnimationTimerRef.current = window.setTimeout(() => {
+      playAnimation(FALLBACK_ANIMATION);
+      idleAnimationTimerRef.current = null;
+    }, IDLE_ANIMATION_DELAY_MS);
+  }, [clearIdleAnimationTimer, playAnimation]);
+
+  const handleItemKeyDown = useCallback(
+    (event, animationName) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        playAnimation(animationName);
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        scheduleIdleAnimation();
+      }
+    },
+    [playAnimation, scheduleIdleAnimation],
+  );
+
+  useEffect(() => {
+    return () => {
+      clearIdleAnimationTimer();
+    };
+  }, [clearIdleAnimationTimer]);
+
+  const shouldMountScene = !isMobile && hasEnteredView;
+  const isSceneActive = !isMobile && isInView;
 
   return (
     <motion.section
+      ref={sectionRef}
       className={cn(
         "c-space",
         "font-site-default",
@@ -49,26 +131,16 @@ const WorkExperience = () => {
         </motion.h2>
 
         <div className="work-container">
-          {!isMobile && (
-            <div className="work-canvas">
-              <Canvas
-                dpr={[1, 1.5]}
-                gl={{ antialias: true, powerPreference: "low-power" }}
-                camera={{ position: [0, 0.2, 8], fov: 34 }}
-              >
-                <ambientLight intensity={7} />
-                <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-                <directionalLight position={[10, 10, 10]} intensity={1} />
-                <OrbitControls enableZoom={false} maxPolarAngle={Math.PI / 2} />
+          {!isMobile && shouldMountScene && (
+            <WorkExperienceScene
+              developerRef={developerRef}
+              isActive={isSceneActive}
+            />
+          )}
 
-                <Suspense fallback={<CanvasLoader />}>
-                  <Developer
-                    position-y={-2.2}
-                    scale={2.45}
-                    animationName={animationName}
-                  />
-                </Suspense>
-              </Canvas>
+          {!isMobile && !shouldMountScene && (
+            <div className="work-canvas grid place-items-center text-slate-500 text-sm font-medium">
+              3D preview loads on view.
             </div>
           )}
 
@@ -82,15 +154,19 @@ const WorkExperience = () => {
             <div className={cn(spacing.section.paddingY, spacing.card.padding)}>
               {workExperiences.map((item, index) => (
                 <motion.div
-                  key={index}
-                  onClick={() =>
-                    setAnimationName(item.animation?.toLowerCase() || "idle")
+                  key={item.id ?? item.name}
+                  onClick={() => playAnimation(item.animation)}
+                  onPointerEnter={() => playAnimation(item.animation)}
+                  onPointerLeave={scheduleIdleAnimation}
+                  onFocus={() => playAnimation(item.animation)}
+                  onBlur={scheduleIdleAnimation}
+                  onKeyDown={(event) =>
+                    handleItemKeyDown(event, item.animation)
                   }
-                  onPointerOver={() =>
-                    setAnimationName(item.animation?.toLowerCase() || "idle")
-                  }
-                  onPointerOut={() => setAnimationName("idle")}
-                  className="work-content_container group"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${item.name} - ${item.pos}`}
+                  className="work-content_container group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9aad87] focus-visible:ring-offset-2"
                   whileHover={{ scale: 1.05 }}
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
