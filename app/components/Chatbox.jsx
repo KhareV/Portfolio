@@ -49,12 +49,12 @@ const ChatBox = () => {
   }, []);
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
+    const frameId = window.requestAnimationFrame(() => {
       scrollToBottom(isAutoIntroTyping ? "auto" : "smooth");
-    }, 90);
+    });
 
     return () => {
-      window.clearTimeout(timeoutId);
+      window.cancelAnimationFrame(frameId);
     };
   }, [messages.length, isLoading, isAutoIntroTyping, scrollToBottom]);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { Renderer, Triangle, Program, Mesh } from "ogl";
 
 const clampShaderSteps = (value) => {
@@ -477,4 +477,4 @@ const Prism = ({
   return <div className="w-full h-full relative" ref={containerRef} />;
 };
 
-export default Prism;
+export default memo(Prism);

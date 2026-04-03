@@ -1,13 +1,13 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, memo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import StarsCanvas from "./Stars";
 import CanvasLoader from "./CanvasLoader";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
-const Earth = () => {
+const Earth = memo(() => {
   const earth = useGLTF("/planet/scene.opt.glb");
 
   return (
@@ -18,7 +18,7 @@ const Earth = () => {
       rotation-y={0}
     />
   );
-};
+});
 
 const EarthCanvas = () => {
   const { isMobile } = useDeviceDetection();
@@ -86,4 +86,4 @@ const EarthCanvas = () => {
 
 useGLTF.preload("/planet/scene.opt.glb");
 
-export default EarthCanvas;
+export default memo(EarthCanvas);

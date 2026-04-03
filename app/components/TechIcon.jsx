@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   SiReact,
   SiTailwindcss,
@@ -10,19 +10,20 @@ import {
 } from "react-icons/si";
 import { Brain } from "lucide-react";
 
-const TechIcon = ({ icon, className = "w-4 h-4" }) => {
-  const iconMap = {
-    react: <SiReact className={className} />,
-    tailwind: <SiTailwindcss className={className} />,
-    nextjs: <SiNextdotjs className={className} />,
-    mongodb: <SiMongodb className={className} />,
-    graphql: <SiGraphql className={className} />,
-    express: <SiExpress className={className} />,
-    nodejs: <SiNodedotjs className={className} />,
-    openai: <Brain className={className} />,
-  };
-
-  return iconMap[icon] || null;
+const ICON_COMPONENTS = {
+  react: SiReact,
+  tailwind: SiTailwindcss,
+  nextjs: SiNextdotjs,
+  mongodb: SiMongodb,
+  graphql: SiGraphql,
+  express: SiExpress,
+  nodejs: SiNodedotjs,
+  openai: Brain,
 };
 
-export default TechIcon;
+const TechIcon = ({ icon, className = "w-4 h-4" }) => {
+  const IconComponent = ICON_COMPONENTS[icon];
+  return IconComponent ? <IconComponent className={className} /> : null;
+};
+
+export default memo(TechIcon);

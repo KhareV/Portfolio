@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo } from "react";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
 const DeviceDebugInfo = ({ show = false }) => {
@@ -25,5 +25,4 @@ const DeviceDebugInfo = ({ show = false }) => {
   );
 };
 
-export default DeviceDebugInfo;
-
+export default memo(DeviceDebugInfo);

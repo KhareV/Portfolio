@@ -1,11 +1,17 @@
 "use client";
 
 import NextImage from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { FaGithub, FaTwitter, FaInstagram } from "react-icons/fa";
 import { cn, transitions } from "../styles/spacing.js";
 
-const FOOTER_IMAGE = "/newimages/morningfoot.png";
+const APP_TIMEZONE = "Asia/Kolkata";
+const FOOTER_IMAGES = {
+  morning: "/newimages/morningfoot.png",
+  afternoon: "/newimages/afternoonfoot.png",
+  evening: "/newimages/nightfoot.png",
+  night: "/newimages/nightfoot.png",
+};
 const EASING_POWER = 3.2;
 const PROGRESS_EPSILON = 0.002;
 const MAX_PARALLAX_OFFSET = 40;
@@ -13,9 +19,56 @@ const REVEAL_RANGE_MULTIPLIER = 1.1;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+const getLocalHour = () => {
+  return Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: APP_TIMEZONE,
+      hour: "2-digit",
+      hour12: false,
+    }).format(new Date()),
+  );
+};
+
+const getDayPhase = (hour) => {
+  if (hour >= 5 && hour < 12) return "morning";
+  if (hour >= 12 && hour < 17) return "afternoon";
+  if (hour >= 17 && hour < 21) return "evening";
+  return "night";
+};
+
 const Footer = () => {
   const footerRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [dayPhase, setDayPhase] = useState(() => getDayPhase(getLocalHour()));
+
+  useEffect(() => {
+    let timerId;
+
+    const syncPhase = () => {
+      const hour = getLocalHour();
+      const nextPhase = getDayPhase(hour);
+
+      setDayPhase((prev) => (prev === nextPhase ? prev : nextPhase));
+
+      const msUntilNextMinute = 60000 - (Date.now() % 60000) + 20;
+      timerId = window.setTimeout(syncPhase, msUntilNextMinute);
+    };
+
+    syncPhase();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setDayPhase(getDayPhase(getLocalHour()));
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.clearTimeout(timerId);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -74,6 +127,10 @@ const Footer = () => {
 
   const parallaxY = (1 - progress) * MAX_PARALLAX_OFFSET;
   const overlayOpacity = clamp(0.6 - progress * 0.5, 0.08, 0.6);
+  const footerImage = useMemo(
+    () => FOOTER_IMAGES[dayPhase] ?? FOOTER_IMAGES.afternoon,
+    [dayPhase],
+  );
 
   return (
     <footer
@@ -86,7 +143,7 @@ const Footer = () => {
         style={{ transform: `translateY(${parallaxY}px) scale(1.05)` }}
       >
         <NextImage
-          src={FOOTER_IMAGE}
+          src={footerImage}
           alt=""
           fill
           priority
@@ -144,4 +201,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default memo(Footer);

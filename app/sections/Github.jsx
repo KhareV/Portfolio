@@ -1,9 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 
-import { ContribBar, DonutChart, ImpactAreaChart, RepoBarChart } from "./github/charts";
+import {
+  ContribBar,
+  DonutChart,
+  ImpactAreaChart,
+  RepoBarChart,
+} from "./github/charts";
 import { RepoCard, StatCard } from "./github/cards";
 import { SKILL_GROUPS } from "./github/constants";
 import useGithubData from "./github/useGithubData";
@@ -32,7 +37,11 @@ const Github = () => {
     return (
       <section className="w-full bg-[#FEFFFC] py-6">
         <div className="mx-auto w-full max-w-[1280px] rounded-[20px] border border-slate-200 bg-[#FDFEFB] p-6">
-          <div className="grid place-items-center py-12" role="status" aria-live="polite">
+          <div
+            className="grid place-items-center py-12"
+            role="status"
+            aria-live="polite"
+          >
             <div className="mb-4 h-10 w-10 animate-spin rounded-full border-[3px] border-slate-200 border-t-emerald-500" />
             <p className="text-sm text-slate-500">Fetching GitHub data...</p>
           </div>
@@ -47,7 +56,9 @@ const Github = () => {
         <div className="mx-auto w-full max-w-[1280px] rounded-[20px] border border-slate-200 bg-[#FDFEFB] p-6">
           <div className="rounded-xl border border-rose-200 bg-rose-50 px-5 py-8 text-center">
             <p className="text-sm font-medium text-rose-700">{error}</p>
-            <p className="mt-2 text-xs text-rose-600">GitHub stats could not be loaded right now.</p>
+            <p className="mt-2 text-xs text-rose-600">
+              GitHub stats could not be loaded right now.
+            </p>
           </div>
         </div>
       </section>
@@ -55,17 +66,25 @@ const Github = () => {
   }
 
   return (
-    <section className="w-full bg-[#FEFFFC] py-6" aria-label="GitHub analytics section">
+    <section
+      className="w-full bg-[#FEFFFC] py-6"
+      aria-label="GitHub analytics section"
+    >
       <div className="mx-auto w-full max-w-[1280px] rounded-[20px] border border-slate-200 bg-[#FDFEFB] p-4 sm:p-6">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4 px-2">
           <div className="space-y-1">
             <span className="font-mono text-xs font-bold uppercase tracking-widest text-emerald-600">
               Overview
             </span>
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">GitHub Stats</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+              GitHub Stats
+            </h2>
           </div>
 
-          <div className="text-xs font-medium text-slate-500" aria-live="polite">
+          <div
+            className="text-xs font-medium text-slate-500"
+            aria-live="polite"
+          >
             {isRefreshing ? (
               <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5">
                 Refreshing latest data...
@@ -78,7 +97,9 @@ const Github = () => {
           </div>
         </div>
 
-        <div className={`${PANEL_CLASSNAME} mb-5 flex flex-wrap items-center gap-6`}>
+        <div
+          className={`${PANEL_CLASSNAME} mb-5 flex flex-wrap items-center gap-6`}
+        >
           {user?.avatar_url && (
             <a
               href={`https://github.com/${username}`}
@@ -100,7 +121,9 @@ const Github = () => {
           )}
 
           <div className="min-w-[180px] flex-1">
-            <h3 className="text-xl font-bold tracking-tight text-slate-900">{user?.name || username}</h3>
+            <h3 className="text-xl font-bold tracking-tight text-slate-900">
+              {user?.name || username}
+            </h3>
             <a
               href={`https://github.com/${username}`}
               target="_blank"
@@ -109,7 +132,11 @@ const Github = () => {
             >
               @{username}
             </a>
-            {user?.bio && <p className="mt-2 text-sm leading-6 text-slate-500">{user.bio}</p>}
+            {user?.bio && (
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                {user.bio}
+              </p>
+            )}
           </div>
 
           {showAnalytics && (
@@ -173,7 +200,9 @@ const Github = () => {
             <div className="mb-5 flex justify-center">
               <DonutChart data={langData} size={150} />
             </div>
-            <p className="mb-3 text-[11px] text-slate-500">By repository count</p>
+            <p className="mb-3 text-[11px] text-slate-500">
+              By repository count
+            </p>
             <div className="flex flex-col gap-2.5">
               {langData.map((lang) => (
                 <div key={lang.name} className="flex items-center gap-2">
@@ -182,14 +211,18 @@ const Github = () => {
                     style={{ background: lang.color }}
                     aria-hidden="true"
                   />
-                  <span className="min-w-0 flex-1 truncate text-xs text-slate-800">{lang.name}</span>
+                  <span className="min-w-0 flex-1 truncate text-xs text-slate-800">
+                    {lang.name}
+                  </span>
                   <div className="h-[3px] w-10 overflow-hidden rounded bg-slate-100">
                     <div
                       className="h-full"
                       style={{ width: `${lang.pct}%`, background: lang.color }}
                     />
                   </div>
-                  <span className="w-8 text-right font-mono text-[11px] text-slate-500">{lang.pct}%</span>
+                  <span className="w-8 text-right font-mono text-[11px] text-slate-500">
+                    {lang.pct}%
+                  </span>
                 </div>
               ))}
             </div>
@@ -236,4 +269,4 @@ const Github = () => {
   );
 };
 
-export default Github;
+export default memo(Github);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -24,6 +24,9 @@ const PROFILE_NAME = "Vedant Khare";
 const PROFILE_IMAGE_SRC = "/newimages/vedant-profile.jpg";
 const PROFILE_MARQUEE_COUNT = 7;
 const COPY_RESET_DELAY_MS = 4000;
+const SOFT_CARD_CLASS =
+  "relative overflow-hidden rounded-[30px] border border-[#d4d7cf] bg-[#f6f7f1] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_28px_rgba(121,126,112,0.12)]";
+const FIXED_SIZE_CARD_CLASS = "w-full h-full";
 
 const SLIDE_IN_VARIANTS = {
   hidden: { opacity: 0, x: -50 },
@@ -183,33 +186,34 @@ const AnimatedCard = ({ className, delay, children }) => (
   </motion.div>
 );
 
-const ProfileTickerRow = ({ className, dimLastItem = false }) => (
-  <div className={cn(className, layout.flex.center)}>
-    {PROFILE_NAME_ITEMS.map((item) => (
-      <span
-        key={`${className}-${item}`}
-        className={cn(
-          "mx-4",
-          responsive.text["3xl"],
-          dimLastItem && item === PROFILE_NAME_ITEMS.length - 1
-            ? "text-gray-300"
-            : "text-[#8d9189]",
-        )}
-      >
-        {PROFILE_NAME}
-      </span>
-    ))}
-  </div>
-);
+const ProfileTickerRow = memo(function ProfileTickerRow({
+  className,
+  dimLastItem = false,
+}) {
+  return (
+    <div className={cn(className, layout.flex.center)}>
+      {PROFILE_NAME_ITEMS.map((item) => (
+        <span
+          key={`${className}-${item}`}
+          className={cn(
+            "mx-4",
+            responsive.text["3xl"],
+            dimLastItem && item === PROFILE_NAME_ITEMS.length - 1
+              ? "text-gray-300"
+              : "text-[#8d9189]",
+          )}
+        >
+          {PROFILE_NAME}
+        </span>
+      ))}
+    </div>
+  );
+});
 
 const About = () => {
   const { isMobile } = useDeviceDetection();
   const [hasCopied, setHasCopied] = useState(false);
   const copyResetTimeoutRef = useRef(null);
-
-  const softCardClass =
-    "relative overflow-hidden rounded-[30px] border border-[#d4d7cf] bg-[#f6f7f1] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_28px_rgba(121,126,112,0.12)]";
-  const fixedSizeCardClass = "w-full h-full";
 
   useEffect(() => {
     return () => {
@@ -270,7 +274,7 @@ const About = () => {
           delay={0.3}
         >
           {/* Background Container */}
-          <div className={cn("w-full md:w-4/5 mx-auto", softCardClass)}>
+          <div className={cn("w-full md:w-4/5 mx-auto", SOFT_CARD_CLASS)}>
             {/* Marquee Container */}
             <div className="absolute inset-0 w-full h-full">
               <div className={cn(spacing.section.paddingY, "mt-52 pt-24")}>
@@ -285,7 +289,7 @@ const About = () => {
             </div>
 
             {/* Content Container */}
-            <div className={cn("relative z-10 profile-container")}>
+            <div className="relative z-10 profile-container">
               <Image
                 src={PROFILE_IMAGE_SRC}
                 alt="Portrait of Vedant Khare"
@@ -324,8 +328,8 @@ const About = () => {
           <div
             className={cn(
               "group",
-              fixedSizeCardClass,
-              softCardClass,
+              FIXED_SIZE_CARD_CLASS,
+              SOFT_CARD_CLASS,
               "transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(121,126,112,0.16)]",
             )}
           >
@@ -366,8 +370,8 @@ const About = () => {
           <div
             className={cn(
               "group",
-              fixedSizeCardClass,
-              softCardClass,
+              FIXED_SIZE_CARD_CLASS,
+              SOFT_CARD_CLASS,
               "transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(121,126,112,0.16)]",
             )}
           >
@@ -433,8 +437,8 @@ const About = () => {
           <div
             className={cn(
               "group",
-              fixedSizeCardClass,
-              softCardClass,
+              FIXED_SIZE_CARD_CLASS,
+              SOFT_CARD_CLASS,
               "transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(121,126,112,0.16)]",
               transitions.default,
             )}
@@ -482,8 +486,8 @@ const About = () => {
           <div
             className={cn(
               "group",
-              fixedSizeCardClass,
-              softCardClass,
+              FIXED_SIZE_CARD_CLASS,
+              SOFT_CARD_CLASS,
               "transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(121,126,112,0.16)]",
               transitions.default,
             )}
@@ -555,4 +559,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default memo(About);

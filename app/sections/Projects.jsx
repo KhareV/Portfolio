@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
@@ -9,23 +9,21 @@ import TechIcon from "../components/TechIcon.jsx";
 import ProjectScene from "../components/ProjectScene.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
+const PROJECT_COUNT = myProjects.length;
+
 const Projects = () => {
   const { isMobile } = useDeviceDetection();
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
-  const projectCount = useMemo(() => myProjects.length, []);
-  const hasProjects = projectCount > 0;
+  const hasProjects = PROJECT_COUNT > 0;
 
-  const handleNavigation = useCallback(
-    (direction) => {
-      setSelectedProjectIndex((prevIndex) => {
-        if (direction === "previous") {
-          return prevIndex === 0 ? projectCount - 1 : prevIndex - 1;
-        }
-        return prevIndex === projectCount - 1 ? 0 : prevIndex + 1;
-      });
-    },
-    [projectCount],
-  );
+  const handleNavigation = useCallback((direction) => {
+    setSelectedProjectIndex((prevIndex) => {
+      if (direction === "previous") {
+        return prevIndex === 0 ? PROJECT_COUNT - 1 : prevIndex - 1;
+      }
+      return prevIndex === PROJECT_COUNT - 1 ? 0 : prevIndex + 1;
+    });
+  }, []);
 
   const handleSectionKeyDown = useCallback(
     (event) => {
@@ -225,4 +223,4 @@ const Projects = () => {
   );
 };
 
-export default Projects;
+export default memo(Projects);

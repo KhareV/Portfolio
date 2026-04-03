@@ -1,6 +1,8 @@
 "use client";
 
 import React, {
+  memo,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -265,40 +267,58 @@ const Hero = () => {
   useEffect(() => {
     if (!shouldStartTyping) return;
 
-    let intervalId = null;
+    let rafId = null;
+    let cursor = 0;
+    let lastStepAt = 0;
+
     setTypedIntro("");
     setIsTypingDone(false);
 
     const startDelay = window.setTimeout(() => {
-      let cursor = 0;
-
-      intervalId = window.setInterval(() => {
-        cursor += 1;
-        setTypedIntro(HERO_INTRO_TEXT.slice(0, cursor));
-
-        if (cursor >= HERO_INTRO_TEXT.length) {
-          window.clearInterval(intervalId);
-          setIsTypingDone(true);
+      const step = (timestamp) => {
+        if (lastStepAt === 0) {
+          lastStepAt = timestamp;
         }
-      }, HERO_TYPING_INTERVAL_MS);
+
+        const elapsed = timestamp - lastStepAt;
+
+        if (elapsed >= HERO_TYPING_INTERVAL_MS) {
+          const stepCount = Math.floor(elapsed / HERO_TYPING_INTERVAL_MS);
+          cursor = Math.min(HERO_INTRO_TEXT.length, cursor + stepCount);
+          setTypedIntro(HERO_INTRO_TEXT.slice(0, cursor));
+          lastStepAt = timestamp;
+
+          if (cursor >= HERO_INTRO_TEXT.length) {
+            setIsTypingDone(true);
+            return;
+          }
+        }
+
+        rafId = window.requestAnimationFrame(step);
+      };
+
+      rafId = window.requestAnimationFrame(step);
     }, HERO_TYPING_START_DELAY_MS);
 
     return () => {
       window.clearTimeout(startDelay);
 
-      if (intervalId !== null) {
-        window.clearInterval(intervalId);
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
       }
     };
   }, [shouldStartTyping]);
 
   const typedLines = useMemo(() => typedIntro.split("\n"), [typedIntro]);
-  const visibleBackgroundPhases =
-    previousPhase && previousPhase !== dayPhase
-      ? [dayPhase, previousPhase]
-      : [dayPhase];
+  const visibleBackgroundPhases = useMemo(
+    () =>
+      previousPhase && previousPhase !== dayPhase
+        ? [dayPhase, previousPhase]
+        : [dayPhase],
+    [dayPhase, previousPhase],
+  );
 
-  const renderTypedLine = (line, index) => {
+  const renderTypedLine = useCallback((line, index) => {
     if (index !== 0 || !line) {
       return line;
     }
@@ -313,7 +333,7 @@ const Hero = () => {
         {defaultPart}
       </>
     );
-  };
+  }, []);
 
   return (
     <section
@@ -405,4 +425,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default memo(Hero);

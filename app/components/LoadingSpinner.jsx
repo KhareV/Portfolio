@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FaReact,
   FaHtml5,
@@ -16,23 +16,56 @@ import {
   FaVuejs,
 } from "react-icons/fa";
 
+const ICONS = [
+  { Icon: FaReact, color: "#61DAFB" },
+  { Icon: FaHtml5, color: "#E34F26" },
+  { Icon: FaCss3Alt, color: "#1572B6" },
+  { Icon: FaJs, color: "#F7DF1E" },
+  { Icon: FaNode, color: "#339933" },
+  { Icon: FaGitAlt, color: "#F05032" },
+  { Icon: FaNpm, color: "#CB3837" },
+  { Icon: FaDatabase, color: "#336791" },
+  { Icon: FaDocker, color: "#2496ED" },
+  { Icon: FaAws, color: "#FF9900" },
+  { Icon: FaPython, color: "#3776AB" },
+  { Icon: FaVuejs, color: "#4FC08D" },
+];
+
+const captureBodyStyles = () => ({
+  overflow: document.body.style.overflow,
+  position: document.body.style.position,
+  width: document.body.style.width,
+  height: document.body.style.height,
+});
+
+const lockBodyScroll = () => {
+  Object.assign(document.body.style, {
+    overflow: "hidden",
+    position: "fixed",
+    width: "100%",
+    height: "100%",
+  });
+};
+
+const restoreBodyStyles = (styles) => {
+  if (!styles) {
+    return;
+  }
+
+  Object.assign(document.body.style, styles);
+};
+
 const LoadingSpinner = ({ onLoadComplete, shouldHide = false }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
+  const originalBodyStylesRef = useRef(null);
 
   useEffect(() => {
-    // Lock body scroll while loading
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    document.body.style.height = "100%";
+    originalBodyStylesRef.current = captureBodyStyles();
+    lockBodyScroll();
 
     return () => {
-      // Cleanup: restore body scroll
-      document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-      document.body.style.height = "";
+      restoreBodyStyles(originalBodyStylesRef.current);
     };
   }, []);
 
@@ -42,37 +75,18 @@ const LoadingSpinner = ({ onLoadComplete, shouldHide = false }) => {
       setFadeOut(true);
 
       // Wait for fade animation to complete before hiding
-      const fadeTimer = setTimeout(() => {
+      const fadeTimer = window.setTimeout(() => {
         setIsVisible(false);
         onLoadComplete();
 
-        // Restore body scroll
-        document.body.style.overflow = "auto";
-        document.body.style.position = "";
-        document.body.style.width = "";
-        document.body.style.height = "";
+        restoreBodyStyles(originalBodyStylesRef.current);
       }, 800); // 800ms fade duration
 
       return () => {
-        clearTimeout(fadeTimer);
+        window.clearTimeout(fadeTimer);
       };
     }
   }, [shouldHide, isVisible, onLoadComplete]);
-
-  const icons = [
-    { Icon: FaReact, color: "#61DAFB" },
-    { Icon: FaHtml5, color: "#E34F26" },
-    { Icon: FaCss3Alt, color: "#1572B6" },
-    { Icon: FaJs, color: "#F7DF1E" },
-    { Icon: FaNode, color: "#339933" },
-    { Icon: FaGitAlt, color: "#F05032" },
-    { Icon: FaNpm, color: "#CB3837" },
-    { Icon: FaDatabase, color: "#336791" },
-    { Icon: FaDocker, color: "#2496ED" },
-    { Icon: FaAws, color: "#FF9900" },
-    { Icon: FaPython, color: "#3776AB" },
-    { Icon: FaVuejs, color: "#4FC08D" },
-  ];
 
   if (!isVisible) return null;
 
@@ -81,7 +95,7 @@ const LoadingSpinner = ({ onLoadComplete, shouldHide = false }) => {
       <div className="loading-content">
         <div className="snake-container">
           <div className="snake">
-            {icons.map((icon, index) => (
+            {ICONS.map((icon, index) => (
               <div
                 key={index}
                 className="icon-wrapper"

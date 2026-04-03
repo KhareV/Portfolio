@@ -1,8 +1,9 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { spacing, layout, borders, cn } from "../styles/spacing.js";
+import { spacing, layout, borders } from "../styles/spacing.js";
 
 const ItemLayout = ({ children, className }) => {
   return (
@@ -17,7 +18,7 @@ const ItemLayout = ({ children, className }) => {
         borders.rounded.xl,
         layout.flex.center,
         "space-y-8",
-        className
+        className,
       )}
     >
       {children}
@@ -25,5 +26,4 @@ const ItemLayout = ({ children, className }) => {
   );
 };
 
-export default ItemLayout;
-
+export default memo(ItemLayout);

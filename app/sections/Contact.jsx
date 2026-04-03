@@ -1,7 +1,7 @@
 "use client";
 
 import emailjs from "@emailjs/browser";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
@@ -68,9 +68,9 @@ const Contact = () => {
     [],
   );
 
-  const handleChange = ({ target: { name, value } }) => {
+  const handleChange = useCallback(({ target: { name, value } }) => {
     setForm((prevForm) => ({ ...prevForm, [name]: value }));
-  };
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -389,4 +389,4 @@ const Contact = () => {
   );
 };
 
-export default Contact;
+export default memo(Contact);

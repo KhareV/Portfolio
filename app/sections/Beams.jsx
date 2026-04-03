@@ -3,6 +3,7 @@
 /* eslint-disable react/no-unknown-property */
 import {
   forwardRef,
+  memo,
   useImperativeHandle,
   useEffect,
   useRef,
@@ -369,4 +370,4 @@ const DirLight = ({ position, color }) => {
   );
 };
 
-export default Beams;
+export default memo(Beams);

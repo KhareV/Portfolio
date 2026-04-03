@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { memo, useMemo, useRef, useEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
 import * as random from "maath/random/dist/maath-random.esm";
@@ -9,8 +9,12 @@ import useDeviceDetection from "../hooks/useDeviceDetection";
 const Stars = (props) => {
   const { isMobile } = useDeviceDetection();
   const ref = useRef();
-  const [sphere] = useState(() =>
-    random.inSphere(new Float32Array(isMobile ? 900 : 3600), { radius: 1.2 }),
+  const sphere = useMemo(
+    () =>
+      random.inSphere(new Float32Array(isMobile ? 900 : 3600), {
+        radius: 1.2,
+      }),
+    [isMobile],
   );
 
   const targetRotation = useRef({ x: 0, y: 0 });
@@ -75,4 +79,4 @@ const StarsCanvas = () => {
   );
 };
 
-export default StarsCanvas;
+export default memo(StarsCanvas);

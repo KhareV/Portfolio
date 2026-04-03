@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 const Button = ({ name, isBeam = false, containerClass }) => {
   return (
     <button className={`btn ${containerClass}`}>
@@ -12,4 +14,4 @@ const Button = ({ name, isBeam = false, containerClass }) => {
   );
 };
 
-export default Button;
+export default memo(Button);

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Html } from "@react-three/drei";
 
 const CanvasLoader = () => {
@@ -29,4 +30,4 @@ const CanvasLoader = () => {
   );
 };
 
-export default CanvasLoader;
+export default memo(CanvasLoader);

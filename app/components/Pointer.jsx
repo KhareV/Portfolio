@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 const POINTER_STYLE_ID = "app-custom-pointer-style";
@@ -118,12 +118,18 @@ const Pointer = () => {
 
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
+        frameRef.current = null;
       }
 
       html.removeAttribute("data-custom-pointer");
-      if (styleRef.current?.parentNode) {
-        styleRef.current.parentNode.removeChild(styleRef.current);
+      if (styleRef.current && styleRef.current.parentNode) {
+        try {
+          styleRef.current.parentNode.removeChild(styleRef.current);
+        } catch {
+          // Style node might already be removed externally.
+        }
       }
+      styleRef.current = null;
     };
   }, [isEnabled]);
 
@@ -172,4 +178,4 @@ const Pointer = () => {
   );
 };
 
-export default Pointer;
+export default memo(Pointer);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { cn } from "../styles/spacing.js";
 
 const APP_TIMEZONE = "Asia/Kolkata";
@@ -95,4 +95,4 @@ const TimeBands = ({ className = "" }) => {
   );
 };
 
-export default TimeBands;
+export default memo(TimeBands);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 
@@ -228,4 +228,4 @@ const WorkExperience = () => {
   );
 };
 
-export default WorkExperience;
+export default memo(WorkExperience);

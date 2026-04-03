@@ -2,13 +2,42 @@
 
 import { motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Modal from "./Modal";
 import { useLoadingContext } from "../contexts/LoadingContext";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 
+const MODAL_OPEN_DELAY_MS = 3500;
+const MODAL_IDLE_TIMEOUT_MS = 1200;
+
+const runWhenIdle = (task, timeout = MODAL_IDLE_TIMEOUT_MS) => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  if ("requestIdleCallback" in window) {
+    return window.requestIdleCallback(task, { timeout });
+  }
+
+  return window.setTimeout(task, 150);
+};
+
+const cancelIdleTask = (id) => {
+  if (typeof window === "undefined" || id == null) {
+    return;
+  }
+
+  if ("cancelIdleCallback" in window) {
+    window.cancelIdleCallback(id);
+    return;
+  }
+
+  window.clearTimeout(id);
+};
+
 const Sound = () => {
   const audioRef = useRef(null);
+  const isPlayingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -17,22 +46,57 @@ const Sound = () => {
   const { isMobile } = useDeviceDetection();
 
   useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  const handleFirstUserInteraction = useCallback(() => {
+    const audio = audioRef.current;
+    if (audio && isPlayingRef.current) {
+      audio.play().catch(() => {
+        // Handle play() promise rejection without noisy logging.
+      });
+    }
+  }, []);
+
+  const removeInteractionListeners = useCallback(() => {
+    document.removeEventListener("click", handleFirstUserInteraction);
+    document.removeEventListener("keydown", handleFirstUserInteraction);
+    document.removeEventListener("touchstart", handleFirstUserInteraction);
+  }, [handleFirstUserInteraction]);
+
+  const addInteractionListeners = useCallback(() => {
+    document.addEventListener("click", handleFirstUserInteraction, {
+      once: true,
+      passive: true,
+    });
+    document.addEventListener("touchstart", handleFirstUserInteraction, {
+      once: true,
+      passive: true,
+    });
+    document.addEventListener("keydown", handleFirstUserInteraction, {
+      once: true,
+    });
+  }, [handleFirstUserInteraction]);
+
+  useEffect(() => {
     if (!isAppReady) return; // Wait for loading to complete
     if (hasShownModalRef.current) return; // Already shown modal this session
 
-    // Small delay after loading completes to ensure smooth transition
-    const initTimer = setTimeout(() => {
-      setShowModal(true);
-      hasShownModalRef.current = true;
-    }, 3500); // Smooth delay after loading completes
+    let idleTaskId = null;
+
+    const initTimer = window.setTimeout(() => {
+      idleTaskId = runWhenIdle(() => {
+        setShowModal(true);
+        hasShownModalRef.current = true;
+      });
+    }, MODAL_OPEN_DELAY_MS);
 
     return () => {
-      clearTimeout(initTimer);
-      document.removeEventListener("click", handleFirstUserInteraction);
-      document.removeEventListener("keydown", handleFirstUserInteraction);
-      document.removeEventListener("touchstart", handleFirstUserInteraction);
+      window.clearTimeout(initTimer);
+      cancelIdleTask(idleTaskId);
+      removeInteractionListeners();
     };
-  }, [isAppReady]);
+  }, [isAppReady, removeInteractionListeners]);
 
   // Effect to handle audio when isPlaying changes
   useEffect(() => {
@@ -52,37 +116,25 @@ const Sound = () => {
   }, [isPlaying, isAudioEnabled]);
 
   useEffect(() => {
-    if (isAudioEnabled && audioRef.current) {
-      audioRef.current.load();
+    const audio = audioRef.current;
+    if (isAudioEnabled && audio) {
+      audio.load();
     }
   }, [isAudioEnabled]);
 
-  const handleFirstUserInteraction = () => {
-    if (isPlaying && audioRef.current) {
-      audioRef.current.play().catch(() => {
-        // Handle play() promise rejection without noisy logging.
-      });
-    }
-    document.removeEventListener("click", handleFirstUserInteraction);
-    document.removeEventListener("keydown", handleFirstUserInteraction);
-    document.removeEventListener("touchstart", handleFirstUserInteraction);
-  };
-
-  const handleConsent = () => {
+  const handleConsent = useCallback(() => {
     setIsAudioEnabled(true);
     setIsPlaying(true);
-    document.addEventListener("click", handleFirstUserInteraction);
-    document.addEventListener("keydown", handleFirstUserInteraction);
-    document.addEventListener("touchstart", handleFirstUserInteraction);
+    addInteractionListeners();
     setShowModal(false);
-  };
+  }, [addInteractionListeners]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsPlaying(false);
     setShowModal(false);
-  };
+  }, []);
 
-  const toggle = () => {
+  const toggle = useCallback(() => {
     if (!isAudioEnabled) {
       setIsAudioEnabled(true);
       setIsPlaying(true);
@@ -90,7 +142,7 @@ const Sound = () => {
     }
 
     setIsPlaying((prev) => !prev);
-  };
+  }, [isAudioEnabled]);
 
   return (
     <div className="text-white-800 fixed top-4 right-2.5 xs:right-4 z-50 group">

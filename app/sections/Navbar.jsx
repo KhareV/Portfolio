@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "../styles/spacing.js";
 
@@ -11,7 +11,9 @@ const navItems = [
   { label: "Contact", href: "#contact" },
 ];
 
-const NavItems = ({ onClick = () => {} }) => {
+const NOOP = () => {};
+
+const NavItems = memo(function NavItems({ onClick = NOOP }) {
   return (
     <ul className="flex items-center gap-6">
       {navItems.map((item) => (
@@ -27,10 +29,16 @@ const NavItems = ({ onClick = () => {} }) => {
       ))}
     </ul>
   );
-};
+});
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const toggleMenu = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+  const closeMenu = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
   return (
     <header className="fixed inset-x-0 top-5 z-50">
@@ -61,7 +69,7 @@ const Navbar = () => {
 
           {/* MENU BUTTON */}
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={toggleMenu}
             className="sm:hidden h-9 w-9 grid place-items-center rounded-full bg-white/15 border border-white/25 text-white"
           >
             {isOpen ? <X size={18} /> : <Menu size={18} />}
@@ -99,7 +107,7 @@ const Navbar = () => {
             <a
               key={item.label}
               href={item.href}
-              onClick={() => setIsOpen(false)}
+              onClick={closeMenu}
               className="block text-white/85 hover:text-white transition-colors"
             >
               {item.label}
@@ -110,7 +118,7 @@ const Navbar = () => {
             href="https://github.com/kharev"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => setIsOpen(false)}
+            onClick={closeMenu}
             className="flex items-center justify-between px-4 py-2 rounded-full bg-white border border-white/80 text-slate-900"
           >
             Github
@@ -122,4 +130,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default memo(Navbar);

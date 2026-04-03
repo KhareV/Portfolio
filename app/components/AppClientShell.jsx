@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 import { LoadingProvider, useLoadingContext } from "../contexts/LoadingContext";
 import useDeviceDetection from "../hooks/useDeviceDetection";
@@ -88,7 +88,6 @@ const AppContent = () => {
   const isResourcesReady = usePreloadResources();
   const { isAppReady } = useLoadingContext();
   const { isMobile } = useDeviceDetection();
-  const [showDeferredSections, setShowDeferredSections] = useState(false);
 
   const isFullyLoaded = isResourcesReady && isAppReady;
 
@@ -238,99 +237,6 @@ const AppContent = () => {
     };
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-    let idleTaskId = null;
-    let preloadTimerId = null;
-    let revealTimerId = null;
-    let hasStartedDeferredPrefetch = false;
-
-    const revealDeferredSections = () => {
-      if (mounted) {
-        setShowDeferredSections(true);
-      }
-    };
-
-    const maybePreloadDeferredChunks = async () => {
-      if (hasStartedDeferredPrefetch || isConstrainedConnection()) {
-        return;
-      }
-
-      hasStartedDeferredPrefetch = true;
-
-      const chunkLoaders = [
-        loadAbout,
-        loadGithub,
-        loadLogoAnimation,
-        loadSound,
-        loadProjects,
-        loadContact,
-        loadWorkExperience,
-        loadTimeBands,
-        loadFooter,
-      ];
-
-      await Promise.allSettled(chunkLoaders.map((loader) => loader()));
-    };
-
-    const onHashChange = () => revealDeferredSections();
-    const onScroll = () => {
-      if (window.scrollY > window.innerHeight * 0.3) {
-        revealDeferredSections();
-      }
-    };
-    const onFirstInteraction = () => revealDeferredSections();
-
-    if (window.location.hash && window.location.hash !== "#hero") {
-      revealDeferredSections();
-    }
-
-    window.addEventListener("hashchange", onHashChange);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("wheel", onFirstInteraction, { passive: true });
-    window.addEventListener("touchstart", onFirstInteraction, {
-      passive: true,
-    });
-    window.addEventListener("keydown", onFirstInteraction);
-
-    revealTimerId = window.setTimeout(
-      revealDeferredSections,
-      isMobile ? 2200 : 1600,
-    );
-
-    preloadTimerId = window.setTimeout(() => {
-      if (mounted) {
-        maybePreloadDeferredChunks();
-      }
-    }, 650);
-
-    idleTaskId = runWhenIdle(() => {
-      if (mounted) {
-        maybePreloadDeferredChunks();
-      }
-    });
-
-    return () => {
-      mounted = false;
-      window.clearTimeout(revealTimerId);
-      window.clearTimeout(preloadTimerId);
-      window.removeEventListener("hashchange", onHashChange);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("wheel", onFirstInteraction);
-      window.removeEventListener("touchstart", onFirstInteraction);
-      window.removeEventListener("keydown", onFirstInteraction);
-      cancelIdleTask(idleTaskId);
-    };
-  }, [isMobile]);
-
-  useEffect(() => {
-    if (!isFullyLoaded || showDeferredSections) {
-      return;
-    }
-
-    setShowDeferredSections(true);
-  }, [isFullyLoaded, showDeferredSections]);
-
   return (
     <>
       <LoadingSpinner shouldHide={isFullyLoaded} onLoadComplete={() => {}} />
@@ -350,57 +256,55 @@ const AppContent = () => {
             <TimeBands className="-mt-px" />
           </Suspense>
 
-          {showDeferredSections && (
-            <>
-              <Suspense fallback={null}>
-                <About />
-              </Suspense>
-              <Suspense fallback={null}>
-                <Github />
-              </Suspense>
-              <Suspense fallback={null}>
-                <LogoAnimation isLoading={!isFullyLoaded} />
-              </Suspense>
-              <Suspense fallback={null}>
-                <Sound />
-              </Suspense>
+          <>
+            <Suspense fallback={null}>
+              <About />
+            </Suspense>
+            <Suspense fallback={null}>
+              <Github />
+            </Suspense>
+            <Suspense fallback={null}>
+              <LogoAnimation isLoading={!isFullyLoaded} />
+            </Suspense>
+            <Suspense fallback={null}>
+              <Sound />
+            </Suspense>
 
-              <Suspense fallback={null}>
-                <Projects />
-              </Suspense>
-              <Suspense fallback={null}>
-                <Contact />
-              </Suspense>
-              <Suspense fallback={null}>
-                <WorkExperience />
-              </Suspense>
+            <Suspense fallback={null}>
+              <Projects />
+            </Suspense>
+            <Suspense fallback={null}>
+              <Contact />
+            </Suspense>
+            <Suspense fallback={null}>
+              <WorkExperience />
+            </Suspense>
 
-              {!isMobile && (
-                <Suspense fallback={null}>
-                  <div className="relative mx-4 my-10 rounded-[2rem] border border-white/15 bg-black p-4 md:p-6 shadow-[0_24px_60px_rgba(2,6,23,0.45)] overflow-hidden">
-                    <div
-                      className="pointer-events-none absolute inset-0 opacity-70"
-                      style={{
-                        backgroundImage:
-                          "radial-gradient(circle at 12% 18%, rgba(255,255,255,0.8) 1.2px, transparent 2px), radial-gradient(circle at 68% 26%, rgba(255,255,255,0.55) 1px, transparent 2px), radial-gradient(circle at 86% 72%, rgba(255,255,255,0.65) 1.1px, transparent 2px), radial-gradient(circle at 34% 78%, rgba(255,255,255,0.45) 1px, transparent 2px), radial-gradient(circle at 55% 52%, rgba(255,255,255,0.35) 0.9px, transparent 2px)",
-                        backgroundSize:
-                          "240px 240px, 280px 280px, 320px 320px, 260px 260px, 300px 300px",
-                      }}
-                    />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-transparent to-sky-400/10" />
+            {!isMobile && (
+              <Suspense fallback={null}>
+                <div className="relative mx-4 my-10 rounded-[2rem] border border-white/15 bg-black p-4 md:p-6 shadow-[0_24px_60px_rgba(2,6,23,0.45)] overflow-hidden">
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-70"
+                    style={{
+                      backgroundImage:
+                        "radial-gradient(circle at 12% 18%, rgba(255,255,255,0.8) 1.2px, transparent 2px), radial-gradient(circle at 68% 26%, rgba(255,255,255,0.55) 1px, transparent 2px), radial-gradient(circle at 86% 72%, rgba(255,255,255,0.65) 1.1px, transparent 2px), radial-gradient(circle at 34% 78%, rgba(255,255,255,0.45) 1px, transparent 2px), radial-gradient(circle at 55% 52%, rgba(255,255,255,0.35) 0.9px, transparent 2px)",
+                      backgroundSize:
+                        "240px 240px, 280px 280px, 320px 320px, 260px 260px, 300px 300px",
+                    }}
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-transparent to-sky-400/10" />
 
-                    <div className="relative z-10 rounded-[1.4rem] overflow-hidden">
-                      <EarthCanvas />
-                    </div>
+                  <div className="relative z-10 rounded-[1.4rem] overflow-hidden">
+                    <EarthCanvas />
                   </div>
-                </Suspense>
-              )}
-
-              <Suspense fallback={null}>
-                <TimeBands />
+                </div>
               </Suspense>
-            </>
-          )}
+            )}
+
+            <Suspense fallback={null}>
+              <TimeBands />
+            </Suspense>
+          </>
         </div>
       </main>
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+
 const Sunflower = ({ className = "" }) => {
   return (
     <svg
@@ -6776,4 +6778,4 @@ const Sunflower = ({ className = "" }) => {
   );
 };
 
-export default Sunflower;
+export default memo(Sunflower);
