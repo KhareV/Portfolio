@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 const OUTER_WRAP_STYLE = {
   width: "100%",
@@ -722,9 +723,12 @@ const Github = () => {
               rel="noopener noreferrer"
               style={{ position: "relative", flexShrink: 0 }}
             >
-              <img
+              <Image
                 src={user.avatar_url}
                 alt={USERNAME}
+                width={64}
+                height={64}
+                sizes="64px"
                 style={{
                   width: "64px",
                   height: "64px",

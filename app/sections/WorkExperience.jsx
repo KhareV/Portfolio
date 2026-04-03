@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 import Developer from "../components/Developer.jsx";
 import CanvasLoader from "../components/CanvasLoader.jsx";
@@ -108,10 +109,13 @@ const WorkExperience = () => {
                     )}
                   >
                     <div className="work-content_logo">
-                      <img
+                      <Image
                         className="w-full h-full object-contain"
                         src={item.icon}
                         alt={item.name}
+                        width={40}
+                        height={40}
+                        sizes="40px"
                       />
                     </div>
 

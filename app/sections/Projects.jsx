@@ -9,6 +9,7 @@ import {
   ContactShadows,
 } from "@react-three/drei";
 import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 import { myProjects } from "../constants/index.js";
 import CanvasLoader from "../components/CanvasLoader.jsx";
@@ -77,9 +78,13 @@ const Projects = () => {
         <div className="grid lg:grid-cols-12 grid-cols-1 gap-8 w-full items-stretch">
           <div className="lg:col-span-5 flex flex-col gap-8 relative sm:p-12 py-10 px-8 min-h-[30rem] bg-white/95 backdrop-blur-sm rounded-[2.5rem] border border-slate-200 shadow-[0_18px_45px_-24px_rgba(15,23,42,0.28)] hover:shadow-[0_24px_60px_-24px_rgba(15,23,42,0.32)] transition-shadow duration-700 transform-gpu [will-change:transform]">
             <div className="absolute inset-0 opacity-[0.02] mix-blend-luminosity pointer-events-none overflow-hidden rounded-[2.5rem] select-none">
-              <img
+              <Image
                 src={currentProject.spotlight}
-                alt="texture"
+                alt=""
+                aria-hidden="true"
+                fill
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                quality={52}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -88,10 +93,13 @@ const Projects = () => {
               className="p-3.5 bg-white border border-black/[0.04] shadow-[0_8px_16px_-6px_rgba(0,0,0,0.05)] w-fit rounded-2xl relative z-10"
               style={currentProject.logoStyle}
             >
-              <img
+              <Image
                 className="w-9 h-9 object-contain"
                 src={currentProject.logo}
                 alt={`${currentProject.title} logo`}
+                width={36}
+                height={36}
+                sizes="36px"
               />
             </div>
 

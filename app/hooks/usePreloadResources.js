@@ -21,25 +21,14 @@ const SUPPORTING_IMAGE_ASSETS = [
   "/assets/dandiya.png",
 ];
 
-const HEAVY_MODEL_ASSETS = [
+const OPTIONAL_HEAVY_ASSETS = [
   "/models/computer.glb",
   "/models/human/developer.glb",
-  "/models/animations/idle.fbx",
-  "/models/animations/salute.fbx",
-  "/models/animations/clapping.fbx",
-  "/models/animations/victory.fbx",
   "/planet/scene.opt.glb",
 ];
 
-const PROJECT_VIDEO_ASSETS = [
-  "/textures/project/project1.mp4",
-  "/textures/project/project2.mp4",
-  "/textures/project/project3.mp4",
-  "/textures/project/project4.mp4",
-  "/textures/project/project5.mp4",
-];
-
 const BACKGROUND_WARMUP_TIMEOUT = 1500;
+const HEAVY_WARMUP_DELAY_MS = 9000;
 
 const getCurrentHeroImage = () => {
   const hour = new Date().getHours();
@@ -51,7 +40,7 @@ const getCurrentHeroImage = () => {
 
 const getConnectionProfile = () => {
   if (typeof navigator === "undefined") {
-    return { isConstrained: false };
+    return { isConstrained: false, canWarmHeavy: false };
   }
 
   const connection =
@@ -59,13 +48,22 @@ const getConnectionProfile = () => {
     navigator.mozConnection ||
     navigator.webkitConnection;
 
-  if (!connection) {
-    return { isConstrained: false };
-  }
+  const slowType = /(^|\b)(slow-2g|2g|3g)\b/i.test(
+    connection?.effectiveType || "",
+  );
+  const downlink = Number(connection?.downlink ?? 10);
+  const deviceMemory = Number(navigator.deviceMemory ?? 8);
+  const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
+  const isConstrained =
+    Boolean(connection?.saveData) || slowType || downlink < 1.5;
 
-  const slowType = /(^|\b)(slow-2g|2g)\b/i.test(connection.effectiveType || "");
   return {
-    isConstrained: Boolean(connection.saveData) || slowType,
+    isConstrained,
+    canWarmHeavy:
+      !isConstrained &&
+      downlink >= 5 &&
+      deviceMemory >= 6 &&
+      hardwareConcurrency >= 6,
   };
 };
 
@@ -184,7 +182,8 @@ const waitForDocumentReady = () => {
 /**
  * Preload strategy:
  * 1) Await only critical, above-fold assets.
- * 2) Warm heavy models/videos in idle time without blocking first paint.
+ * 2) Warm supporting images in idle time.
+ * 3) Warm heavy 3D assets only on capable devices after interaction/timeout.
  */
 const usePreloadResources = () => {
   const [isReady, setIsReady] = useState(false);
@@ -193,6 +192,10 @@ const usePreloadResources = () => {
     let mounted = true;
     const abortController = new AbortController();
     let idleTaskId = null;
+    let heavyIdleTaskId = null;
+    let heavyWarmupTimerId = null;
+    const interactionListeners = [];
+    let heavyWarmupTriggered = false;
 
     const connectionProfile = getConnectionProfile();
 
@@ -205,7 +208,6 @@ const usePreloadResources = () => {
         // Unblock initial render as soon as critical assets are warm.
         await Promise.allSettled([
           ...criticalImages.map(preloadImage),
-          preloadBinary(PROJECT_VIDEO_ASSETS[0], abortController.signal),
           waitForFonts(),
           waitForDocumentReady(),
         ]);
@@ -222,28 +224,62 @@ const usePreloadResources = () => {
           });
         });
 
-        // Warm remaining assets in idle time; skip heavy warmup on constrained networks.
+        // Warm supporting assets in idle time while keeping startup lightweight.
         idleTaskId = runWhenIdle(async () => {
-          const backgroundJobs = [...SUPPORTING_IMAGE_ASSETS.map(preloadImage)];
-
-          if (!connectionProfile.isConstrained) {
-            backgroundJobs.push(
-              preloadBatch(HEAVY_MODEL_ASSETS, preloadBinary, {
-                concurrency: 2,
-                signal: abortController.signal,
-              }),
-            );
-
-            backgroundJobs.push(
-              preloadBatch(PROJECT_VIDEO_ASSETS.slice(1), preloadBinary, {
-                concurrency: 2,
-                signal: abortController.signal,
-              }),
-            );
+          if (connectionProfile.isConstrained) {
+            return;
           }
 
-          await Promise.allSettled(backgroundJobs);
+          await preloadBatch(
+            SUPPORTING_IMAGE_ASSETS,
+            async (src) => preloadImage(src),
+            {
+              concurrency: 2,
+              signal: abortController.signal,
+            },
+          );
         });
+
+        if (connectionProfile.canWarmHeavy) {
+          const triggerHeavyWarmup = () => {
+            if (heavyWarmupTriggered) {
+              return;
+            }
+
+            heavyWarmupTriggered = true;
+            window.clearTimeout(heavyWarmupTimerId);
+
+            interactionListeners.forEach(({ eventName, listener }) => {
+              window.removeEventListener(eventName, listener);
+            });
+            interactionListeners.length = 0;
+
+            heavyIdleTaskId = runWhenIdle(async () => {
+              await preloadBatch(OPTIONAL_HEAVY_ASSETS, preloadBinary, {
+                concurrency: 1,
+                signal: abortController.signal,
+              });
+            }, 3200);
+          };
+
+          const registerListener = (eventName) => {
+            const listener = () => triggerHeavyWarmup();
+            interactionListeners.push({ eventName, listener });
+            window.addEventListener(eventName, listener, {
+              passive: true,
+              once: true,
+            });
+          };
+
+          registerListener("pointerdown");
+          registerListener("keydown");
+          registerListener("touchstart");
+
+          heavyWarmupTimerId = window.setTimeout(
+            triggerHeavyWarmup,
+            HEAVY_WARMUP_DELAY_MS,
+          );
+        }
       } catch (error) {
         console.error("Error preloading resources:", error);
         if (mounted) {
@@ -258,6 +294,11 @@ const usePreloadResources = () => {
       mounted = false;
       abortController.abort();
       cancelIdleTask(idleTaskId);
+      cancelIdleTask(heavyIdleTaskId);
+      window.clearTimeout(heavyWarmupTimerId);
+      interactionListeners.forEach(({ eventName, listener }) => {
+        window.removeEventListener(eventName, listener);
+      });
     };
   }, []);
 

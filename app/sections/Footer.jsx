@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import NextImage from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { FaGithub, FaTwitter, FaInstagram } from "react-icons/fa";
 import { transitions, cn } from "../styles/spacing.js";
 
 const APP_TIMEZONE = "Asia/Kolkata";
+const FOOTER_BACKGROUND_FADE_MS = 1200;
+const DAY_PHASE_ORDER = ["morning", "afternoon", "evening", "night"];
 
 const FOOTER_BACKGROUNDS = {
   morning: "/newimages/morningfoot.png",
@@ -30,17 +33,83 @@ const getDayPhase = (hour) => {
   return "night";
 };
 
+const getNextPhase = (phase) => {
+  const index = DAY_PHASE_ORDER.indexOf(phase);
+  if (index === -1) {
+    return DAY_PHASE_ORDER[0];
+  }
+
+  return DAY_PHASE_ORDER[(index + 1) % DAY_PHASE_ORDER.length];
+};
+
+const runWhenIdle = (task, timeout = 2200) => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  if ("requestIdleCallback" in window) {
+    return window.requestIdleCallback(task, { timeout });
+  }
+
+  return window.setTimeout(task, 220);
+};
+
+const cancelIdleTask = (id) => {
+  if (typeof window === "undefined" || id == null) {
+    return;
+  }
+
+  if ("cancelIdleCallback" in window) {
+    window.cancelIdleCallback(id);
+    return;
+  }
+
+  window.clearTimeout(id);
+};
+
+const preloadAndDecodeImage = (src) => {
+  return new Promise((resolve) => {
+    const image = new Image();
+    let settled = false;
+
+    const finish = () => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      resolve();
+    };
+
+    image.onload = finish;
+    image.onerror = finish;
+    image.src = src;
+
+    if (typeof image.decode === "function") {
+      image.decode().then(finish).catch(finish);
+    }
+  });
+};
+
 const Footer = () => {
   const [dayPhase, setDayPhase] = useState(() => getDayPhase(getLocalHour()));
-  const backgrounds = useMemo(() => Object.entries(FOOTER_BACKGROUNDS), []);
+  const [previousPhase, setPreviousPhase] = useState(null);
+  const latestPhaseRef = useRef(dayPhase);
 
   useEffect(() => {
-    backgrounds.forEach(([, src]) => {
-      const image = new Image();
-      image.decoding = "async";
-      image.src = src;
+    const activeBackground = FOOTER_BACKGROUNDS[dayPhase];
+    const nextBackground = FOOTER_BACKGROUNDS[getNextPhase(dayPhase)];
+
+    preloadAndDecodeImage(activeBackground);
+
+    const idleTaskId = runWhenIdle(() => {
+      preloadAndDecodeImage(nextBackground);
     });
-  }, [backgrounds]);
+
+    return () => {
+      cancelIdleTask(idleTaskId);
+    };
+  }, [dayPhase]);
 
   useEffect(() => {
     let timerId;
@@ -71,21 +140,49 @@ const Footer = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (dayPhase === latestPhaseRef.current) {
+      return;
+    }
+
+    const outgoingPhase = latestPhaseRef.current;
+    latestPhaseRef.current = dayPhase;
+    setPreviousPhase(outgoingPhase);
+
+    const clearPreviousTimer = window.setTimeout(() => {
+      setPreviousPhase((current) =>
+        current === outgoingPhase ? null : current,
+      );
+    }, FOOTER_BACKGROUND_FADE_MS);
+
+    return () => {
+      window.clearTimeout(clearPreviousTimer);
+    };
+  }, [dayPhase]);
+
+  const visibleBackgroundPhases =
+    previousPhase && previousPhase !== dayPhase
+      ? [dayPhase, previousPhase]
+      : [dayPhase];
+
   return (
     <footer id="footer" className="relative w-full overflow-hidden">
       <div className="relative mx-auto w-full aspect-[60/20] min-h-[340px] sm:min-h-[400px] md:min-h-[530px]">
-        {backgrounds.map(([phase, src]) => (
-          <img
+        {visibleBackgroundPhases.map((phase) => (
+          <NextImage
             key={phase}
-            src={src}
+            src={FOOTER_BACKGROUNDS[phase]}
             alt=""
             aria-hidden="true"
+            fill
+            sizes="100vw"
+            quality={68}
+            priority={phase === dayPhase}
             className={cn(
-              "absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-[1200ms] ease-out",
-              dayPhase === phase ? "opacity-100" : "opacity-0",
+              "absolute inset-0 h-full w-full object-cover object-center transition-opacity ease-out",
+              phase === previousPhase ? "opacity-0" : "opacity-100",
             )}
-            loading={dayPhase === phase ? "eager" : "lazy"}
-            decoding="async"
+            style={{ transitionDuration: `${FOOTER_BACKGROUND_FADE_MS}ms` }}
           />
         ))}
 

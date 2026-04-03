@@ -10,6 +10,7 @@ import useDeviceDetection from "../hooks/useDeviceDetection";
 const Sound = () => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const hasShownModalRef = useRef(false);
   const { isAppReady } = useLoadingContext();
@@ -19,12 +20,8 @@ const Sound = () => {
     if (!isAppReady) return; // Wait for loading to complete
     if (hasShownModalRef.current) return; // Already shown modal this session
 
-    console.log("App is ready, showing music prompt...");
-
     // Small delay after loading completes to ensure smooth transition
     const initTimer = setTimeout(() => {
-      // Always show modal on page load (removed localStorage check)
-      console.log("Showing music modal...");
       setShowModal(true);
       hasShownModalRef.current = true;
     }, 3500); // Smooth delay after loading completes
@@ -39,23 +36,31 @@ const Sound = () => {
 
   // Effect to handle audio when isPlaying changes
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        // Try to play, but don't change state if it fails (browser policy)
-        audioRef.current.play().catch((error) => {
-          console.log("Playback failed:", error);
-        });
-      } else {
-        audioRef.current.pause();
-      }
+    const audio = audioRef.current;
+    if (!audio || !isAudioEnabled) {
+      return;
     }
-  }, [isPlaying]);
+
+    if (isPlaying) {
+      // Try to play, but don't change state if it fails (browser policy)
+      audio.play().catch(() => {
+        // Playback can fail before a trusted interaction.
+      });
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying, isAudioEnabled]);
+
+  useEffect(() => {
+    if (isAudioEnabled && audioRef.current) {
+      audioRef.current.load();
+    }
+  }, [isAudioEnabled]);
 
   const handleFirstUserInteraction = () => {
     if (isPlaying && audioRef.current) {
       audioRef.current.play().catch(() => {
-        // Handle play() promise rejection
-        console.log("Playback failed, waiting for explicit user interaction");
+        // Handle play() promise rejection without noisy logging.
       });
     }
     document.removeEventListener("click", handleFirstUserInteraction);
@@ -64,6 +69,7 @@ const Sound = () => {
   };
 
   const handleConsent = () => {
+    setIsAudioEnabled(true);
     setIsPlaying(true);
     document.addEventListener("click", handleFirstUserInteraction);
     document.addEventListener("keydown", handleFirstUserInteraction);
@@ -77,18 +83,25 @@ const Sound = () => {
   };
 
   const toggle = () => {
-    const newState = !isPlaying;
-    setIsPlaying(newState);
+    if (!isAudioEnabled) {
+      setIsAudioEnabled(true);
+      setIsPlaying(true);
+      return;
+    }
+
+    setIsPlaying((prev) => !prev);
   };
 
   return (
     <div className="text-white-800 fixed top-4 right-2.5 xs:right-4 z-50 group">
       {showModal && <Modal onClose={handleClose} toggle={handleConsent} />}
-      <audio ref={audioRef} loop>
-        <source
-          src="/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3"
-          type="audio/mpeg"
-        />
+      <audio ref={audioRef} loop preload="none">
+        {isAudioEnabled ? (
+          <source
+            src="/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3"
+            type="audio/mpeg"
+          />
+        ) : null}
         Your browser does not support the audio element.
       </audio>
       <motion.button

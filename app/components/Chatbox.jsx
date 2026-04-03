@@ -6,12 +6,14 @@ import { useMessage } from "../contexts/MessageContext";
 import { cn } from "../styles/spacing";
 
 const funFacts = [
-  "Wanted to be a civil engineer, then an optometrist, now a full-stack developer.",
-  "Secured 3rd place in Spectrum National Level Hackathon.",
-  "Made it to SIH finals with the MedWE project.",
-  "Ranked 19th out of 2000+ teams in Devshouse Hackathon.",
-  "Loves volleyball, badminton, and building practical AI products.",
-  "Built full-stack + blockchain projects solving real-world problems.",
+  "Started out aiming for civil engineering, explored optometry, and eventually found my edge in full-stack development.",
+  "Incoming Software Engineering Intern at Walmart Global Tech (Sparkplug 2026).",
+  "Secured 3rd place at the Spectrum National Level Hackathon.",
+  "Smart India Hackathon Finalist with MedWE (healthcare + blockchain platform).",
+  "Ranked 19th out of 2000+ teams in the Devshouse Hackathon.",
+  "District-level football player with a competitive mindset.",
+  "Plays the piano with Grade 3 Trinity College London certification.",
+  "Builds full-stack + blockchain systems solving real-world problems.",
 ];
 
 const starterQuestions = [

@@ -9,6 +9,7 @@ import React, {
   lazy,
 } from "react";
 import { motion } from "framer-motion";
+import NextImage from "next/image";
 
 const ChatBox = lazy(() => import("../components/Chatbox.jsx"));
 import { MessageProvider } from "../contexts/MessageContext.jsx";
@@ -323,18 +324,19 @@ const Hero = () => {
     >
       <div className="absolute inset-0 overflow-hidden">
         {visibleBackgroundPhases.map((phase) => (
-          <img
+          <NextImage
             key={phase}
             src={HERO_BACKGROUNDS[phase]}
             alt=""
             aria-hidden="true"
+            fill
+            sizes="100vw"
+            quality={72}
+            priority={dayPhase === phase}
             className={cn(
               "absolute inset-0 h-full w-full object-cover object-center transition-opacity ease-out",
               phase === previousPhase ? "opacity-0" : "opacity-100",
             )}
-            loading={dayPhase === phase ? "eager" : "lazy"}
-            fetchPriority={dayPhase === phase ? "high" : "auto"}
-            decoding="async"
             style={{ transitionDuration: `${HERO_BACKGROUND_FADE_MS}ms` }}
           />
         ))}
