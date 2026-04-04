@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import useDeviceDetection from "../hooks/useDeviceDetection";
+import useRuntimePerformanceMode from "../hooks/useRuntimePerformanceMode";
 
 const Prism = dynamic(() => import("./Prism"), { ssr: false });
 const Beams = dynamic(() => import("./Beams"), { ssr: false });
@@ -36,16 +37,18 @@ const normalizeForm = (form) => ({
 
 const Contact = () => {
   const { isMobile } = useDeviceDetection();
+  const { disableHeavyVisuals } = useRuntimePerformanceMode();
   const sectionRef = useRef(null);
   const isSectionInView = useInView(sectionRef, {
-    amount: 0.02,
-    margin: "380px 0px",
+    amount: 0.05,
+    margin: "220px 0px",
   });
   const alertTimeoutRef = useRef(null);
   const [alert, setAlert] = useState({ show: false, text: "", type: "" });
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const isSuccessAlert = alert.type === "success";
+  const shouldRenderLiveBackground = isSectionInView && !disableHeavyVisuals;
 
   const hasEmailValue = form.email.trim().length > 0;
   const showEmailValidation = hasEmailValue && !isValidEmail(form.email);
@@ -139,7 +142,7 @@ const Contact = () => {
       id="contact"
     >
       {/* Background - Prism for desktop, Beams for mobile */}
-      {isSectionInView ? (
+      {shouldRenderLiveBackground ? (
         !isMobile ? (
           <div className="absolute inset-0 opacity-100 z-0">
             <Prism
@@ -163,14 +166,14 @@ const Contact = () => {
             <Beams
               beamWidth={4}
               beamHeight={30}
-              beamNumber={15}
-              lightColor="#ff00ff" // purple-magenta
-              speed={2.5}
-              noiseIntensity={3}
+              beamNumber={10}
+              lightColor="#7dd3fc"
+              speed={1.9}
+              noiseIntensity={2.2}
               scale={0.4}
               rotation={45}
               heightSegments={48}
-              maxDpr={1.25}
+              maxDpr={1.1}
             />
           </div>
         )

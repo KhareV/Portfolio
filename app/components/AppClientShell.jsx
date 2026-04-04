@@ -90,17 +90,22 @@ const AppContent = () => {
   const { isAppReady } = useLoadingContext();
   const { isMobile } = useDeviceDetection();
   const { disableHeavyVisuals } = useRuntimePerformanceMode();
-  const [shouldRenderNonCritical, setShouldRenderNonCritical] = useState(false);
+  const [renderStage, setRenderStage] = useState(0);
 
   const isFullyLoaded = isResourcesReady && isAppReady;
   const shouldRenderPointer = !disableHeavyVisuals;
   const shouldRenderSound = !disableHeavyVisuals;
   const shouldRenderEarthCanvas = !isMobile && !disableHeavyVisuals;
+  const shouldRenderStageOne = renderStage >= 1;
+  const shouldRenderStageTwo = renderStage >= 2;
+  const shouldRenderStageThree = renderStage >= 3;
 
   useEffect(() => {
     let mounted = true;
-    let idleTaskId = null;
-    let fallbackTimerId = null;
+    let activationFallbackTimerId = null;
+    let stageTwoTimerId = null;
+    let stageThreeFallbackTimerId = null;
+    let stageThreeIdleTaskId = null;
     let activated = false;
 
     const interactionEvents = [
@@ -110,6 +115,14 @@ const AppContent = () => {
       "touchstart",
       "keydown",
     ];
+
+    const setStage = (value) => {
+      if (!mounted) {
+        return;
+      }
+
+      setRenderStage((current) => (current >= value ? current : value));
+    };
 
     const removeInteractionListeners = () => {
       interactionEvents.forEach((eventName) => {
@@ -123,7 +136,19 @@ const AppContent = () => {
       }
 
       activated = true;
-      setShouldRenderNonCritical(true);
+      setStage(1);
+      stageTwoTimerId = window.setTimeout(() => {
+        setStage(2);
+      }, 650);
+
+      stageThreeIdleTaskId = runWhenIdle(() => {
+        setStage(3);
+      }, 1700);
+
+      stageThreeFallbackTimerId = window.setTimeout(() => {
+        setStage(3);
+      }, 2200);
+
       removeInteractionListeners();
     };
 
@@ -134,19 +159,17 @@ const AppContent = () => {
       });
     });
 
-    idleTaskId = runWhenIdle(() => {
-      activateNonCritical();
-    }, 1400);
-
-    fallbackTimerId = window.setTimeout(() => {
+    activationFallbackTimerId = window.setTimeout(() => {
       activateNonCritical();
     }, 2200);
 
     return () => {
       mounted = false;
       removeInteractionListeners();
-      cancelIdleTask(idleTaskId);
-      window.clearTimeout(fallbackTimerId);
+      cancelIdleTask(stageThreeIdleTaskId);
+      window.clearTimeout(activationFallbackTimerId);
+      window.clearTimeout(stageTwoTimerId);
+      window.clearTimeout(stageThreeFallbackTimerId);
     };
   }, []);
 
@@ -159,10 +182,12 @@ const AppContent = () => {
     let lenisInstance = null;
     let rafId = null;
     let idleTaskId = null;
+    let fallbackTimerId = null;
 
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     );
+    const interactionEvents = ["wheel", "touchstart", "pointerdown", "keydown"];
 
     const startRafLoop = () => {
       if (rafId != null || !lenisInstance) {
@@ -251,6 +276,28 @@ const AppContent = () => {
       }
     };
 
+    const queueInitLenis = () => {
+      if (idleTaskId != null || lenisInstance || prefersReducedMotion.matches) {
+        return;
+      }
+
+      idleTaskId = runWhenIdle(() => {
+        idleTaskId = null;
+        initLenis();
+      }, 1700);
+    };
+
+    const removeInteractionListeners = () => {
+      interactionEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, onFirstInteraction);
+      });
+    };
+
+    const onFirstInteraction = () => {
+      removeInteractionListeners();
+      queueInitLenis();
+    };
+
     const onMotionPreferenceChange = (event) => {
       if (event.matches) {
         lenisInstance?.stop();
@@ -274,13 +321,22 @@ const AppContent = () => {
       prefersReducedMotion.addListener(onMotionPreferenceChange);
     }
 
-    idleTaskId = runWhenIdle(() => {
-      initLenis();
-    }, 1200);
+    interactionEvents.forEach((eventName) => {
+      window.addEventListener(eventName, onFirstInteraction, {
+        passive: true,
+        once: true,
+      });
+    });
+
+    fallbackTimerId = window.setTimeout(() => {
+      onFirstInteraction();
+    }, 3400);
 
     return () => {
       mounted = false;
+      removeInteractionListeners();
       cancelIdleTask(idleTaskId);
+      window.clearTimeout(fallbackTimerId);
       stopRafLoop();
 
       if (typeof prefersReducedMotion.removeEventListener === "function") {
@@ -321,7 +377,7 @@ const AppContent = () => {
             <TimeBands className="-mt-px" />
           </Suspense>
 
-          {shouldRenderNonCritical && (
+          {shouldRenderStageOne && (
             <>
               <Suspense fallback={null}>
                 <About disableHeavyVisuals={disableHeavyVisuals} />
@@ -337,13 +393,22 @@ const AppContent = () => {
                   <Sound />
                 </Suspense>
               )}
+            </>
+          )}
 
+          {shouldRenderStageTwo && (
+            <>
               <Suspense fallback={null}>
                 <Projects disableHeavyVisuals={disableHeavyVisuals} />
               </Suspense>
               <Suspense fallback={null}>
                 <Contact />
               </Suspense>
+            </>
+          )}
+
+          {shouldRenderStageThree && (
+            <>
               <Suspense fallback={null}>
                 <WorkExperience disableHeavyVisuals={disableHeavyVisuals} />
               </Suspense>
@@ -377,7 +442,7 @@ const AppContent = () => {
         </div>
       </main>
 
-      {shouldRenderNonCritical && (
+      {shouldRenderStageThree && (
         <>
           <div
             className="relative z-10 h-[110vh] pointer-events-none"

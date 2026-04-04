@@ -10,6 +10,7 @@ const DEFAULT_PROFILE = {
   prefersReducedMotion: false,
   isConstrainedNetwork: false,
   isLowerEndDevice: false,
+  isMobileDevice: false,
   disableHeavyVisuals: false,
 };
 
@@ -43,15 +44,22 @@ const readRuntimeProfile = () => {
   const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
   const isLowerEndDevice = deviceMemory <= 4 || hardwareConcurrency <= 4;
   const isLabTool = LAB_UA_PATTERN.test(userAgent);
+  const isMobileUserAgent = /android|iphone|ipad|ipod|mobile/i.test(userAgent);
+  const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  const isSmallViewport = window.innerWidth < 900;
+  const isMobileDevice =
+    isMobileUserAgent || (isCoarsePointer && isSmallViewport);
 
   return {
     isLabTool,
     prefersReducedMotion,
     isConstrainedNetwork,
     isLowerEndDevice,
+    isMobileDevice,
     disableHeavyVisuals:
       isLabTool ||
       prefersReducedMotion ||
+      isMobileDevice ||
       (isConstrainedNetwork && isLowerEndDevice),
   };
 };

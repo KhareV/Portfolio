@@ -28,7 +28,8 @@ const OPTIONAL_HEAVY_ASSETS = [
 ];
 
 const BACKGROUND_WARMUP_TIMEOUT = 1500;
-const HEAVY_WARMUP_DELAY_MS = 9000;
+const HEAVY_WARMUP_DELAY_MS = 12000;
+const CRITICAL_WARMUP_CAP_MS = 1800;
 
 const getCurrentHeroImage = () => {
   const hour = new Date().getHours();
@@ -95,8 +96,16 @@ const cancelIdleTask = (id) => {
 const preloadImage = (src) => {
   return new Promise((resolve) => {
     const img = new Image();
+    let settled = false;
 
-    const done = () => resolve();
+    const done = () => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      resolve();
+    };
 
     img.onload = done;
     img.onerror = done;
@@ -105,6 +114,17 @@ const preloadImage = (src) => {
     if (typeof img.decode === "function") {
       img.decode().then(done).catch(done);
     }
+  });
+};
+
+const waitForTimeout = (ms) => {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve();
+      return;
+    }
+
+    window.setTimeout(resolve, ms);
   });
 };
 
@@ -163,22 +183,6 @@ const waitForFonts = async () => {
   }
 };
 
-const waitForDocumentReady = () => {
-  return new Promise((resolve) => {
-    if (typeof document === "undefined") {
-      resolve();
-      return;
-    }
-
-    if (document.readyState === "complete") {
-      resolve();
-      return;
-    }
-
-    window.addEventListener("load", resolve, { once: true });
-  });
-};
-
 /**
  * Preload strategy:
  * 1) Await only critical, above-fold assets.
@@ -205,11 +209,13 @@ const usePreloadResources = () => {
 
     const loadResources = async () => {
       try {
-        // Unblock initial render as soon as critical assets are warm.
-        await Promise.allSettled([
-          ...criticalImages.map(preloadImage),
-          waitForFonts(),
-          waitForDocumentReady(),
+        // Never block startup beyond a short budget for critical warmup.
+        await Promise.race([
+          Promise.allSettled([
+            ...criticalImages.map(preloadImage),
+            waitForFonts(),
+          ]),
+          waitForTimeout(CRITICAL_WARMUP_CAP_MS),
         ]);
 
         if (!mounted) {

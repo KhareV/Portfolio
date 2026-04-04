@@ -60,6 +60,7 @@ const HERO_TYPING_INTERVAL_MS = 55;
 const HERO_TYPING_START_DELAY_MS = 2000;
 const HERO_OBSERVER_THRESHOLD = 0.3;
 const HERO_BACKGROUND_FADE_MS = 1400;
+const HERO_READY_MAX_WAIT_MS = 950;
 const HERO_BACKGROUND_ENTRIES = Object.entries(HERO_BACKGROUNDS);
 
 class HeroChatErrorBoundary extends React.Component {
@@ -138,6 +139,12 @@ const preloadAndDecodeImage = (src) => {
   });
 };
 
+const waitForTimeout = (ms) => {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+};
+
 const Hero = () => {
   const [dayPhase, setDayPhase] = useState(() => getDayPhase(getLocalHour()));
   const [localClock, setLocalClock] = useState(() => getLocalClock());
@@ -159,17 +166,25 @@ const Hero = () => {
     ).filter((src) => src !== activeBackground);
 
     const warmBackgrounds = async () => {
-      await preloadAndDecodeImage(activeBackground);
+      await Promise.race([
+        preloadAndDecodeImage(activeBackground),
+        waitForTimeout(HERO_READY_MAX_WAIT_MS),
+      ]);
 
       if (mounted) {
         requestAnimationFrame(() => {
-          if (mounted) {
-            setHeroReady(true);
-          }
+          if (!mounted) return;
+
+          requestAnimationFrame(() => {
+            if (mounted) {
+              setHeroReady(true);
+            }
+          });
         });
       }
 
       idleTaskId = runWhenIdle(async () => {
+        await preloadAndDecodeImage(activeBackground);
         await Promise.allSettled(
           remainingBackgrounds.map((src) => preloadAndDecodeImage(src)),
         );
