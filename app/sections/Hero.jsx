@@ -23,9 +23,9 @@ const APP_TIMEZONE = "Asia/Kolkata";
 
 const HERO_BACKGROUNDS = {
   morning: "/newimages/cofounder-bg.avif",
-  afternoon: "/newimages/hero-2.avif",
+  afternoon: "/newimages/hero-1.avif",
   evening: "/newimages/hero-3.avif",
-  night: "/newimages/hero-4.avif",
+  night: "/newimages/hero-night.avif",
 };
 
 const getLocalHour = () => {

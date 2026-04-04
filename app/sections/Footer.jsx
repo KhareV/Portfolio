@@ -10,7 +10,7 @@ const FOOTER_IMAGES = {
   morning: "/newimages/morningfoot.png",
   afternoon: "/newimages/afternoonfoot.png",
   evening: "/newimages/nightfoot.png",
-  night: "/newimages/nightfoot-alt.png",
+  night: "/newimages/footer-4.png",
 };
 const EASING_POWER = 3.2;
 const PROGRESS_EPSILON = 0.002;
