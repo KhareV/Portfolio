@@ -4,7 +4,6 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 const POINTER_STYLE_ID = "app-custom-pointer-style";
-const EASING = 0.22;
 const POINTER_ROTATION = -18;
 
 const ensurePointerStyle = () => {
@@ -31,9 +30,6 @@ const ensurePointerStyle = () => {
 
 const Pointer = () => {
   const pointerRef = useRef(null);
-  const frameRef = useRef(null);
-  const targetRef = useRef({ x: 0, y: 0 });
-  const currentRef = useRef({ x: 0, y: 0 });
   const visibilityRef = useRef(false);
   const styleRef = useRef(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -60,27 +56,13 @@ const Pointer = () => {
     styleRef.current = ensurePointerStyle();
     html.setAttribute("data-custom-pointer", "on");
 
-    targetRef.current = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-    };
-    currentRef.current = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-    };
-
-    const animate = () => {
-      currentRef.current.x +=
-        (targetRef.current.x - currentRef.current.x) * EASING;
-      currentRef.current.y +=
-        (targetRef.current.y - currentRef.current.y) * EASING;
-
+    const setPointerPosition = (x, y) => {
       if (pointerRef.current) {
-        pointerRef.current.style.transform = `translate3d(${currentRef.current.x}px, ${currentRef.current.y}px, 0) rotate(${POINTER_ROTATION}deg)`;
+        pointerRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${POINTER_ROTATION}deg)`;
       }
-
-      frameRef.current = requestAnimationFrame(animate);
     };
+
+    setPointerPosition(window.innerWidth / 2, window.innerHeight / 2);
 
     const updateVisibility = (visible) => {
       if (visibilityRef.current === visible) {
@@ -92,8 +74,7 @@ const Pointer = () => {
     };
 
     const onMouseMove = (event) => {
-      targetRef.current.x = event.clientX;
-      targetRef.current.y = event.clientY;
+      setPointerPosition(event.clientX, event.clientY);
       updateVisibility(true);
     };
 
@@ -109,17 +90,10 @@ const Pointer = () => {
     window.addEventListener("mouseleave", onMouseLeave, { passive: true });
     window.addEventListener("mouseenter", onMouseEnter, { passive: true });
 
-    frameRef.current = requestAnimationFrame(animate);
-
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseleave", onMouseLeave);
       window.removeEventListener("mouseenter", onMouseEnter);
-
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-        frameRef.current = null;
-      }
 
       html.removeAttribute("data-custom-pointer");
       if (styleRef.current && styleRef.current.parentNode) {

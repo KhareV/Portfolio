@@ -210,7 +210,7 @@ const ProfileTickerRow = memo(function ProfileTickerRow({
   );
 });
 
-const About = () => {
+const About = ({ disableHeavyVisuals = false }) => {
   const { isMobile } = useDeviceDetection();
   const [hasCopied, setHasCopied] = useState(false);
   const copyResetTimeoutRef = useRef(null);
@@ -385,27 +385,38 @@ const About = () => {
               className="rounded-3xl w-full h-[240px] sm:h-[326px] flex justify-center items-center bg-black
             "
             >
-              <Globe
-                height={isMobile ? 200 : 326}
-                width={isMobile ? 200 : 326}
-                backgroundColor="rgba(246, 247, 241, 0)"
-                backgroundImageOpacity={0.95}
-                showAtmosphere={!isMobile}
-                showGraticules={!isMobile}
-                globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-                bumpImageUrl={
-                  isMobile
-                    ? undefined
-                    : "//unpkg.com/three-globe/example/img/earth-topology.png"
-                }
-                cameraPosition={{ x: 1.5, y: 0, z: 0 }}
-                cameraRotation={{ x: 0, y: -Math.PI / 2, z: 0 }}
-                autoRotate={false}
-                pointOfView={{ lat: 20, lng: 78, altitude: 0.6 }}
-                htmlElementsData={GLOBE_LOCATIONS}
-                htmlElement={createGlobeMarkerElement}
-                htmlAltitude={0.1}
-              />
+              {disableHeavyVisuals ? (
+                <div className="relative h-full w-full overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_30%,#123_0%,#0f172a_45%,#020617_100%)]">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_64%,rgba(16,185,129,0.22),transparent_48%),radial-gradient(circle_at_40%_35%,rgba(56,189,248,0.16),transparent_42%)]" />
+                  <div className="relative z-10 grid h-full place-items-center text-center px-6">
+                    <p className="text-sm sm:text-base text-slate-100/90 leading-relaxed">
+                      Global collaboration enabled across multiple time zones.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <Globe
+                  height={isMobile ? 200 : 326}
+                  width={isMobile ? 200 : 326}
+                  backgroundColor="rgba(246, 247, 241, 0)"
+                  backgroundImageOpacity={0.95}
+                  showAtmosphere={!isMobile}
+                  showGraticules={!isMobile}
+                  globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+                  bumpImageUrl={
+                    isMobile
+                      ? undefined
+                      : "//unpkg.com/three-globe/example/img/earth-topology.png"
+                  }
+                  cameraPosition={{ x: 1.5, y: 0, z: 0 }}
+                  cameraRotation={{ x: 0, y: -Math.PI / 2, z: 0 }}
+                  autoRotate={false}
+                  pointOfView={{ lat: 20, lng: 78, altitude: 0.6 }}
+                  htmlElementsData={GLOBE_LOCATIONS}
+                  htmlElement={createGlobeMarkerElement}
+                  htmlAltitude={0.1}
+                />
+              )}
             </div>
             <div className="relative p-6">
               <div className="flex items-center gap-3 mb-4">

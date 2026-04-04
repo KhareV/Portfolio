@@ -5,6 +5,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import { LoadingProvider, useLoadingContext } from "../contexts/LoadingContext";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 import usePreloadResources from "../hooks/usePreloadResources";
+import useRuntimePerformanceMode from "../hooks/useRuntimePerformanceMode";
 
 const loadNavbar = () => import("../sections/Navbar");
 const loadHero = () => import("../sections/Hero");
@@ -88,10 +89,18 @@ const AppContent = () => {
   const isResourcesReady = usePreloadResources();
   const { isAppReady } = useLoadingContext();
   const { isMobile } = useDeviceDetection();
+  const { disableHeavyVisuals } = useRuntimePerformanceMode();
 
   const isFullyLoaded = isResourcesReady && isAppReady;
+  const shouldRenderPointer = !disableHeavyVisuals;
+  const shouldRenderSound = !disableHeavyVisuals;
+  const shouldRenderEarthCanvas = !isMobile && !disableHeavyVisuals;
 
   useEffect(() => {
+    if (disableHeavyVisuals) {
+      return;
+    }
+
     let mounted = true;
     let lenisInstance = null;
     let rafId = null;
@@ -235,7 +244,7 @@ const AppContent = () => {
       lenisInstance?.destroy();
       lenisInstance = null;
     };
-  }, []);
+  }, [disableHeavyVisuals]);
 
   return (
     <>
@@ -243,9 +252,11 @@ const AppContent = () => {
 
       <main className="relative z-10 overflow-x-hidden">
         <div className="bg-[#FEFFFC]">
-          <Suspense fallback={null}>
-            <Pointer />
-          </Suspense>
+          {shouldRenderPointer && (
+            <Suspense fallback={null}>
+              <Pointer />
+            </Suspense>
+          )}
           <Suspense fallback={null}>
             <Navbar />
           </Suspense>
@@ -258,7 +269,7 @@ const AppContent = () => {
 
           <>
             <Suspense fallback={null}>
-              <About />
+              <About disableHeavyVisuals={disableHeavyVisuals} />
             </Suspense>
             <Suspense fallback={null}>
               <Github />
@@ -266,21 +277,23 @@ const AppContent = () => {
             <Suspense fallback={null}>
               <LogoAnimation isLoading={!isFullyLoaded} />
             </Suspense>
-            <Suspense fallback={null}>
-              <Sound />
-            </Suspense>
+            {shouldRenderSound && (
+              <Suspense fallback={null}>
+                <Sound />
+              </Suspense>
+            )}
 
             <Suspense fallback={null}>
-              <Projects />
+              <Projects disableHeavyVisuals={disableHeavyVisuals} />
             </Suspense>
             <Suspense fallback={null}>
               <Contact />
             </Suspense>
             <Suspense fallback={null}>
-              <WorkExperience />
+              <WorkExperience disableHeavyVisuals={disableHeavyVisuals} />
             </Suspense>
 
-            {!isMobile && (
+            {shouldRenderEarthCanvas && (
               <Suspense fallback={null}>
                 <div className="relative mx-4 my-10 rounded-[2rem] border border-white/15 bg-black p-4 md:p-6 shadow-[0_24px_60px_rgba(2,6,23,0.45)] overflow-hidden">
                   <div

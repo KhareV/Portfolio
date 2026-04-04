@@ -3,8 +3,8 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 
-import WorkExperienceScene from "../components/WorkExperienceScene.jsx";
 import { workExperiences } from "../constants/index.jsx";
 import {
   spacing,
@@ -14,6 +14,18 @@ import {
   cn,
 } from "../styles/spacing.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
+
+const WorkExperienceScene = dynamic(
+  () => import("../components/WorkExperienceScene.jsx"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="work-canvas grid place-items-center text-slate-500 text-sm font-medium">
+        Loading 3D preview...
+      </div>
+    ),
+  },
+);
 
 const IDLE_ANIMATION_DELAY_MS = 180;
 const FALLBACK_ANIMATION = "idle";
@@ -28,7 +40,7 @@ const normalizeAnimationName = (animationName) => {
     : FALLBACK_ANIMATION;
 };
 
-const WorkExperience = () => {
+const WorkExperience = ({ disableHeavyVisuals = false }) => {
   const { isMobile } = useDeviceDetection();
   const sectionRef = useRef(null);
   const developerRef = useRef(null);
@@ -101,8 +113,9 @@ const WorkExperience = () => {
     };
   }, [clearIdleAnimationTimer]);
 
-  const shouldMountScene = !isMobile && hasEnteredView;
-  const isSceneActive = !isMobile && isInView;
+  const shouldUseScene = !isMobile && !disableHeavyVisuals;
+  const shouldMountScene = shouldUseScene && hasEnteredView;
+  const isSceneActive = shouldUseScene && isInView;
 
   return (
     <motion.section
@@ -131,21 +144,21 @@ const WorkExperience = () => {
         </motion.h2>
 
         <div className="work-container">
-          {!isMobile && shouldMountScene && (
+          {shouldUseScene && shouldMountScene && (
             <WorkExperienceScene
               developerRef={developerRef}
               isActive={isSceneActive}
             />
           )}
 
-          {!isMobile && !shouldMountScene && (
+          {shouldUseScene && !shouldMountScene && (
             <div className="work-canvas grid place-items-center text-slate-500 text-sm font-medium">
               3D preview loads on view.
             </div>
           )}
 
           <motion.div
-            className="work-content"
+            className={cn("work-content", !shouldUseScene && "lg:col-span-3")}
             initial={{ x: 50, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}

@@ -3,15 +3,24 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 
 import { myProjects } from "../constants/index.jsx";
 import TechIcon from "../components/TechIcon.jsx";
-import ProjectScene from "../components/ProjectScene.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
+
+const ProjectScene = dynamic(() => import("../components/ProjectScene.jsx"), {
+  ssr: false,
+  loading: () => (
+    <div className="grid h-full w-full place-items-center text-sm font-medium text-slate-500">
+      Loading 3D preview...
+    </div>
+  ),
+});
 
 const PROJECT_COUNT = myProjects.length;
 
-const Projects = () => {
+const Projects = ({ disableHeavyVisuals = false }) => {
   const { isMobile } = useDeviceDetection();
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const hasProjects = PROJECT_COUNT > 0;
@@ -212,10 +221,20 @@ const Projects = () => {
               ))}
             </div>
 
-            <ProjectScene
-              texture={currentProject.texture}
-              isMobile={isMobile}
-            />
+            {disableHeavyVisuals ? (
+              <div className="absolute inset-0 z-10 grid place-items-center bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.72),rgba(248,250,252,0.94))]">
+                <div className="rounded-2xl border border-slate-200 bg-white/95 px-6 py-4 text-center shadow-sm">
+                  <p className="text-sm font-medium text-slate-700">
+                    Lightweight preview enabled for faster loading.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <ProjectScene
+                texture={currentProject.texture}
+                isMobile={isMobile}
+              />
+            )}
           </div>
         </div>
       </div>
