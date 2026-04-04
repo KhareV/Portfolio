@@ -57,7 +57,7 @@ const getDayPhase = (hour) => {
 const HERO_INTRO_TEXT = "Hello,\nI'm Vedant Khare.";
 const HERO_SCRIPT_WORD = "Hello";
 const HERO_TYPING_INTERVAL_MS = 55;
-const HERO_TYPING_START_DELAY_MS = 2000;
+const HERO_TYPING_START_DELAY_MS = 500;
 const HERO_OBSERVER_THRESHOLD = 0.3;
 const HERO_BACKGROUND_FADE_MS = 1400;
 const CHAT_WIDGET_DEFER_MS = 5200;
