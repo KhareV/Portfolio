@@ -1,8 +1,9 @@
 "use client";
 
 import emailjs from "@emailjs/browser";
+import dynamic from "next/dynamic";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Send,
   Mail,
@@ -11,9 +12,10 @@ import {
   Check,
   AlertCircle,
 } from "lucide-react";
-import Prism from "./Prism";
-import Beams from "./Beams";
 import useDeviceDetection from "../hooks/useDeviceDetection";
+
+const Prism = dynamic(() => import("./Prism"), { ssr: false });
+const Beams = dynamic(() => import("./Beams"), { ssr: false });
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ALERT_RESET_DELAY_MS = 3200;
@@ -34,6 +36,11 @@ const normalizeForm = (form) => ({
 
 const Contact = () => {
   const { isMobile } = useDeviceDetection();
+  const sectionRef = useRef(null);
+  const isSectionInView = useInView(sectionRef, {
+    amount: 0.02,
+    margin: "380px 0px",
+  });
   const alertTimeoutRef = useRef(null);
   const [alert, setAlert] = useState({ show: false, text: "", type: "" });
   const [loading, setLoading] = useState(false);
@@ -127,42 +134,56 @@ const Contact = () => {
 
   return (
     <section
+      ref={sectionRef}
       className="font-site-default relative min-h-screen overflow-hidden bg-black"
       id="contact"
     >
       {/* Background - Prism for desktop, Beams for mobile */}
-      {!isMobile ? (
-        <div className="absolute inset-0 opacity-100 z-0">
-          <Prism
-            animationType="3drotate"
-            timeScale={0.5}
-            height={3.6}
-            baseWidth={5.5}
-            scale={3.6}
-            hueShift={0}
-            colorFrequency={1}
-            noise={0}
-            glow={1.2}
-            hoverStrength={1.5}
-            inertia={0.08}
-            transparent={true}
-            steps={84}
-          />
-        </div>
+      {isSectionInView ? (
+        !isMobile ? (
+          <div className="absolute inset-0 opacity-100 z-0">
+            <Prism
+              animationType="3drotate"
+              timeScale={0.5}
+              height={3.6}
+              baseWidth={5.5}
+              scale={3.6}
+              hueShift={0}
+              colorFrequency={1}
+              noise={0}
+              glow={1.2}
+              hoverStrength={1.5}
+              inertia={0.08}
+              transparent={true}
+              steps={84}
+            />
+          </div>
+        ) : (
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <Beams
+              beamWidth={4}
+              beamHeight={30}
+              beamNumber={15}
+              lightColor="#ff00ff" // purple-magenta
+              speed={2.5}
+              noiseIntensity={3}
+              scale={0.4}
+              rotation={45}
+              heightSegments={48}
+              maxDpr={1.25}
+            />
+          </div>
+        )
       ) : (
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <Beams
-            beamWidth={4}
-            beamHeight={30}
-            beamNumber={15}
-            lightColor="#ff00ff" // purple-magenta
-            speed={2.5}
-            noiseIntensity={3}
-            scale={0.4}
-            rotation={45}
-            heightSegments={48}
-            maxDpr={1.25}
-          />
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.08), transparent 50%), radial-gradient(circle at 75% 65%, rgba(255, 255, 255, 0.06), transparent 52%), linear-gradient(180deg, #05060a 0%, #0a0d13 100%)",
+          }}
+          aria-hidden="true"
+        >
+          <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.03)_45%,transparent_100%)]" />
         </div>
       )}
 

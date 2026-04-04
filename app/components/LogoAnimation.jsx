@@ -33,9 +33,7 @@ const LogoAnimation = ({ isLoading = true }) => {
             delay: isLoading ? logo.delay : 0,
             duration: isLoading ? 1.5 : 0.25,
             ease: "easeInOut",
-            repeat: isLoading ? Infinity : 0,
-            repeatType: isLoading ? "reverse" : undefined,
-            repeatDelay: isLoading ? 1.5 : undefined,
+            repeat: 0,
           }}
         >
           {logo.icon}

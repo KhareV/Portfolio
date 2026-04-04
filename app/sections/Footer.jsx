@@ -155,7 +155,8 @@ const Footer = () => {
           src={footerImage}
           alt=""
           fill
-          priority
+          loading="lazy"
+          quality={62}
           sizes="100vw"
           className="object-cover object-bottom"
         />

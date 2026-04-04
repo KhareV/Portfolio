@@ -301,7 +301,6 @@ const About = ({ disableHeavyVisuals = false }) => {
                 width={920}
                 height={720}
                 sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
-                priority
                 className="w-full h-[250px] sm:h-[276px] object-cover"
               />
               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/6 to-transparent"></div>

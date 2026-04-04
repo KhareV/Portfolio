@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, lazy, useEffect } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 import { LoadingProvider, useLoadingContext } from "../contexts/LoadingContext";
 import useDeviceDetection from "../hooks/useDeviceDetection";
@@ -90,11 +90,65 @@ const AppContent = () => {
   const { isAppReady } = useLoadingContext();
   const { isMobile } = useDeviceDetection();
   const { disableHeavyVisuals } = useRuntimePerformanceMode();
+  const [shouldRenderNonCritical, setShouldRenderNonCritical] = useState(false);
 
   const isFullyLoaded = isResourcesReady && isAppReady;
   const shouldRenderPointer = !disableHeavyVisuals;
   const shouldRenderSound = !disableHeavyVisuals;
   const shouldRenderEarthCanvas = !isMobile && !disableHeavyVisuals;
+
+  useEffect(() => {
+    let mounted = true;
+    let idleTaskId = null;
+    let fallbackTimerId = null;
+    let activated = false;
+
+    const interactionEvents = [
+      "scroll",
+      "wheel",
+      "pointerdown",
+      "touchstart",
+      "keydown",
+    ];
+
+    const removeInteractionListeners = () => {
+      interactionEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, activateNonCritical);
+      });
+    };
+
+    const activateNonCritical = () => {
+      if (!mounted || activated) {
+        return;
+      }
+
+      activated = true;
+      setShouldRenderNonCritical(true);
+      removeInteractionListeners();
+    };
+
+    interactionEvents.forEach((eventName) => {
+      window.addEventListener(eventName, activateNonCritical, {
+        passive: true,
+        once: true,
+      });
+    });
+
+    idleTaskId = runWhenIdle(() => {
+      activateNonCritical();
+    }, 1400);
+
+    fallbackTimerId = window.setTimeout(() => {
+      activateNonCritical();
+    }, 2200);
+
+    return () => {
+      mounted = false;
+      removeInteractionListeners();
+      cancelIdleTask(idleTaskId);
+      window.clearTimeout(fallbackTimerId);
+    };
+  }, []);
 
   useEffect(() => {
     if (disableHeavyVisuals) {
@@ -267,68 +321,74 @@ const AppContent = () => {
             <TimeBands className="-mt-px" />
           </Suspense>
 
-          <>
-            <Suspense fallback={null}>
-              <About disableHeavyVisuals={disableHeavyVisuals} />
-            </Suspense>
-            <Suspense fallback={null}>
-              <Github />
-            </Suspense>
-            <Suspense fallback={null}>
-              <LogoAnimation isLoading={!isFullyLoaded} />
-            </Suspense>
-            {shouldRenderSound && (
+          {shouldRenderNonCritical && (
+            <>
               <Suspense fallback={null}>
-                <Sound />
+                <About disableHeavyVisuals={disableHeavyVisuals} />
               </Suspense>
-            )}
-
-            <Suspense fallback={null}>
-              <Projects disableHeavyVisuals={disableHeavyVisuals} />
-            </Suspense>
-            <Suspense fallback={null}>
-              <Contact />
-            </Suspense>
-            <Suspense fallback={null}>
-              <WorkExperience disableHeavyVisuals={disableHeavyVisuals} />
-            </Suspense>
-
-            {shouldRenderEarthCanvas && (
               <Suspense fallback={null}>
-                <div className="relative mx-4 my-10 rounded-[2rem] border border-white/15 bg-black p-4 md:p-6 shadow-[0_24px_60px_rgba(2,6,23,0.45)] overflow-hidden">
-                  <div
-                    className="pointer-events-none absolute inset-0 opacity-70"
-                    style={{
-                      backgroundImage:
-                        "radial-gradient(circle at 12% 18%, rgba(255,255,255,0.8) 1.2px, transparent 2px), radial-gradient(circle at 68% 26%, rgba(255,255,255,0.55) 1px, transparent 2px), radial-gradient(circle at 86% 72%, rgba(255,255,255,0.65) 1.1px, transparent 2px), radial-gradient(circle at 34% 78%, rgba(255,255,255,0.45) 1px, transparent 2px), radial-gradient(circle at 55% 52%, rgba(255,255,255,0.35) 0.9px, transparent 2px)",
-                      backgroundSize:
-                        "240px 240px, 280px 280px, 320px 320px, 260px 260px, 300px 300px",
-                    }}
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-transparent to-sky-400/10" />
+                <Github />
+              </Suspense>
+              <Suspense fallback={null}>
+                <LogoAnimation isLoading={!isFullyLoaded} />
+              </Suspense>
+              {shouldRenderSound && (
+                <Suspense fallback={null}>
+                  <Sound />
+                </Suspense>
+              )}
 
-                  <div className="relative z-10 rounded-[1.4rem] overflow-hidden">
-                    <EarthCanvas />
+              <Suspense fallback={null}>
+                <Projects disableHeavyVisuals={disableHeavyVisuals} />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Contact />
+              </Suspense>
+              <Suspense fallback={null}>
+                <WorkExperience disableHeavyVisuals={disableHeavyVisuals} />
+              </Suspense>
+
+              {shouldRenderEarthCanvas && (
+                <Suspense fallback={null}>
+                  <div className="relative mx-4 my-10 rounded-[2rem] border border-white/15 bg-black p-4 md:p-6 shadow-[0_24px_60px_rgba(2,6,23,0.45)] overflow-hidden">
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-70"
+                      style={{
+                        backgroundImage:
+                          "radial-gradient(circle at 12% 18%, rgba(255,255,255,0.8) 1.2px, transparent 2px), radial-gradient(circle at 68% 26%, rgba(255,255,255,0.55) 1px, transparent 2px), radial-gradient(circle at 86% 72%, rgba(255,255,255,0.65) 1.1px, transparent 2px), radial-gradient(circle at 34% 78%, rgba(255,255,255,0.45) 1px, transparent 2px), radial-gradient(circle at 55% 52%, rgba(255,255,255,0.35) 0.9px, transparent 2px)",
+                        backgroundSize:
+                          "240px 240px, 280px 280px, 320px 320px, 260px 260px, 300px 300px",
+                      }}
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-transparent to-sky-400/10" />
+
+                    <div className="relative z-10 rounded-[1.4rem] overflow-hidden">
+                      <EarthCanvas />
+                    </div>
                   </div>
-                </div>
-              </Suspense>
-            )}
+                </Suspense>
+              )}
 
-            <Suspense fallback={null}>
-              <TimeBands />
-            </Suspense>
-          </>
+              <Suspense fallback={null}>
+                <TimeBands />
+              </Suspense>
+            </>
+          )}
         </div>
       </main>
 
-      <div
-        className="relative z-10 h-[110vh] pointer-events-none"
-        aria-hidden="true"
-      />
+      {shouldRenderNonCritical && (
+        <>
+          <div
+            className="relative z-10 h-[110vh] pointer-events-none"
+            aria-hidden="true"
+          />
 
-      <Suspense fallback={null}>
-        <Footer />
-      </Suspense>
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
+        </>
+      )}
 
       <div id="my-modal" />
     </>
