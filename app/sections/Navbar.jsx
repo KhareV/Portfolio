@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
-import { cn } from "../styles/spacing.js";
+import { cn } from "../styles/spacing.jsx";
 
 const navItems = [
   { label: "Home", href: "#hero" },
@@ -61,7 +61,7 @@ const Navbar = () => {
           </div>
 
           {/* MOBILE LOGO */}
-          <div className="sm:hidden h-9 w-9 grid place-items-center rounded-full bg-white/15 border border-white/25 text-white">
+          <div className="sm:hidden h-8 w-8 grid place-items-center rounded-full bg-white/15 border border-white/25 text-white">
             <span className="font-hero-script text-[0.9rem] tracking-wider">
               VK
             </span>
@@ -97,7 +97,7 @@ const Navbar = () => {
         {/* MOBILE DROPDOWN */}
         <div
           className={cn(
-            "sm:hidden mt-3 mx-auto max-w-[340px] p-4 space-y-4 transform-gpu [will-change:transform]",
+            "sm:hidden mt-3 mx-auto w-full max-w-[min(92vw,340px)] p-4 space-y-4 transform-gpu [will-change:transform]",
             "rounded-2xl bg-slate-950/90 backdrop-blur-sm border border-white/20",
             "shadow-[0_16px_36px_rgba(2,6,23,0.5)]",
             isOpen ? "block" : "hidden",

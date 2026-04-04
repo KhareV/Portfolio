@@ -15,7 +15,7 @@ import NextImage from "next/image";
 
 const ChatBox = lazy(() => import("../components/Chatbox.jsx"));
 import { MessageProvider } from "../contexts/MessageContext.jsx";
-import { cn } from "../styles/spacing";
+import { cn } from "../styles/spacing.jsx";
 import { useLoadingContext } from "../contexts/LoadingContext";
 import Sunflower from "../components/Sunflower.jsx";
 
@@ -339,7 +339,7 @@ const Hero = () => {
     <section
       id="hero"
       className={cn(
-        "relative w-screen min-h-[200vh] overflow-hidden text-white",
+        "relative w-screen min-h-[180vh] md:min-h-[200vh] overflow-hidden text-white",
       )}
     >
       <div className="absolute inset-0 overflow-hidden">
@@ -362,10 +362,10 @@ const Hero = () => {
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-[200vh] w-full max-w-[1480px] flex-col items-center px-5 pb-0 pt-32 sm:px-8 md:px-12 md:pt-40">
+      <div className="relative z-10 mx-auto flex min-h-[180vh] md:min-h-[200vh] w-full max-w-[1480px] flex-col items-center px-4 pb-0 pt-24 sm:px-8 md:px-12 md:pt-40">
         <motion.h1
           ref={headingRef}
-          className="font-hero-display -mt-4 md:-mt-8 mx-auto max-w-[860px] text-center text-[clamp(1.95rem,3.45vw,3.6rem)] leading-[1.15] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
+          className="font-hero-display -mt-2 sm:-mt-4 md:-mt-8 mx-auto max-w-[860px] text-center text-[clamp(1.65rem,3.1vw,3.6rem)] leading-[1.15] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
           aria-live="polite"
           aria-atomic="true"
           initial={{ opacity: 0, y: 28 }}
@@ -383,9 +383,9 @@ const Hero = () => {
           ) : null}
         </motion.h1>
 
-        <div className="mt-[3vh] grid w-full grid-cols-1 gap-12 md:mt-[12vh] md:grid-cols-[minmax(0,620px)_1fr] md:items-end">
+        <div className="mt-[3vh] grid w-full grid-cols-1 gap-8 sm:gap-12 md:mt-[12vh] md:grid-cols-[minmax(0,620px)_1fr] md:items-end">
           <motion.article
-            className="-mt-[15px] max-w-[620px] rounded-[26px] border border-[#e8c8b3]/35 bg-[#8c5b52]/43 p-8 shadow-[0_24px_70px_rgba(25,12,12,0.3)] backdrop-blur-[12px] sm:p-10"
+            className="-mt-[15px] w-full max-w-[620px] rounded-[26px] border border-[#e8c8b3]/35 bg-[#8c5b52]/43 p-5 shadow-[0_24px_70px_rgba(25,12,12,0.3)] backdrop-blur-[12px] sm:p-8 md:p-10"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.85, ease: "easeOut" }}
@@ -399,7 +399,7 @@ const Hero = () => {
               solutions, and AI integration.
             </p>
 
-            <div className="mt-6 h-[560px]">
+            <div className="mt-6 h-[320px] sm:h-[420px] md:h-[560px]">
               <MessageProvider>
                 <HeroChatErrorBoundary>
                   <Suspense

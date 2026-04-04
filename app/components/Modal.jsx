@@ -9,7 +9,7 @@ import {
   borders,
   transitions,
   cn,
-} from "../styles/spacing.js";
+} from "../styles/spacing.jsx";
 
 const Modal = ({ onClose, toggle }) => {
   const modalRoot = document.getElementById("my-modal");

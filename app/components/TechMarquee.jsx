@@ -58,7 +58,10 @@ const MARQUEE_ROWS = [
 const MarqueeTextRow = ({ items, animationClass, keyPrefix }) => (
   <div className={`${animationClass} whitespace-nowrap flex items-center`}>
     {items.map((item, index) => (
-      <span className="mx-4 text-lg" key={`${keyPrefix}-${index}`}>
+      <span
+        className="mx-3 sm:mx-4 text-sm sm:text-base lg:text-lg"
+        key={`${keyPrefix}-${index}`}
+      >
         {item}
       </span>
     ))}
@@ -67,8 +70,8 @@ const MarqueeTextRow = ({ items, animationClass, keyPrefix }) => (
 
 const TechMarquee = () => {
   return (
-    <div className="w-4/5 mx-auto my-8 rounded-2xl border border-[#d4d7cf] bg-[#eef1e6] py-8 text-[#596056] overflow-hidden">
-      <div className="flex flex-col gap-8">
+    <div className="w-full sm:w-4/5 mx-auto my-6 sm:my-8 rounded-2xl border border-[#d4d7cf] bg-[#eef1e6] py-6 sm:py-8 px-2 sm:px-0 text-[#596056] overflow-hidden">
+      <div className="flex flex-col gap-6 sm:gap-8">
         {MARQUEE_ROWS.map((row, rowIndex) => (
           <div className="relative flex overflow-x-hidden" key={rowIndex}>
             <MarqueeTextRow

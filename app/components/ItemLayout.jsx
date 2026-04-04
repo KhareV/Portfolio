@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { spacing, layout, borders } from "../styles/spacing.js";
+import { spacing, layout, borders } from "../styles/spacing.jsx";
 
 const ItemLayout = ({ children, className }) => {
   return (

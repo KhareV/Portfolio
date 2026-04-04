@@ -3,19 +3,23 @@
 import NextImage from "next/image";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { FaGithub, FaTwitter, FaInstagram } from "react-icons/fa";
-import { cn, transitions } from "../styles/spacing.js";
+import { cn, transitions } from "../styles/spacing.jsx";
 
 const APP_TIMEZONE = "Asia/Kolkata";
 const FOOTER_IMAGES = {
   morning: "/newimages/morningfoot.png",
   afternoon: "/newimages/afternoonfoot.png",
   evening: "/newimages/nightfoot.png",
-  night: "/newimages/nightfoot.png",
+  night: "/newimages/nightfoot-alt.png",
 };
 const EASING_POWER = 3.2;
 const PROGRESS_EPSILON = 0.002;
 const MAX_PARALLAX_OFFSET = 40;
 const REVEAL_RANGE_MULTIPLIER = 1.1;
+const FOOTER_ASPECT_WIDTH = 512;
+const FOOTER_ASPECT_HEIGHT = 341;
+const FOOTER_ASPECT_RATIO = FOOTER_ASPECT_WIDTH / FOOTER_ASPECT_HEIGHT;
+const FOOTER_ASPECT_RATIO_INVERSE = FOOTER_ASPECT_HEIGHT / FOOTER_ASPECT_WIDTH;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -139,8 +143,13 @@ const Footer = () => {
       className="fixed bottom-0 left-0 h-screen w-full overflow-hidden z-0"
     >
       <div
-        className="relative h-full w-full will-change-transform"
-        style={{ transform: `translateY(${parallaxY}px) scale(1.05)` }}
+        className="absolute left-1/2 top-1/2 will-change-transform"
+        style={{
+          width: `max(100vw, calc(100vh * ${FOOTER_ASPECT_RATIO}))`,
+          height: `max(100vh, calc(100vw * ${FOOTER_ASPECT_RATIO_INVERSE}))`,
+          aspectRatio: `${FOOTER_ASPECT_WIDTH} / ${FOOTER_ASPECT_HEIGHT}`,
+          transform: `translate(-50%, calc(-50% + ${parallaxY}px)) scale(1.05)`,
+        }}
       >
         <NextImage
           src={footerImage}

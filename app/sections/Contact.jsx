@@ -178,7 +178,7 @@ const Contact = () => {
             exit={{ opacity: 0, y: isSuccessAlert ? 20 : -20, scale: 0.9 }}
             className={`fixed z-50 ${
               isSuccessAlert
-                ? "bottom-6 right-6"
+                ? "bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6"
                 : "top-8 left-1/2 -translate-x-1/2"
             }`}
             role={alert.type === "error" ? "alert" : "status"}
@@ -203,19 +203,19 @@ const Contact = () => {
       </AnimatePresence>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-24 flex flex-col items-center justify-center min-h-screen">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-20 sm:py-24 flex flex-col items-center justify-center min-h-screen">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 text-white">
             Let's Talk
           </h2>
-          <p className="text-lg text-gray-400 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-400 max-w-xl mx-auto">
             Whether you're looking to build something new or improve what
             exists, I'm here to help bring your vision to life.
           </p>
@@ -229,7 +229,7 @@ const Contact = () => {
           viewport={{ once: true }}
           className="w-full max-w-2xl"
         >
-          <div className="relative backdrop-blur-sm bg-white/5 border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl transform-gpu [will-change:transform]">
+          <div className="relative backdrop-blur-sm bg-white/5 border border-white/10 rounded-2xl p-5 sm:p-7 md:p-10 shadow-2xl transform-gpu [will-change:transform]">
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               {/* Name Field */}
               <motion.div

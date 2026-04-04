@@ -14,8 +14,8 @@ import {
   responsive,
   transitions,
   cn,
-} from "../styles/spacing";
-import useDeviceDetection from "../hooks/useDeviceDetection";
+} from "../styles/spacing.jsx";
+import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
 
 const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
 
@@ -251,7 +251,7 @@ const About = () => {
       id="about"
     >
       <motion.h2
-        className="text-4xl md:text-6xl font-semibold tracking-tighter text-slate-900 mb-14 font-site-default"
+        className="text-3xl sm:text-4xl md:text-6xl font-semibold tracking-tighter text-slate-900 mb-10 sm:mb-14 font-site-default"
         initial={{ x: -50, opacity: 0 }}
         whileInView={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
@@ -265,7 +265,7 @@ const About = () => {
           "xl:grid-rows-6",
           spacing.grid.gap,
           "h-full",
-          "px-4 sm:px-6 md:px-8",
+          "px-2 sm:px-4 md:px-8",
         )}
       >
         {/* First Grid Item */}
@@ -274,10 +274,15 @@ const About = () => {
           delay={0.3}
         >
           {/* Background Container */}
-          <div className={cn("w-full md:w-4/5 mx-auto", SOFT_CARD_CLASS)}>
+          <div className={cn("w-full xl:w-4/5 mx-auto", SOFT_CARD_CLASS)}>
             {/* Marquee Container */}
             <div className="absolute inset-0 w-full h-full">
-              <div className={cn(spacing.section.paddingY, "mt-52 pt-24")}>
+              <div
+                className={cn(
+                  spacing.section.paddingY,
+                  "mt-32 sm:mt-44 md:mt-52 pt-16 sm:pt-20 md:pt-24",
+                )}
+              >
                 <div className="relative flex overflow-x-hidden overflow-y-hidden">
                   <ProfileTickerRow className="animate-profile-scroll-1 whitespace-nowrap" />
                   <ProfileTickerRow
@@ -297,7 +302,7 @@ const About = () => {
                 height={720}
                 sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
                 priority
-                className="w-full sm:h-[276px] h-fit object-cover"
+                className="w-full h-[250px] sm:h-[276px] object-cover"
               />
               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/6 to-transparent"></div>
               <div className="relative">
@@ -377,7 +382,7 @@ const About = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br  duration-300" />
             <div
-              className="rounded-3xl w-full sm:h-[326px] h-fit flex justify-center items-center bg-black
+              className="rounded-3xl w-full h-[240px] sm:h-[326px] flex justify-center items-center bg-black
             "
             >
               <Globe
@@ -423,7 +428,7 @@ const About = () => {
                 />
               </a>
               <div className="mt-4 flex justify-center">
-                <Sunflower className="w-[100px] h-[100px] md:w-[340px] md:h-[340px] mt-7" />
+                <Sunflower className="w-[90px] h-[90px] sm:w-[140px] sm:h-[140px] md:w-[260px] md:h-[260px] lg:w-[340px] lg:h-[340px] mt-5 sm:mt-7" />
               </div>
             </div>
           </div>
@@ -499,7 +504,7 @@ const About = () => {
               width={960}
               height={640}
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
-              className="w-full md:h-[250px] sm:h-[276px] h-fit object-cover object-center opacity-90 transition-all duration-300"
+              className="w-full h-[220px] sm:h-[250px] md:h-[276px] object-cover object-center opacity-90 transition-all duration-300"
             />
             <div className={cn("space-y-4 relative p-6")}>
               <div className="flex items-center justify-center gap-2 mb-4">

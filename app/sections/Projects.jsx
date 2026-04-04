@@ -4,10 +4,10 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
-import { myProjects } from "../constants/index.js";
+import { myProjects } from "../constants/index.jsx";
 import TechIcon from "../components/TechIcon.jsx";
 import ProjectScene from "../components/ProjectScene.jsx";
-import useDeviceDetection from "../hooks/useDeviceDetection";
+import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
 
 const PROJECT_COUNT = myProjects.length;
 
@@ -51,7 +51,7 @@ const Projects = () => {
   if (!hasProjects || !currentProject) {
     return (
       <section
-        className="font-site-default py-24 relative z-10 px-5 sm:px-10 overflow-hidden bg-[#FEFFFC]"
+        className="font-site-default py-16 sm:py-24 relative z-10 px-4 sm:px-10 overflow-hidden bg-[#FEFFFC]"
         id="projects"
       >
         <div className="max-w-7xl mx-auto rounded-[2rem] border border-slate-200 bg-white p-10 text-center">
@@ -68,7 +68,7 @@ const Projects = () => {
 
   return (
     <section
-      className="projects-v2 font-site-default py-24 relative z-10 px-5 sm:px-10 overflow-hidden bg-[#FEFFFC] focus-visible:outline-none"
+      className="projects-v2 font-site-default py-16 sm:py-24 relative z-10 px-4 sm:px-10 overflow-hidden bg-[#FEFFFC] focus-visible:outline-none"
       id="projects"
       tabIndex={0}
       role="region"
@@ -76,12 +76,12 @@ const Projects = () => {
       onKeyDown={handleSectionKeyDown}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="mb-16 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="mb-12 sm:mb-16 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 className="text-4xl md:text-6xl font-semibold tracking-tighter text-slate-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-semibold tracking-tighter text-slate-900 mb-4">
               Selected Work.
             </h2>
-            <p className="text-slate-500 text-lg md:text-xl font-light max-w-xl leading-relaxed tracking-wide">
+            <p className="text-slate-500 text-base sm:text-lg md:text-xl font-light max-w-xl leading-relaxed tracking-wide">
               A curated showcase of digital experiences, built with precision
               and modern web technologies.
             </p>
@@ -89,7 +89,7 @@ const Projects = () => {
         </div>
 
         <div className="grid lg:grid-cols-12 grid-cols-1 gap-8 w-full items-stretch">
-          <div className="lg:col-span-5 flex flex-col gap-8 relative sm:p-12 py-10 px-8 min-h-[30rem] bg-white/95 backdrop-blur-sm rounded-[2.5rem] border border-slate-200 shadow-[0_18px_45px_-24px_rgba(15,23,42,0.28)] hover:shadow-[0_24px_60px_-24px_rgba(15,23,42,0.32)] transition-shadow duration-700 transform-gpu [will-change:transform]">
+          <div className="lg:col-span-5 flex flex-col gap-8 relative py-8 sm:py-10 px-5 sm:px-8 md:px-10 min-h-[24rem] sm:min-h-[28rem] bg-white/95 backdrop-blur-sm rounded-[2.5rem] border border-slate-200 shadow-[0_18px_45px_-24px_rgba(15,23,42,0.28)] hover:shadow-[0_24px_60px_-24px_rgba(15,23,42,0.32)] transition-shadow duration-700 transform-gpu [will-change:transform]">
             <div className="absolute inset-0 opacity-[0.02] mix-blend-luminosity pointer-events-none overflow-hidden rounded-[2.5rem] select-none">
               <Image
                 src={currentProject.spotlight}
@@ -117,7 +117,7 @@ const Projects = () => {
             </div>
 
             <div className="flex flex-col gap-4 relative z-10 mt-2">
-              <h3 className="text-slate-900 text-3xl sm:text-4xl font-semibold tracking-tight opacity-100">
+              <h3 className="text-slate-900 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight opacity-100">
                 {currentProject.title}
               </h3>
 
@@ -136,7 +136,7 @@ const Projects = () => {
               <p className="text-slate-600 font-semibold text-[10px] uppercase tracking-[0.28em]">
                 Tech Stack
               </p>
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 {(currentProject.tags ?? []).map((tag, index) => (
                   <div
                     key={tag.id ?? `${tag.name}-${index}`}
@@ -195,8 +195,8 @@ const Projects = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-white/70 backdrop-blur-sm border border-slate-200 rounded-[2.5rem] h-[clamp(22rem,62vw,34rem)] lg:h-[40rem] overflow-hidden transition-all duration-500 relative flex items-center justify-center group shadow-[inset_0_0_80px_rgba(15,23,42,0.04)] transform-gpu [will-change:transform]">
-            <div className="absolute top-8 right-8 z-20 flex gap-2 items-center bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-black/[0.03]">
+          <div className="lg:col-span-7 bg-white/70 backdrop-blur-sm border border-slate-200 rounded-[2.5rem] h-[clamp(20rem,72vw,34rem)] lg:h-[40rem] overflow-hidden transition-all duration-500 relative flex items-center justify-center group shadow-[inset_0_0_80px_rgba(15,23,42,0.04)] transform-gpu [will-change:transform]">
+            <div className="absolute top-4 right-4 sm:top-8 sm:right-8 z-20 flex gap-2 items-center bg-white/50 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-black/[0.03]">
               {myProjects.map((_, index) => (
                 <button
                   key={index}

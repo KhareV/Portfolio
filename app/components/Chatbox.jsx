@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaArrowRight } from "react-icons/fa6";
 import { useMessage } from "../contexts/MessageContext";
-import { cn } from "../styles/spacing";
+import { cn } from "../styles/spacing.jsx";
 
 const funFacts = [
   "Started out aiming for civil engineering, explored optometry, and eventually found my edge in full-stack development.",
@@ -261,7 +261,7 @@ const ChatBox = () => {
         <form className="flex items-center gap-2" onSubmit={handleSubmit}>
           <input
             value={currMsg}
-            className="h-10 flex-1 rounded-lg border border-white/15 bg-black/30 px-3 text-sm text-white placeholder:text-white/60 focus:outline-none"
+            className="h-9 sm:h-10 flex-1 rounded-lg border border-white/15 bg-black/30 px-3 text-sm text-white placeholder:text-white/60 focus:outline-none"
             type="text"
             placeholder="Ask me anything"
             onChange={(e) => setCurrMsg(e.target.value)}
@@ -270,7 +270,7 @@ const ChatBox = () => {
             type="submit"
             disabled={isLoading}
             className={cn(
-              "grid h-10 w-10 place-items-center rounded-lg border border-white/20 bg-white/10 text-white transition-colors",
+              "grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-lg border border-white/20 bg-white/10 text-white transition-colors",
               isLoading ? "cursor-not-allowed opacity-70" : "hover:bg-white/20",
             )}
           >

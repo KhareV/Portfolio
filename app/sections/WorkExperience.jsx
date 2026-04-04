@@ -5,15 +5,15 @@ import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 
 import WorkExperienceScene from "../components/WorkExperienceScene.jsx";
-import { workExperiences } from "../constants/index.js";
+import { workExperiences } from "../constants/index.jsx";
 import {
   spacing,
   layout,
   responsive,
   transitions,
   cn,
-} from "../styles/spacing.js";
-import useDeviceDetection from "../hooks/useDeviceDetection";
+} from "../styles/spacing.jsx";
+import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
 
 const IDLE_ANIMATION_DELAY_MS = 180;
 const FALLBACK_ANIMATION = "idle";

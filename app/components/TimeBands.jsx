@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useMemo, useState } from "react";
-import { cn } from "../styles/spacing.js";
+import { cn } from "../styles/spacing.jsx";
 
 const APP_TIMEZONE = "Asia/Kolkata";
 
@@ -85,7 +85,7 @@ const TimeBands = ({ className = "" }) => {
     <div
       aria-hidden="true"
       className={cn(
-        "relative w-full h-[54px] overflow-hidden border-y border-[#d8dad5]/35",
+        "relative w-full h-[48px] sm:h-[54px] overflow-hidden border-y border-[#d8dad5]/35",
         className,
       )}
     >
