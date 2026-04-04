@@ -203,7 +203,7 @@ const Footer = () => {
         </div>
 
         <p className="text-sm text-gray-300 text-center md:text-left">
-          © 2026 Vedant Khare. All rights reserved.
+          © 2024 Vedant Khare. All rights reserved.
         </p>
       </div>
     </footer>
