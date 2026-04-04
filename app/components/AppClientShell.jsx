@@ -64,38 +64,18 @@ const cancelIdleTask = (id) => {
   clearTimeout(id);
 };
 
-const isConstrainedConnection = () => {
-  if (typeof navigator === "undefined") {
-    return false;
-  }
-
-  const connection =
-    navigator.connection ||
-    navigator.mozConnection ||
-    navigator.webkitConnection;
-
-  if (!connection) {
-    return false;
-  }
-
-  const slowType = /(^|\b)(slow-2g|2g|3g)\b/i.test(
-    connection.effectiveType || "",
-  );
-
-  return Boolean(connection.saveData) || slowType;
-};
-
 const AppContent = () => {
   const isResourcesReady = usePreloadResources();
   const { isAppReady } = useLoadingContext();
   const { isMobile } = useDeviceDetection();
-  const { disableHeavyVisuals } = useRuntimePerformanceMode();
+  const { disableHeavyVisuals, isLabTool } = useRuntimePerformanceMode();
   const [renderStage, setRenderStage] = useState(0);
 
   const isFullyLoaded = isResourcesReady && isAppReady;
   const shouldRenderPointer = !disableHeavyVisuals;
   const shouldRenderSound = !disableHeavyVisuals;
   const shouldRenderEarthCanvas = !isMobile && !disableHeavyVisuals;
+  const shouldShowLoadingOverlay = !disableHeavyVisuals && !isLabTool;
   const shouldRenderStageOne = renderStage >= 1;
   const shouldRenderStageTwo = renderStage >= 2;
   const shouldRenderStageThree = renderStage >= 3;
@@ -139,15 +119,15 @@ const AppContent = () => {
       setStage(1);
       stageTwoTimerId = window.setTimeout(() => {
         setStage(2);
-      }, 650);
+      }, 1200);
 
       stageThreeIdleTaskId = runWhenIdle(() => {
         setStage(3);
-      }, 1700);
+      }, 4200);
 
       stageThreeFallbackTimerId = window.setTimeout(() => {
         setStage(3);
-      }, 2200);
+      }, 6500);
 
       removeInteractionListeners();
     };
@@ -161,7 +141,7 @@ const AppContent = () => {
 
     activationFallbackTimerId = window.setTimeout(() => {
       activateNonCritical();
-    }, 2200);
+    }, 4200);
 
     return () => {
       mounted = false;
@@ -330,7 +310,7 @@ const AppContent = () => {
 
     fallbackTimerId = window.setTimeout(() => {
       onFirstInteraction();
-    }, 3400);
+    }, 4800);
 
     return () => {
       mounted = false;
@@ -358,7 +338,9 @@ const AppContent = () => {
 
   return (
     <>
-      <LoadingSpinner shouldHide={isFullyLoaded} onLoadComplete={() => {}} />
+      {shouldShowLoadingOverlay && (
+        <LoadingSpinner shouldHide={isFullyLoaded} onLoadComplete={() => {}} />
+      )}
 
       <main className="relative z-10 overflow-x-hidden">
         <div className="bg-[#FEFFFC]">

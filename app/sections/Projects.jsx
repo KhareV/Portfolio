@@ -210,14 +210,18 @@ const Projects = ({ disableHeavyVisuals = false }) => {
                 <button
                   key={index}
                   onClick={() => setSelectedProjectIndex(index)}
-                  className={`h-1.5 rounded-full transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
-                    index === selectedProjectIndex
-                      ? "bg-slate-800 w-6"
-                      : "bg-slate-300 hover:bg-slate-400 w-1.5"
-                  }`}
+                  className="grid h-8 w-8 place-items-center rounded-full transition-all duration-300 ease-out hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                   aria-current={index === selectedProjectIndex}
                   aria-label={`Go to project ${index + 1}`}
-                />
+                >
+                  <span
+                    className={`block h-1.5 rounded-full transition-all duration-500 ease-out ${
+                      index === selectedProjectIndex
+                        ? "bg-slate-800 w-6"
+                        : "bg-slate-300 hover:bg-slate-400 w-1.5"
+                    }`}
+                  />
+                </button>
               ))}
             </div>
 

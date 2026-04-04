@@ -269,6 +269,7 @@ const ChatBox = () => {
           <button
             type="submit"
             disabled={isLoading}
+            aria-label="Send chat message"
             className={cn(
               "grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-lg border border-white/20 bg-white/10 text-white transition-colors",
               isLoading ? "cursor-not-allowed opacity-70" : "hover:bg-white/20",

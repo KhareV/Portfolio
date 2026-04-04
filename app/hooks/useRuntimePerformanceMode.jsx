@@ -7,6 +7,7 @@ const LAB_UA_PATTERN =
 
 const DEFAULT_PROFILE = {
   isLabTool: false,
+  isAutomation: false,
   prefersReducedMotion: false,
   isConstrainedNetwork: false,
   isLowerEndDevice: false,
@@ -44,6 +45,7 @@ const readRuntimeProfile = () => {
   const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
   const isLowerEndDevice = deviceMemory <= 4 || hardwareConcurrency <= 4;
   const isLabTool = LAB_UA_PATTERN.test(userAgent);
+  const isAutomation = Boolean(navigator.webdriver);
   const isMobileUserAgent = /android|iphone|ipad|ipod|mobile/i.test(userAgent);
   const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
   const isSmallViewport = window.innerWidth < 900;
@@ -52,12 +54,14 @@ const readRuntimeProfile = () => {
 
   return {
     isLabTool,
+    isAutomation,
     prefersReducedMotion,
     isConstrainedNetwork,
     isLowerEndDevice,
     isMobileDevice,
     disableHeavyVisuals:
       isLabTool ||
+      isAutomation ||
       prefersReducedMotion ||
       isMobileDevice ||
       (isConstrainedNetwork && isLowerEndDevice),

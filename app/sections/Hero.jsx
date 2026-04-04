@@ -60,8 +60,7 @@ const HERO_TYPING_INTERVAL_MS = 55;
 const HERO_TYPING_START_DELAY_MS = 2000;
 const HERO_OBSERVER_THRESHOLD = 0.3;
 const HERO_BACKGROUND_FADE_MS = 1400;
-const HERO_READY_MAX_WAIT_MS = 950;
-const HERO_BACKGROUND_ENTRIES = Object.entries(HERO_BACKGROUNDS);
+const CHAT_WIDGET_DEFER_MS = 5200;
 
 class HeroChatErrorBoundary extends React.Component {
   constructor(props) {
@@ -90,61 +89,6 @@ class HeroChatErrorBoundary extends React.Component {
   }
 }
 
-const runWhenIdle = (task, timeout = 1800) => {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  if ("requestIdleCallback" in window) {
-    return window.requestIdleCallback(task, { timeout });
-  }
-
-  return window.setTimeout(task, 220);
-};
-
-const cancelIdleTask = (id) => {
-  if (typeof window === "undefined" || id == null) {
-    return;
-  }
-
-  if ("cancelIdleCallback" in window) {
-    window.cancelIdleCallback(id);
-    return;
-  }
-
-  clearTimeout(id);
-};
-
-const preloadAndDecodeImage = (src) => {
-  return new Promise((resolve) => {
-    const image = new Image();
-    let settled = false;
-
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      resolve();
-    };
-
-    image.onload = finish;
-    image.onerror = finish;
-    image.src = src;
-
-    if (typeof image.decode === "function") {
-      image
-        .decode()
-        .then(finish)
-        .catch(() => {});
-    }
-  });
-};
-
-const waitForTimeout = (ms) => {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms);
-  });
-};
-
 const Hero = () => {
   const [dayPhase, setDayPhase] = useState(() => getDayPhase(getLocalHour()));
   const [localClock, setLocalClock] = useState(() => getLocalClock());
@@ -152,52 +96,67 @@ const Hero = () => {
   const [typedIntro, setTypedIntro] = useState("");
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [shouldStartTyping, setShouldStartTyping] = useState(false);
+  const [shouldMountChat, setShouldMountChat] = useState(false);
   const headingRef = useRef(null);
-  const initialPhaseRef = useRef(dayPhase);
   const latestPhaseRef = useRef(dayPhase);
   const { setHeroReady, setModelsReady } = useLoadingContext();
 
   useEffect(() => {
     let mounted = true;
-    let idleTaskId = null;
-    const activeBackground = HERO_BACKGROUNDS[initialPhaseRef.current];
-    const remainingBackgrounds = HERO_BACKGROUND_ENTRIES.map(
-      ([, src]) => src,
-    ).filter((src) => src !== activeBackground);
+    const readyTimerId = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        if (!mounted) {
+          return;
+        }
 
-    const warmBackgrounds = async () => {
-      await Promise.race([
-        preloadAndDecodeImage(activeBackground),
-        waitForTimeout(HERO_READY_MAX_WAIT_MS),
-      ]);
-
-      if (mounted) {
         requestAnimationFrame(() => {
-          if (!mounted) return;
-
-          requestAnimationFrame(() => {
-            if (mounted) {
-              setHeroReady(true);
-            }
-          });
+          if (mounted) {
+            setHeroReady(true);
+          }
         });
-      }
-
-      idleTaskId = runWhenIdle(async () => {
-        await preloadAndDecodeImage(activeBackground);
-        await Promise.allSettled(
-          remainingBackgrounds.map((src) => preloadAndDecodeImage(src)),
-        );
       });
-    };
-
-    warmBackgrounds();
+    }, 140);
 
     return () => {
       mounted = false;
-      cancelIdleTask(idleTaskId);
+      window.clearTimeout(readyTimerId);
     };
   }, [setHeroReady]);
+
+  useEffect(() => {
+    let mounted = true;
+    const interactionEvents = ["pointerdown", "touchstart", "keydown"];
+
+    const activateChat = () => {
+      if (!mounted) {
+        return;
+      }
+
+      setShouldMountChat(true);
+      interactionEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, activateChat);
+      });
+    };
+
+    interactionEvents.forEach((eventName) => {
+      window.addEventListener(eventName, activateChat, {
+        passive: true,
+        once: true,
+      });
+    });
+
+    const fallbackTimerId = window.setTimeout(() => {
+      activateChat();
+    }, CHAT_WIDGET_DEFER_MS);
+
+    return () => {
+      mounted = false;
+      window.clearTimeout(fallbackTimerId);
+      interactionEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, activateChat);
+      });
+    };
+  }, []);
 
   useEffect(() => {
     if (setModelsReady) {
@@ -366,8 +325,9 @@ const Hero = () => {
             aria-hidden="true"
             fill
             sizes="100vw"
-            quality={72}
+            quality={58}
             priority={dayPhase === phase}
+            fetchPriority={dayPhase === phase ? "high" : "auto"}
             className={cn(
               "absolute inset-0 h-full w-full object-cover object-center transition-opacity ease-out",
               phase === previousPhase ? "opacity-0" : "opacity-100",
@@ -417,15 +377,34 @@ const Hero = () => {
             <div className="mt-6 h-[320px] sm:h-[420px] md:h-[560px]">
               <MessageProvider>
                 <HeroChatErrorBoundary>
-                  <Suspense
-                    fallback={
-                      <div className="grid h-full place-items-center rounded-[20px] bg-[#2b2120] text-[#ffe9d9]">
-                        Loading chat...
+                  {shouldMountChat ? (
+                    <Suspense
+                      fallback={
+                        <div className="grid h-full place-items-center rounded-[20px] bg-[#2b2120] text-[#ffe9d9]">
+                          Loading chat...
+                        </div>
+                      }
+                    >
+                      <ChatBox />
+                    </Suspense>
+                  ) : (
+                    <div className="grid h-full place-items-center rounded-[20px] border border-white/15 bg-[#2b2120]/70 p-6 text-center">
+                      <div>
+                        <p className="font-hero-serif text-[#ffe9d9]">
+                          Chat assistant loads on interaction to keep startup
+                          fast.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setShouldMountChat(true)}
+                          className="mt-4 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+                          aria-label="Open chat assistant"
+                        >
+                          Open Chat
+                        </button>
                       </div>
-                    }
-                  >
-                    <ChatBox />
-                  </Suspense>
+                    </div>
+                  )}
                 </HeroChatErrorBoundary>
               </MessageProvider>
             </div>

@@ -408,12 +408,6 @@ const About = ({ disableHeavyVisuals = false }) => {
                   backgroundImageOpacity={0.95}
                   showAtmosphere={!isMobile}
                   showGraticules={!isMobile}
-                  globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-                  bumpImageUrl={
-                    isMobile
-                      ? undefined
-                      : "//unpkg.com/three-globe/example/img/earth-topology.png"
-                  }
                   cameraPosition={{ x: 1.5, y: 0, z: 0 }}
                   cameraRotation={{ x: 0, y: -Math.PI / 2, z: 0 }}
                   autoRotate={false}

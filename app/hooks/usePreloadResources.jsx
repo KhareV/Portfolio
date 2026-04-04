@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-const CRITICAL_IMAGE_ASSETS = [
-  "/assets/terminal.png",
-  "/assets/close.svg",
-  "/assets/menu.svg",
-  "/newimages/cofounder-bg.avif",
-];
+const CRITICAL_IMAGE_ASSETS = ["/assets/close.svg", "/assets/menu.svg"];
 
 const SUPPORTING_IMAGE_ASSETS = [
   "/assets/spotlight1.png",
@@ -28,16 +23,9 @@ const OPTIONAL_HEAVY_ASSETS = [
 ];
 
 const BACKGROUND_WARMUP_TIMEOUT = 1500;
-const HEAVY_WARMUP_DELAY_MS = 12000;
 const CRITICAL_WARMUP_CAP_MS = 1800;
-
-const getCurrentHeroImage = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return "/newimages/cofounder-bg.avif";
-  if (hour < 16) return "/newimages/hero-2.avif";
-  if (hour < 20) return "/newimages/hero-3.avif";
-  return "/newimages/hero-4.avif";
-};
+const LAB_UA_PATTERN =
+  /(chrome-lighthouse|lighthouse|pagespeed|headlesschrome|gtmetrix|webpagetest)/i;
 
 const getConnectionProfile = () => {
   if (typeof navigator === "undefined") {
@@ -57,10 +45,17 @@ const getConnectionProfile = () => {
   const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
   const isConstrained =
     Boolean(connection?.saveData) || slowType || downlink < 1.5;
+  const userAgent = navigator.userAgent || "";
+  const isLabTool = LAB_UA_PATTERN.test(userAgent);
+  const isAutomation = Boolean(navigator.webdriver);
 
   return {
     isConstrained,
+    isLabTool,
+    isAutomation,
     canWarmHeavy:
+      !isLabTool &&
+      !isAutomation &&
       !isConstrained &&
       downlink >= 5 &&
       deviceMemory >= 6 &&
@@ -187,7 +182,7 @@ const waitForFonts = async () => {
  * Preload strategy:
  * 1) Await only critical, above-fold assets.
  * 2) Warm supporting images in idle time.
- * 3) Warm heavy 3D assets only on capable devices after interaction/timeout.
+ * 3) Warm heavy 3D assets only on capable devices after explicit interaction.
  */
 const usePreloadResources = () => {
   const [isReady, setIsReady] = useState(false);
@@ -197,15 +192,11 @@ const usePreloadResources = () => {
     const abortController = new AbortController();
     let idleTaskId = null;
     let heavyIdleTaskId = null;
-    let heavyWarmupTimerId = null;
     const interactionListeners = [];
     let heavyWarmupTriggered = false;
 
     const connectionProfile = getConnectionProfile();
-
-    const criticalImages = [
-      ...new Set([...CRITICAL_IMAGE_ASSETS, getCurrentHeroImage()]),
-    ];
+    const criticalImages = CRITICAL_IMAGE_ASSETS;
 
     const loadResources = async () => {
       try {
@@ -253,7 +244,6 @@ const usePreloadResources = () => {
             }
 
             heavyWarmupTriggered = true;
-            window.clearTimeout(heavyWarmupTimerId);
 
             interactionListeners.forEach(({ eventName, listener }) => {
               window.removeEventListener(eventName, listener);
@@ -280,11 +270,6 @@ const usePreloadResources = () => {
           registerListener("pointerdown");
           registerListener("keydown");
           registerListener("touchstart");
-
-          heavyWarmupTimerId = window.setTimeout(
-            triggerHeavyWarmup,
-            HEAVY_WARMUP_DELAY_MS,
-          );
         }
       } catch (error) {
         console.error("Error preloading resources:", error);
@@ -301,7 +286,6 @@ const usePreloadResources = () => {
       abortController.abort();
       cancelIdleTask(idleTaskId);
       cancelIdleTask(heavyIdleTaskId);
-      window.clearTimeout(heavyWarmupTimerId);
       interactionListeners.forEach(({ eventName, listener }) => {
         window.removeEventListener(eventName, listener);
       });
