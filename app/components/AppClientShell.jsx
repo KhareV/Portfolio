@@ -123,11 +123,11 @@ const AppContent = () => {
 
       stageThreeIdleTaskId = runWhenIdle(() => {
         setStage(3);
-      }, 4200);
+      }, 2200);
 
       stageThreeFallbackTimerId = window.setTimeout(() => {
         setStage(3);
-      }, 6500);
+      }, 3200);
 
       removeInteractionListeners();
     };
@@ -141,7 +141,7 @@ const AppContent = () => {
 
     activationFallbackTimerId = window.setTimeout(() => {
       activateNonCritical();
-    }, 4200);
+    }, 3200);
 
     return () => {
       mounted = false;
@@ -152,6 +152,30 @@ const AppContent = () => {
       window.clearTimeout(stageThreeFallbackTimerId);
     };
   }, []);
+
+  useEffect(() => {
+    if (!shouldRenderEarthCanvas || renderStage < 2) {
+      return;
+    }
+
+    let cancelled = false;
+    const idleTaskId = runWhenIdle(async () => {
+      if (cancelled) {
+        return;
+      }
+
+      try {
+        await loadEarthCanvas();
+      } catch (error) {
+        console.warn("Earth chunk prefetch failed:", error);
+      }
+    }, 1200);
+
+    return () => {
+      cancelled = true;
+      cancelIdleTask(idleTaskId);
+    };
+  }, [shouldRenderEarthCanvas, renderStage]);
 
   useEffect(() => {
     if (disableHeavyVisuals) {

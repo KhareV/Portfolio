@@ -3,6 +3,14 @@
 import { useState, useEffect } from "react";
 
 const CRITICAL_IMAGE_ASSETS = ["/assets/close.svg", "/assets/menu.svg"];
+const HERO_BACKGROUND_BY_PHASE = {
+  morning: "/newimages/cofounder-bg.avif",
+  afternoon: "/newimages/hero-1.avif",
+  evening: "/newimages/vegas_night_hero.avif",
+  night: "/newimages/niag_night_hero.avif",
+};
+const HERO_PRELOAD_WIDTH_STEPS = [640, 750, 828, 1080, 1200, 1920];
+const HERO_PRELOAD_QUALITY = 56;
 
 const SUPPORTING_IMAGE_ASSETS = [
   "/assets/spotlight1.png",
@@ -123,6 +131,42 @@ const waitForTimeout = (ms) => {
   });
 };
 
+const getCurrentHeroImage = () => {
+  const hour = new Date().getHours();
+
+  if (hour < 12) {
+    return HERO_BACKGROUND_BY_PHASE.morning;
+  }
+
+  if (hour < 17) {
+    return HERO_BACKGROUND_BY_PHASE.afternoon;
+  }
+
+  if (hour < 21) {
+    return HERO_BACKGROUND_BY_PHASE.evening;
+  }
+
+  return HERO_BACKGROUND_BY_PHASE.night;
+};
+
+const getHeroPreloadWidth = () => {
+  if (typeof window === "undefined") {
+    return 1080;
+  }
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  const target = Math.ceil(window.innerWidth * dpr);
+
+  return (
+    HERO_PRELOAD_WIDTH_STEPS.find((width) => width >= target) ||
+    HERO_PRELOAD_WIDTH_STEPS[HERO_PRELOAD_WIDTH_STEPS.length - 1]
+  );
+};
+
+const buildOptimizedImageUrl = (src, width, quality = HERO_PRELOAD_QUALITY) => {
+  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
+};
+
 const preloadBinary = async (src, signal) => {
   try {
     const response = await fetch(src, {
@@ -196,7 +240,13 @@ const usePreloadResources = () => {
     let heavyWarmupTriggered = false;
 
     const connectionProfile = getConnectionProfile();
-    const criticalImages = CRITICAL_IMAGE_ASSETS;
+    const heroPreloadUrl = buildOptimizedImageUrl(
+      getCurrentHeroImage(),
+      getHeroPreloadWidth(),
+    );
+    const criticalImages = [
+      ...new Set([...CRITICAL_IMAGE_ASSETS, heroPreloadUrl]),
+    ];
 
     const loadResources = async () => {
       try {

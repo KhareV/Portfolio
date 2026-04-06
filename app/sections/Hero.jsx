@@ -13,7 +13,8 @@ import React, {
 import { motion } from "framer-motion";
 import NextImage from "next/image";
 
-const ChatBox = lazy(() => import("../components/Chatbox.jsx"));
+const loadChatBox = () => import("../components/Chatbox.jsx");
+const ChatBox = lazy(loadChatBox);
 import { MessageProvider } from "../contexts/MessageContext.jsx";
 import { cn } from "../styles/spacing.jsx";
 import { useLoadingContext } from "../contexts/LoadingContext";
@@ -60,7 +61,79 @@ const HERO_TYPING_INTERVAL_MS = 55;
 const HERO_TYPING_START_DELAY_MS = 500;
 const HERO_OBSERVER_THRESHOLD = 0.3;
 const HERO_BACKGROUND_FADE_MS = 1400;
-const CHAT_WIDGET_DEFER_MS = 5200;
+const CHAT_AUTOSTART_DELAY_MS = 220;
+const CHAT_AUTOSTART_TIMEOUT_MS = 2200;
+const CHAT_IDLE_TIMEOUT_MS = 1200;
+const HERO_PRELOAD_TIMEOUT_MS = 1400;
+const HERO_PRELOAD_QUALITY = 56;
+const HERO_PRELOAD_WIDTH_STEPS = [640, 750, 828, 1080, 1200, 1920];
+
+const getHeroPreloadWidth = () => {
+  if (typeof window === "undefined") {
+    return 1080;
+  }
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  const target = Math.ceil(window.innerWidth * dpr);
+
+  return (
+    HERO_PRELOAD_WIDTH_STEPS.find((width) => width >= target) ||
+    HERO_PRELOAD_WIDTH_STEPS[HERO_PRELOAD_WIDTH_STEPS.length - 1]
+  );
+};
+
+const buildOptimizedImageUrl = (src, width, quality = HERO_PRELOAD_QUALITY) => {
+  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
+};
+
+const preloadAndDecodeImage = (src) => {
+  return new Promise((resolve) => {
+    const image = new Image();
+    let settled = false;
+
+    const finish = () => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      resolve();
+    };
+
+    image.onload = finish;
+    image.onerror = finish;
+    image.src = src;
+
+    if (typeof image.decode === "function") {
+      image.decode().then(finish).catch(finish);
+    }
+  });
+};
+
+const runWhenIdle = (task, timeout = CHAT_IDLE_TIMEOUT_MS) => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  if ("requestIdleCallback" in window) {
+    return window.requestIdleCallback(task, { timeout });
+  }
+
+  return window.setTimeout(task, 220);
+};
+
+const cancelIdleTask = (id) => {
+  if (typeof window === "undefined" || id == null) {
+    return;
+  }
+
+  if ("cancelIdleCallback" in window) {
+    window.cancelIdleCallback(id);
+    return;
+  }
+
+  clearTimeout(id);
+};
 
 class HeroChatErrorBoundary extends React.Component {
   constructor(props) {
@@ -97,13 +170,25 @@ const Hero = () => {
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [shouldStartTyping, setShouldStartTyping] = useState(false);
   const [shouldMountChat, setShouldMountChat] = useState(false);
+  const [isInitialBackgroundReady, setIsInitialBackgroundReady] =
+    useState(false);
   const headingRef = useRef(null);
   const latestPhaseRef = useRef(dayPhase);
+  const initialBackgroundRef = useRef(HERO_BACKGROUNDS[dayPhase]);
   const { setHeroReady, setModelsReady } = useLoadingContext();
 
   useEffect(() => {
     let mounted = true;
-    const readyTimerId = window.setTimeout(() => {
+    let settled = false;
+
+    const markReady = () => {
+      if (!mounted || settled) {
+        return;
+      }
+
+      settled = true;
+      setIsInitialBackgroundReady(true);
+
       requestAnimationFrame(() => {
         if (!mounted) {
           return;
@@ -115,48 +200,65 @@ const Hero = () => {
           }
         });
       });
-    }, 140);
+    };
+
+    const preloadUrl = buildOptimizedImageUrl(
+      initialBackgroundRef.current,
+      getHeroPreloadWidth(),
+    );
+
+    preloadAndDecodeImage(preloadUrl).then(markReady);
+
+    const fallbackTimerId = window.setTimeout(
+      markReady,
+      HERO_PRELOAD_TIMEOUT_MS,
+    );
 
     return () => {
       mounted = false;
-      window.clearTimeout(readyTimerId);
+      window.clearTimeout(fallbackTimerId);
     };
   }, [setHeroReady]);
 
   useEffect(() => {
-    let mounted = true;
-    const interactionEvents = ["pointerdown", "touchstart", "keydown"];
+    if (!shouldStartTyping || shouldMountChat) {
+      return;
+    }
 
-    const activateChat = () => {
+    let mounted = true;
+    let idleTaskId = null;
+
+    const mountChat = () => {
       if (!mounted) {
         return;
       }
 
       setShouldMountChat(true);
-      interactionEvents.forEach((eventName) => {
-        window.removeEventListener(eventName, activateChat);
-      });
     };
 
-    interactionEvents.forEach((eventName) => {
-      window.addEventListener(eventName, activateChat, {
-        passive: true,
-        once: true,
+    const delayTimerId = window.setTimeout(() => {
+      idleTaskId = runWhenIdle(async () => {
+        try {
+          await loadChatBox();
+        } catch (error) {
+          console.warn("Chat chunk preload failed:", error);
+        }
+
+        mountChat();
       });
-    });
+    }, CHAT_AUTOSTART_DELAY_MS);
 
     const fallbackTimerId = window.setTimeout(() => {
-      activateChat();
-    }, CHAT_WIDGET_DEFER_MS);
+      mountChat();
+    }, CHAT_AUTOSTART_TIMEOUT_MS);
 
     return () => {
       mounted = false;
+      window.clearTimeout(delayTimerId);
       window.clearTimeout(fallbackTimerId);
-      interactionEvents.forEach((eventName) => {
-        window.removeEventListener(eventName, activateChat);
-      });
+      cancelIdleTask(idleTaskId);
     };
-  }, []);
+  }, [shouldStartTyping, shouldMountChat]);
 
   useEffect(() => {
     if (setModelsReady) {
@@ -317,6 +419,8 @@ const Hero = () => {
       )}
     >
       <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgba(253,230,138,0.32),rgba(76,29,149,0.14)_38%,rgba(2,6,23,0.92)_82%)]" />
+
         {visibleBackgroundPhases.map((phase) => (
           <NextImage
             key={phase}
@@ -328,9 +432,20 @@ const Hero = () => {
             quality={58}
             priority={dayPhase === phase}
             fetchPriority={dayPhase === phase ? "high" : "auto"}
+            onLoad={() => {
+              if (phase === dayPhase && previousPhase === null) {
+                setIsInitialBackgroundReady(true);
+              }
+            }}
             className={cn(
               "absolute inset-0 h-full w-full object-cover object-center transition-opacity ease-out",
-              phase === previousPhase ? "opacity-0" : "opacity-100",
+              phase === previousPhase
+                ? "opacity-0"
+                : phase === dayPhase &&
+                    previousPhase === null &&
+                    !isInitialBackgroundReady
+                  ? "opacity-0"
+                  : "opacity-100",
             )}
             style={{ transitionDuration: `${HERO_BACKGROUND_FADE_MS}ms` }}
           />
@@ -391,17 +506,11 @@ const Hero = () => {
                     <div className="grid h-full place-items-center rounded-[20px] border border-white/15 bg-[#2b2120]/70 p-6 text-center">
                       <div>
                         <p className="font-hero-serif text-[#ffe9d9]">
-                          Chat assistant loads on interaction to keep startup
-                          fast.
+                          Chat assistant is starting with the hero.
                         </p>
-                        <button
-                          type="button"
-                          onClick={() => setShouldMountChat(true)}
-                          className="mt-4 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
-                          aria-label="Open chat assistant"
-                        >
-                          Open Chat
-                        </button>
+                        <p className="mt-2 text-sm text-[#ffe9d9]/80">
+                          Optimizing startup and loading your chat interface...
+                        </p>
                       </div>
                     </div>
                   )}
