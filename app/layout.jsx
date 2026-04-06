@@ -1,5 +1,5 @@
 import "./globals.css";
-
+import { Analytics } from "@vercel/analytics/next";
 export const metadata = {
   title: "Vedant's Portfolio | Full-Stack Developer & Blockchain Enthusiast",
   description:
@@ -44,6 +44,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased" suppressHydrationWarning>
         {children}
+        <Analytics />
       </body>
     </html>
   );
