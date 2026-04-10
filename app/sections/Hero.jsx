@@ -24,7 +24,7 @@ const APP_TIMEZONE = "Asia/Kolkata";
 
 const HERO_BACKGROUNDS = {
   morning: "/newimages/cofounder-bg.avif",
-  afternoon: "/newimages/hero-1.avif",
+  afternoon: "/newimages/after_alt.avif",
   evening: "/newimages/vegas_night_hero.avif",
   night: "/newimages/niag_night_hero.avif",
 };
