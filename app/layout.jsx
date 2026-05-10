@@ -43,7 +43,7 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/x-icon" href="/snoopy.png" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
-        {children}
+        <div className="app-scale">{children}</div>
         <Analytics />
       </body>
     </html>
