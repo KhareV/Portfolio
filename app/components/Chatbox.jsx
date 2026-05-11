@@ -1,7 +1,8 @@
 "use client";
+
 import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaArrowRight } from "react-icons/fa6";
+import { ArrowUp, Sparkles, Terminal } from "lucide-react";
 import { useMessage } from "../contexts/MessageContext";
 import { cn } from "../styles/spacing.jsx";
 
@@ -52,10 +53,7 @@ const ChatBox = () => {
     const frameId = window.requestAnimationFrame(() => {
       scrollToBottom(isAutoIntroTyping ? "auto" : "smooth");
     });
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
+    return () => window.cancelAnimationFrame(frameId);
   }, [messages.length, isLoading, isAutoIntroTyping, scrollToBottom]);
 
   useEffect(() => {
@@ -67,7 +65,6 @@ const ChatBox = () => {
     let intervalId;
     const startDelay = window.setTimeout(() => {
       let cursor = 0;
-
       intervalId = window.setInterval(() => {
         cursor += 1;
         setAutoAnswerText(AUTO_ANSWER.slice(0, cursor));
@@ -90,10 +87,7 @@ const ChatBox = () => {
       () => setFactIndex((prev) => (prev + 1) % funFacts.length),
       4500,
     );
-
-    return () => {
-      window.clearInterval(interval);
-    };
+    return () => window.clearInterval(interval);
   }, []);
 
   const getResponse = useCallback(async (question) => {
@@ -104,10 +98,7 @@ const ChatBox = () => {
         body: JSON.stringify({ question }),
       });
 
-      if (!response.ok) {
-        throw new Error(`API responded with status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Status: ${response.status}`);
       const data = await response.json();
       return data.answer;
     } catch (error) {
@@ -119,9 +110,7 @@ const ChatBox = () => {
   const askQuestion = useCallback(
     async (questionText) => {
       const trimmed = questionText.trim();
-      if (!trimmed || isLoading) {
-        return;
-      }
+      if (!trimmed || isLoading) return;
 
       setIsLoading(true);
       setMessages((prev) => [
@@ -139,14 +128,10 @@ const ChatBox = () => {
           ),
         );
       } catch (error) {
-        console.error("Error in askQuestion:", error);
         setMessages((prevMessages) =>
           prevMessages.map((msg, idx) =>
             idx === prevMessages.length - 1
-              ? {
-                  question: trimmed,
-                  answer: "Sorry, something went wrong. Please try again.",
-                }
+              ? { question: trimmed, answer: "Sorry, something went wrong." }
               : msg,
           ),
         );
@@ -170,27 +155,48 @@ const ChatBox = () => {
   );
 
   return (
-    <div className="flex h-full w-full flex-col rounded-2xl border border-white/15 bg-black/35 text-[#f5efe8]">
-      <div className="border-b border-white/10 px-4 py-3">
-        <p className="font-hero-serif text-base font-semibold">Ask Vedant</p>
-        <p className="mt-1 text-sm text-white/75">
-          Quick questions, project details, work experience, or contact info.
-        </p>
+    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/60 shadow-2xl backdrop-blur-2xl">
+      {/* Subtle top glow */}
+      <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+
+      {/* HEADER */}
+      <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] px-6 py-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="font-hero-serif text-lg font-medium text-white tracking-wide">
+              Ask Vedant
+            </h2>
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-slate-400">
+            Ask about projects, skills, or experience.
+          </p>
+        </div>
+        <div className="grid h-10 w-10 place-items-center rounded-full bg-white/5 border border-white/10 shadow-inner">
+          <Terminal size={18} className="text-emerald-400" />
+        </div>
       </div>
 
-      <div className="border-b border-white/10 px-4 py-3">
-        <p className="font-hero-serif text-xs uppercase tracking-[0.2em] text-white/70">
-          Fun Fact
-        </p>
-        <div className="mt-1 min-h-[22px] overflow-hidden">
+      {/* FUN FACT TICKER */}
+      <div className="border-b border-white/5 bg-black/20 px-6 py-3">
+        <div className="flex items-center gap-2 mb-1.5">
+          <Sparkles size={12} className="text-amber-400" />
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+            Fun Fact
+          </p>
+        </div>
+        <div className="min-h-[20px] overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.p
               key={factIndex}
-              className="font-hero-serif text-sm text-white/90"
-              initial={{ opacity: 0, y: 8 }}
+              className="text-sm font-medium text-slate-300 leading-snug"
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
             >
               {funFacts[factIndex]}
             </motion.p>
@@ -198,106 +204,156 @@ const ChatBox = () => {
         </div>
       </div>
 
-      <div className="border-b border-white/10 px-4 py-3">
-        <div className="flex flex-wrap gap-2">
+      {/* CHAT AREA */}
+      <div
+        ref={chatboxRef}
+        data-lenis-prevent
+        className={cn(
+          "flex-1 min-h-0 space-y-6 p-6",
+          isAutoIntroTyping ? "overflow-y-hidden" : "overflow-y-auto",
+          /* Sleek Custom Scrollbar */
+          "[&::-webkit-scrollbar]:w-1.5[&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10 hover:[&::-webkit-scrollbar-thumb]:bg-white/20",
+        )}
+      >
+        {/* AUTO INTRO MESSAGE */}
+        {messages.length === 0 ? (
+          <motion.div
+            className="flex flex-col gap-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            {/* User Bubble */}
+            <div className="max-w-[85%] self-end rounded-2xl rounded-tr-sm bg-emerald-500/15 border border-emerald-500/20 px-4 py-2.5 text-[13px] leading-relaxed text-emerald-50 shadow-sm">
+              {AUTO_QUESTION}
+            </div>
+            {/* AI Bubble */}
+            <div className="max-w-[85%] self-start rounded-2xl rounded-tl-sm bg-white/5 border border-white/10 px-4 py-2.5 text-[13px] leading-relaxed text-slate-200 shadow-sm backdrop-blur-md">
+              {autoAnswerText}
+              {!autoAnswerDone && (
+                <span className="ml-1 inline-block h-3.5 w-1.5 animate-pulse bg-emerald-400 align-middle rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+              )}
+            </div>
+          </motion.div>
+        ) : null}
+
+        {/* ACTUAL MESSAGES */}
+        {messages.map(({ question, answer }, index) => (
+          <div className="flex flex-col gap-4" key={index}>
+            {/* User Bubble */}
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: 0.95,
+                transformOrigin: "bottom right",
+              }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="max-w-[85%] self-end rounded-2xl rounded-tr-sm bg-emerald-500/15 border border-emerald-500/20 px-4 py-2.5 text-[13px] leading-relaxed text-emerald-50 shadow-sm"
+            >
+              {question}
+            </motion.div>
+
+            {/* AI Bubble */}
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: 0.95,
+                transformOrigin: "bottom left",
+              }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="max-w-[85%] self-start rounded-2xl rounded-tl-sm bg-white/5 border border-white/10 px-4 py-3 text-[13px] leading-relaxed text-slate-200 shadow-sm backdrop-blur-md [&>p]:mb-2[&>p:last-child]:mb-0 [&>a]:text-emerald-400 [&>a]:underline[&>a]:underline-offset-2"
+            >
+              {answer === "Thinking..." ? (
+                <div className="flex items-center gap-1.5 h-5 px-1">
+                  <motion.div
+                    className="h-1.5 w-1.5 rounded-full bg-slate-400"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                  />
+                  <motion.div
+                    className="h-1.5 w-1.5 rounded-full bg-slate-400"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+                  />
+                  <motion.div
+                    className="h-1.5 w-1.5 rounded-full bg-slate-400"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+                  />
+                </div>
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: answer }} />
+              )}
+            </motion.div>
+          </div>
+        ))}
+      </div>
+
+      {/* INPUT AREA */}
+      <div className="border-t border-white/5 bg-black/20 p-4 sm:p-6">
+        {/* Starter Prompts */}
+        <div className="mb-4 flex flex-wrap gap-2">
           {starterQuestions.map((question) => (
             <button
               key={question}
               type="button"
               onClick={() => askQuestion(question)}
               disabled={isLoading}
-              className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-white/90 transition-colors hover:bg-white/10 disabled:opacity-60"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-slate-300 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50 active:scale-95"
             >
               {question}
             </button>
           ))}
         </div>
-      </div>
 
-      <div
-        ref={chatboxRef}
-        className={cn(
-          "flex-1 space-y-4 px-4 py-4",
-          isAutoIntroTyping ? "overflow-y-hidden" : "overflow-y-auto",
-        )}
-        style={{ scrollBehavior: "smooth" }}
-      >
-        {messages.length === 0 ? (
-          <motion.div
-            className="space-y-2"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-          >
-            <div className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white">
-              {AUTO_QUESTION}
-            </div>
-            <div className="rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-sm text-white/90">
-              {autoAnswerText}
-              {!autoAnswerDone ? (
-                <span className="ml-1 inline-block h-[0.9em] w-[2px] animate-pulse bg-white/80 align-middle" />
-              ) : null}
-            </div>
-          </motion.div>
-        ) : null}
-
-        {messages.map(({ question, answer }, index) => (
-          <div className="space-y-2" key={index}>
-            <div className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white">
-              {question}
-            </div>
-            <div className="rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-sm text-white/90">
-              {answer === "Thinking..." ? (
-                <span className="text-white/70">Thinking...</span>
-              ) : (
-                <div dangerouslySetInnerHTML={{ __html: answer }} />
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="border-t border-white/10 px-4 py-3">
-        <form className="flex items-center gap-2" onSubmit={handleSubmit}>
+        {/* Input Field */}
+        <form className="relative flex items-center" onSubmit={handleSubmit}>
           <input
             value={currMsg}
-            className="h-9 sm:h-10 flex-1 rounded-lg border border-white/15 bg-black/30 px-3 text-sm text-white placeholder:text-white/60 focus:outline-none"
+            className="h-12 w-full rounded-full border border-white/10 bg-black/40 pl-5 pr-12 text-sm text-white placeholder:text-slate-500 shadow-inner focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-all"
             type="text"
-            placeholder="Ask me anything"
+            placeholder="Ask me anything..."
             onChange={(e) => setCurrMsg(e.target.value)}
           />
           <button
             type="submit"
-            disabled={isLoading}
-            aria-label="Send chat message"
+            disabled={isLoading || !currMsg.trim()}
+            aria-label="Send message"
             className={cn(
-              "grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-lg border border-white/20 bg-white/10 text-white transition-colors",
-              isLoading ? "cursor-not-allowed opacity-70" : "hover:bg-white/20",
+              "absolute right-1.5 grid h-9 w-9 place-items-center rounded-full transition-all duration-300",
+              currMsg.trim() && !isLoading
+                ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:bg-emerald-400"
+                : "bg-white/10 text-slate-500 cursor-not-allowed",
             )}
           >
-            <FaArrowRight className="text-sm" />
+            <ArrowUp size={16} strokeWidth={2.5} />
           </button>
         </form>
-        <div className="mt-3 flex flex-wrap gap-3 text-xs text-white/70">
+
+        {/* Footer Links */}
+        <div className="mt-4 flex flex-wrap justify-center gap-4 text-[11px] font-medium text-slate-500">
           <a
             href="https://www.linkedin.com/in/kharevedant05/"
             target="_blank"
             rel="noreferrer"
-            className="underline-offset-4 hover:underline"
+            className="transition-colors hover:text-emerald-400"
           >
             LinkedIn
           </a>
+          <span className="w-1 h-1 rounded-full bg-slate-700 self-center" />
           <a
             href="https://github.com/KhareV"
             target="_blank"
             rel="noreferrer"
-            className="underline-offset-4 hover:underline"
+            className="transition-colors hover:text-emerald-400"
           >
             GitHub
           </a>
+          <span className="w-1 h-1 rounded-full bg-slate-700 self-center" />
           <a
             href="mailto:kharevedant05@gmail.com"
-            className="underline-offset-4 hover:underline"
+            className="transition-colors hover:text-emerald-400"
           >
             Email
           </a>
@@ -307,5 +363,4 @@ const ChatBox = () => {
   );
 };
 
-// Memoize the entire ChatBox component to prevent unnecessary re-renders
 export default memo(ChatBox);

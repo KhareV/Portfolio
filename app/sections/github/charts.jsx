@@ -3,10 +3,7 @@
 import { memo, useId, useMemo } from "react";
 
 const getPointX = (index, total, width) => {
-  if (total <= 1) {
-    return width / 2;
-  }
-
+  if (total <= 1) return width / 2;
   return (index / (total - 1)) * width;
 };
 
@@ -16,11 +13,10 @@ export const DonutChart = memo(function DonutChart({ data, size = 190 }) {
   const cy = size / 2;
   const circumference = 2 * Math.PI * r;
   const strokeWidth = size * 0.12;
-  const gap = 3;
+  const gap = 8; // Increased gap for sleeker look
 
   const slices = useMemo(() => {
     let accumulated = 0;
-
     return (data || []).map((entry) => {
       const len = (circumference * entry.pct) / 100;
       const next = {
@@ -31,7 +27,7 @@ export const DonutChart = memo(function DonutChart({ data, size = 190 }) {
       accumulated += len;
       return next;
     });
-  }, [data, circumference]);
+  }, [data, circumference, gap]);
 
   return (
     <svg
@@ -40,7 +36,6 @@ export const DonutChart = memo(function DonutChart({ data, size = 190 }) {
       viewBox={`0 0 ${size} ${size}`}
       className="overflow-visible"
       role="img"
-      aria-label="Top languages donut chart by repository count"
     >
       <g transform={`rotate(-90 ${cx} ${cy})`}>
         <circle
@@ -48,7 +43,7 @@ export const DonutChart = memo(function DonutChart({ data, size = 190 }) {
           cy={cy}
           r={r}
           fill="none"
-          stroke="#F1F5F9"
+          stroke="#F8FAFC"
           strokeWidth={strokeWidth}
         />
         {slices.map((slice) => (
@@ -62,31 +57,33 @@ export const DonutChart = memo(function DonutChart({ data, size = 190 }) {
             strokeWidth={strokeWidth}
             strokeDasharray={slice.dasharray}
             strokeDashoffset={slice.dashoffset}
-            strokeLinecap="butt"
-            style={{ transition: "stroke-dashoffset 0.9s ease" }}
+            strokeLinecap="round" // Sleek rounded ends
+            className="transition-all duration-1000 ease-out hover:stroke-[28px]"
           />
         ))}
       </g>
       <text
         x={cx}
-        y={cy - 5}
+        y={cy - 4}
         textAnchor="middle"
         fill="#0F172A"
-        fontSize={size * 0.13}
-        fontWeight="700"
+        fontSize={size * 0.16}
+        fontWeight="800"
         fontFamily="monospace"
       >
         {data?.length || 0}
       </text>
       <text
         x={cx}
-        y={cy + size * 0.085}
+        y={cy + size * 0.1}
         textAnchor="middle"
-        fill="#64748B"
-        fontSize={size * 0.065}
-        fontWeight="500"
+        fill="#94A3B8"
+        fontSize={size * 0.07}
+        fontWeight="600"
+        letterSpacing="0.05em"
+        textTransform="uppercase"
       >
-        languages
+        Languages
       </text>
     </svg>
   );
@@ -95,29 +92,27 @@ export const DonutChart = memo(function DonutChart({ data, size = 190 }) {
 export const RepoBarChart = memo(function RepoBarChart({ repos }) {
   const topRepos = useMemo(() => (repos || []).slice(0, 5), [repos]);
   const maxStars = useMemo(
-    () => Math.max(...topRepos.map((repo) => repo.stargazers_count || 0), 1),
+    () => Math.max(...topRepos.map((r) => r.stargazers_count || 0), 1),
     [topRepos],
   );
 
   return (
-    <div
-      className="flex flex-col gap-3"
-      role="img"
-      aria-label="Bar chart of top repository stars"
-    >
+    <div className="flex flex-col gap-3.5">
       {topRepos.map((repo) => {
         const percentage = ((repo.stargazers_count || 0) / maxStars) * 100;
         return (
-          <div key={repo.id} className="flex flex-col gap-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-800">{repo.name}</span>
-              <span className="font-mono text-slate-500">
-                ⭐ {repo.stargazers_count}
+          <div key={repo.id} className="group flex flex-col gap-1.5">
+            <div className="flex items-center justify-between text-[13px]">
+              <span className="font-semibold text-slate-700 transition-colors group-hover:text-slate-950">
+                {repo.name}
+              </span>
+              <span className="font-mono text-xs font-medium text-slate-400 group-hover:text-emerald-600 transition-colors">
+                ★ {repo.stargazers_count}
               </span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded bg-slate-100">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100/80 shadow-inner">
               <div
-                className="h-full rounded bg-gradient-to-r from-emerald-500 to-emerald-600 transition-[width] duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-1000 ease-out group-hover:from-emerald-500 group-hover:to-teal-500"
                 style={{ width: `${percentage}%` }}
               />
             </div>
@@ -134,13 +129,12 @@ export const ImpactAreaChart = memo(function ImpactAreaChart({ repos }) {
     const computed = (repos || [])
       .slice(0, 10)
       .map(
-        (repo) =>
-          (repo.stargazers_count || 0) +
-          (repo.forks_count || 0) * 2 +
-          (repo.open_issues_count || 0),
+        (r) =>
+          (r.stargazers_count || 0) +
+          (r.forks_count || 0) * 2 +
+          (r.open_issues_count || 0),
       )
       .reverse();
-
     return computed.length ? computed : [0];
   }, [repos]);
 
@@ -148,59 +142,59 @@ export const ImpactAreaChart = memo(function ImpactAreaChart({ repos }) {
   const width = 300;
   const height = 80;
 
-  const points = useMemo(() => {
-    return values
-      .map((value, index) => {
-        const x = getPointX(index, values.length, width);
-        const y = height - (value / maxValue) * height;
-        return `${x},${y}`;
-      })
-      .join(" ");
-  }, [values, width, height, maxValue]);
-
+  const points = useMemo(
+    () =>
+      values
+        .map(
+          (v, i) =>
+            `${getPointX(i, values.length, width)},${height - (v / maxValue) * height}`,
+        )
+        .join(" "),
+    [values, width, height, maxValue],
+  );
   const fillPoints = `0,${height} ${points} ${width},${height}`;
 
   return (
-    <div
-      className="relative"
-      role="img"
-      aria-label="Repository activity area chart"
-    >
-      <svg viewBox={`0 0 ${width} ${height}`} className="h-[90px] w-full">
+    <div className="relative group">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="h-[100px] w-full overflow-visible"
+      >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0284C7" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#0284C7" stopOpacity="0" />
+            <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <polygon points={fillPoints} fill={`url(#${gradientId})`} />
+        <polygon
+          points={fillPoints}
+          fill={`url(#${gradientId})`}
+          className="transition-opacity duration-300 group-hover:opacity-80"
+        />
         <polyline
           points={points}
           fill="none"
-          stroke="#0284C7"
-          strokeWidth="2"
+          stroke="#0ea5e9"
+          strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        {values.map((value, index) => {
-          const x = getPointX(index, values.length, width);
-          const y = height - (value / maxValue) * height;
-          return (
-            <circle
-              key={`${index}-${value}`}
-              cx={x}
-              cy={y}
-              r="3"
-              fill="#FFFFFF"
-              stroke="#0284C7"
-              strokeWidth="2"
-            />
-          );
-        })}
+        {values.map((v, i) => (
+          <circle
+            key={`${i}-${v}`}
+            cx={getPointX(i, values.length, width)}
+            cy={height - (v / maxValue) * height}
+            r="3.5"
+            fill="#FFFFFF"
+            stroke="#0ea5e9"
+            strokeWidth="2.5"
+            className="transition-all duration-300 group-hover:r-[5px] group-hover:stroke-emerald-500"
+          />
+        ))}
       </svg>
-      <div className="mt-1 flex justify-between text-[10px] font-semibold text-slate-400">
-        <span>OLDEST REPOS</span>
-        <span>MOST RECENT</span>
+      <div className="mt-2 flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+        <span>Oldest</span>
+        <span>Recent</span>
       </div>
     </div>
   );
@@ -212,13 +206,12 @@ export const ContribBar = memo(function ContribBar({ repos }) {
     const computed = (repos || [])
       .slice(0, 20)
       .map(
-        (repo) =>
-          (repo.stargazers_count || 0) +
-          (repo.forks_count || 0) * 2 +
-          (repo.open_issues_count || 0),
+        (r) =>
+          (r.stargazers_count || 0) +
+          (r.forks_count || 0) * 2 +
+          (r.open_issues_count || 0),
       )
       .reverse();
-
     return computed.length ? computed : [0];
   }, [repos]);
 
@@ -226,44 +219,42 @@ export const ContribBar = memo(function ContribBar({ repos }) {
   const width = 100;
   const height = 32;
 
-  const points = useMemo(() => {
-    return values
-      .map((value, index) => {
-        const x = getPointX(index, values.length, width);
-        const y = height - (value / maxValue) * height;
-        return `${x},${y}`;
-      })
-      .join(" ");
-  }, [values, width, height, maxValue]);
+  const points = useMemo(
+    () =>
+      values
+        .map(
+          (v, i) =>
+            `${getPointX(i, values.length, width)},${height - (v / maxValue) * height}`,
+        )
+        .join(" "),
+    [values, width, height, maxValue],
+  );
 
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="none"
-      className="h-10 w-full"
-      role="img"
-      aria-label="Repository contribution sparkline"
+      className="h-10 w-full overflow-visible"
     >
-      <polyline
-        points={points}
-        fill="none"
-        stroke="#10B981"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        opacity="0.8"
-      />
-      <polyline
-        points={`0,${height} ${points} ${width},${height}`}
-        fill={`url(#${gradientId})`}
-        opacity="0.1"
-      />
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#10B981" />
           <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
         </linearGradient>
       </defs>
+      <polyline
+        points={`0,${height} ${points} ${width},${height}`}
+        fill={`url(#${gradientId})`}
+        opacity="0.15"
+      />
+      <polyline
+        points={points}
+        fill="none"
+        stroke="#10B981"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
     </svg>
   );
 });
