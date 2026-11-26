@@ -9,6 +9,8 @@ const nextConfig = {
       },
     ],
     formats: ["image/avif", "image/webp"],
+    // Next 16 default made explicit: the only quality the app requests.
+    qualities: [75],
   },
 };
 

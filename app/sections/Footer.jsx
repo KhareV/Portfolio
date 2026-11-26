@@ -139,7 +139,7 @@ const Footer = () => {
           alt=""
           fill
           loading="lazy"
-          quality={52}
+          quality={75}
           fetchPriority="low"
           sizes="100vw"
           className="object-cover object-bottom"

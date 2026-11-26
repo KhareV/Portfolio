@@ -38,51 +38,6 @@ const CHAT_AUTOSTART_DELAY_MS = 220;
 const CHAT_AUTOSTART_TIMEOUT_MS = 2200;
 const CHAT_IDLE_TIMEOUT_MS = 1200;
 const HERO_PRELOAD_TIMEOUT_MS = 1400;
-const HERO_PRELOAD_QUALITY = 56;
-const HERO_PRELOAD_WIDTH_STEPS = [640, 750, 828, 1080, 1200, 1920];
-
-const getHeroPreloadWidth = () => {
-  if (typeof window === "undefined") {
-    return 1080;
-  }
-
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  const target = Math.ceil(window.innerWidth * dpr);
-
-  return (
-    HERO_PRELOAD_WIDTH_STEPS.find((width) => width >= target) ||
-    HERO_PRELOAD_WIDTH_STEPS[HERO_PRELOAD_WIDTH_STEPS.length - 1]
-  );
-};
-
-const buildOptimizedImageUrl = (src, width, quality = HERO_PRELOAD_QUALITY) => {
-  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
-};
-
-const preloadAndDecodeImage = (src) => {
-  return new Promise((resolve) => {
-    const image = new Image();
-    let settled = false;
-
-    const finish = () => {
-      if (settled) {
-        return;
-      }
-
-      settled = true;
-      resolve();
-    };
-
-    image.onload = finish;
-    image.onerror = finish;
-    image.src = src;
-
-    if (typeof image.decode === "function") {
-      image.decode().then(finish).catch(finish);
-    }
-  });
-};
-
 const runWhenIdle = (task, timeout = CHAT_IDLE_TIMEOUT_MS) => {
   if (typeof window === "undefined") {
     return null;
@@ -147,7 +102,9 @@ const Hero = () => {
     useState(false);
   const headingRef = useRef(null);
   const latestPhaseRef = useRef(dayPhase);
-  const initialBackgroundRef = useRef(HERO_BACKGROUNDS[dayPhase]);
+  // Called by the current plate's onLoad (or the 1.4 s cap) — the hero is
+  // "ready" when its real background image has loaded, as originally intended.
+  const markInitialReadyRef = useRef(null);
   const { setHeroReady, setModelsReady } = useLoadingContext();
   // Day-phase plates and the IST clock depend on the visitor's clock, so they
   // are rendered only on the client (never baked into the static HTML).
@@ -178,12 +135,7 @@ const Hero = () => {
       });
     };
 
-    const preloadUrl = buildOptimizedImageUrl(
-      initialBackgroundRef.current,
-      getHeroPreloadWidth(),
-    );
-
-    preloadAndDecodeImage(preloadUrl).then(markReady);
+    markInitialReadyRef.current = markReady;
 
     const fallbackTimerId = window.setTimeout(
       markReady,
@@ -192,6 +144,7 @@ const Hero = () => {
 
     return () => {
       mounted = false;
+      markInitialReadyRef.current = null;
       window.clearTimeout(fallbackTimerId);
     };
   }, [setHeroReady]);
@@ -405,12 +358,13 @@ const Hero = () => {
             aria-hidden="true"
             fill
             sizes="100vw"
-            quality={58}
+            quality={75}
             priority={dayPhase === phase}
             fetchPriority={dayPhase === phase ? "high" : "auto"}
             onLoad={() => {
               if (phase === dayPhase && previousPhase === null) {
                 setIsInitialBackgroundReady(true);
+                markInitialReadyRef.current?.();
               }
             }}
             className={cn(
