@@ -50,7 +50,7 @@ export default function Projects() {
   const [sceneFailed, setSceneFailed] = useState(false);
   const [flat, setFlat] = useState(false); // visitor chose the full-size screenshot
   const tier = useVisualTier();
-  const [viewerRef, near, active] = useViewport({ nearMargin: "400px 0px", activeMargin: "100px 0px" });
+  const [viewerRef, near, active] = useViewport({ nearMargin: "150px 0px", activeMargin: "100px 0px" });
   const project = projects[index];
   const assets = usePreflight(SCENE_ASSETS, tier === "full" && near);
   const wantScene = tier === "full" && near && assets === "ok" && !sceneFailed && !flat;

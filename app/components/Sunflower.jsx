@@ -34,12 +34,14 @@ function Sunflower({ className = "", label = "Pixel-art sunflower" }) {
     const step = () => {
       raf = 0;
       if (!box) measure();
-      eased.x += (target.x - eased.x) / 8;
-      eased.y += (target.y - eased.y) / 8;
+      const dx = (target.x - eased.x) / 8;
+      const dy = (target.y - eased.y) / 8;
+      eased.x += dx;
+      eased.y += dy;
       eased.blend += ((target.on ? 1 : 0) - eased.blend) / 8;
       const scale = box.width / vbW;
       const maxDist = Math.max(box.width, (vbH * scale)) * 0.6;
-      let moving = Math.abs(eased.blend - (target.on ? 1 : 0)) > 0.002;
+      let moving = Math.abs(eased.blend - (target.on ? 1 : 0)) > 0.002 || Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05;
       for (let i = 0; i < rects.length; i++) {
         const cx = box.left + centers[i][0] * scale;
         const cy = box.top + centers[i][1] * scale;
@@ -63,7 +65,8 @@ function Sunflower({ className = "", label = "Pixel-art sunflower" }) {
         }
         return; // settled: no further frames
       }
-      if (moving || target.on) raf = requestAnimationFrame(step);
+      // Settled (pointer resting or gone): stop; the next pointermove restarts.
+      if (moving) raf = requestAnimationFrame(step);
     };
     const kick = () => {
       if (!raf) raf = requestAnimationFrame(step);
