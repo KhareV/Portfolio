@@ -1,578 +1,119 @@
-"use client";
-
-import { memo, useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useInView } from "framer-motion";
-import dynamic from "next/dynamic";
-import { Mail, Copy, Check, Code2, Globe2, Heart } from "lucide-react";
-import Button from "../components/Button.jsx";
-import Sunflower from "../components/Sunflower.jsx";
-import TechMarquee from "../components/TechMarquee.jsx";
-import {
-  spacing,
-  layout,
-  responsive,
-  transitions,
-  cn,
-} from "../styles/spacing.jsx";
-import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
+import { profile } from "../content/site";
+import Sunflower from "../components/Sunflower";
+import { AboutGlobe, CopyEmail, PauseOffscreen } from "../components/AboutIslands";
 
-const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
+const CARD = "relative overflow-hidden rounded-[30px] border border-[#d4d7cf] bg-[#f6f7f1] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_28px_rgba(121,126,112,0.12)]";
 
-const EMAIL_ADDRESS = "kharevedant05@gmail.com";
-const PROFILE_NAME = "Vedant Khare";
-const PROFILE_IMAGE_SRC = "/newimages/vedant-profile.jpg";
-const PROFILE_MARQUEE_COUNT = 7;
-const COPY_RESET_DELAY_MS = 4000;
-const SOFT_CARD_CLASS =
-  "relative overflow-hidden rounded-[30px] border border-[#d4d7cf] bg-[#f6f7f1] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_28px_rgba(121,126,112,0.12)]";
-const FIXED_SIZE_CARD_CLASS = "w-full h-full";
-
-const SLIDE_IN_VARIANTS = {
-  hidden: { opacity: 0, x: -50 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 1, ease: "easeInOut" },
-  },
-};
-
-const GLOBE_LOCATIONS = [
-  { lat: 55.7558, lng: 37.6173, size: 8, color: "#c17a57", isChennai: false },
-  {
-    lat: 45.4215,
-    lng: -75.6972,
-    size: 8,
-    color: "#c17a57",
-    isChennai: false,
-  },
-  {
-    lat: 39.9042,
-    lng: 116.4074,
-    size: 8,
-    color: "#c17a57",
-    isChennai: false,
-  },
-  {
-    lat: 38.8977,
-    lng: -77.0365,
-    size: 8,
-    color: "#c17a57",
-    isChennai: false,
-  },
-  {
-    lat: -15.7975,
-    lng: -47.8919,
-    size: 8,
-    color: "#c17a57",
-    isChennai: false,
-  },
-  {
-    lat: -35.2809,
-    lng: 149.13,
-    size: 8,
-    color: "#c17a57",
-    isChennai: false,
-  },
-  { lat: 28.6139, lng: 77.209, size: 8, color: "#c17a57", isChennai: false },
-  {
-    lat: -34.6037,
-    lng: -58.3816,
-    size: 8,
-    color: "#c17a57",
-    isChennai: false,
-  },
-  { lat: 51.1694, lng: 71.4491, size: 8, color: "#c17a57", isChennai: false },
-  { lat: 36.7538, lng: 3.0588, size: 8, color: "#c17a57", isChennai: false },
-  {
-    lat: 13.0827,
-    lng: 80.2707,
-    size: 10,
-    text: "Chennai, India",
-    color: "#5a4a3d",
-    isChennai: true,
-  },
+const TECH_ROWS = [
+  ["HTML", "CSS", "JavaScript", "React", "Next.js", "Tailwind CSS", "Node.js", "Express", "MongoDB", "GitHub", "Docker"],
+  ["TypeScript", "Vue.js", "Angular", "Firebase", "GraphQL", "Redux", "SASS", "Webpack", "Babel", "Git", "PostgreSQL"],
+  ["Python", "Django", "Flask", "MySQL", "Redis", "Kubernetes", "Jenkins", "AWS", "Azure", "GCP"],
 ];
 
-const PROFILE_NAME_ITEMS = Array.from(
-  { length: PROFILE_MARQUEE_COUNT },
-  (_, index) => index,
-);
-
-const MARKER_PATH =
-  "M12 0C7.802 0 4 3.403 4 7.602C4 11.8 7.469 16.812 12 24C16.531 16.812 20 11.8 20 7.602C20 3.403 16.199 0 12 0ZM12 11C10.343 11 9 9.657 9 8C9 6.343 10.343 5 12 5C13.657 5 15 6.343 15 8C15 9.657 13.657 11 12 11Z";
-
-const fallbackCopyToClipboard = (text) => {
-  if (typeof document === "undefined") {
-    return false;
-  }
-
-  const textArea = document.createElement("textarea");
-  textArea.value = text;
-  textArea.setAttribute("readonly", "");
-  textArea.style.position = "fixed";
-  textArea.style.opacity = "0";
-  textArea.style.pointerEvents = "none";
-  document.body.appendChild(textArea);
-  textArea.select();
-
-  let copied = false;
-  try {
-    copied = document.execCommand("copy");
-  } catch {
-    copied = false;
-  }
-
-  document.body.removeChild(textArea);
-  return copied;
-};
-
-const copyToClipboard = async (text) => {
-  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-
-  if (!fallbackCopyToClipboard(text)) {
-    throw new Error("Clipboard API unavailable");
-  }
-};
-
-const createGlobeMarkerElement = (location) => {
-  const root = document.createElement("div");
-  root.style.transform = "translate(-50%, -50%)";
-  root.style.display = "flex";
-  root.style.flexDirection = "column";
-  root.style.alignItems = "center";
-  root.style.position = "relative";
-
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("height", String(location.size * 2));
-  svg.setAttribute("width", String(location.size * 2));
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("fill", location.color);
-  svg.style.transform = "translateY(50%)";
-
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("d", MARKER_PATH);
-  svg.appendChild(path);
-  root.appendChild(svg);
-
-  if (location.isChennai && location.text) {
-    const label = document.createElement("div");
-    label.textContent = location.text;
-    label.style.color = location.color;
-    label.style.fontSize = `${location.size * 0.8}px`;
-    label.style.marginTop = `${location.size * 0.3}px`;
-    label.style.textShadow = "2px 2px 3px rgba(0,0,0,0.9)";
-    label.style.whiteSpace = "nowrap";
-    label.style.pointerEvents = "none";
-    root.appendChild(label);
-  }
-
-  return root;
-};
-
-const AnimatedCard = ({ className, delay, children }) => (
-  <motion.div
-    className={className}
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true }}
-    variants={SLIDE_IN_VARIANTS}
-    transition={{ delay }}
-  >
-    {children}
-  </motion.div>
-);
-
-const ProfileTickerRow = memo(function ProfileTickerRow({
-  className,
-  dimLastItem = false,
-}) {
+function Marquee({ items, reverse = false, className = "" }) {
+  // Content is duplicated for a seamless loop; the copy is hidden from AT.
   return (
-    <div className={cn(className, layout.flex.center)}>
-      {PROFILE_NAME_ITEMS.map((item) => (
-        <span
-          key={`${className}-${item}`}
-          className={cn(
-            "mx-4",
-            responsive.text["3xl"],
-            dimLastItem && item === PROFILE_NAME_ITEMS.length - 1
-              ? "text-gray-300"
-              : "text-[#8d9189]",
-          )}
-        >
-          {PROFILE_NAME}
+    <div className={`overflow-hidden ${className}`}>
+      <div className={`marquee-track ${reverse ? "reverse" : ""}`}>
+        <span className="flex">
+          {items.map((t, i) => (
+            <span key={i} className="mx-3 whitespace-nowrap sm:mx-4">
+              {t}
+            </span>
+          ))}
         </span>
-      ))}
+        <span className="flex" aria-hidden="true">
+          {items.map((t, i) => (
+            <span key={i} className="mx-3 whitespace-nowrap sm:mx-4">
+              {t}
+            </span>
+          ))}
+        </span>
+      </div>
     </div>
   );
-});
+}
 
-const About = ({ disableHeavyVisuals = false }) => {
-  const { isMobile } = useDeviceDetection();
-  const [hasCopied, setHasCopied] = useState(false);
-  const copyResetTimeoutRef = useRef(null);
-  const globeCardRef = useRef(null);
-  const isGlobeInView = useInView(globeCardRef, {
-    amount: 0.2,
-    margin: "260px 0px",
-  });
-  const shouldRenderInteractiveGlobe = !disableHeavyVisuals && isGlobeInView;
-
-  useEffect(() => {
-    return () => {
-      if (copyResetTimeoutRef.current !== null) {
-        window.clearTimeout(copyResetTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const handleCopy = useCallback(async () => {
-    try {
-      await copyToClipboard(EMAIL_ADDRESS);
-      setHasCopied(true);
-
-      if (copyResetTimeoutRef.current !== null) {
-        window.clearTimeout(copyResetTimeoutRef.current);
-      }
-
-      copyResetTimeoutRef.current = window.setTimeout(() => {
-        setHasCopied(false);
-      }, COPY_RESET_DELAY_MS);
-    } catch (error) {
-      console.error("Copy failed", error);
-    }
-  }, []);
-
+export default function About() {
   return (
-    <section
-      className={cn(
-        "c-space",
-        "bg-[#FEFFFC]",
-        spacing.section.marginTop,
-        spacing.section.paddingY,
-      )}
-      id="about"
-    >
-      <motion.h2
-        className="text-3xl sm:text-4xl md:text-6xl font-semibold tracking-tighter text-slate-900 mb-10 sm:mb-14 font-site-default"
-        initial={{ x: -50, opacity: 0 }}
-        whileInView={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-        viewport={{ once: true, amount: 0.1 }}
-      >
-        About Me
-      </motion.h2>
-      <div
-        className={cn(
-          layout.grid.cols3,
-          "xl:grid-rows-6",
-          spacing.grid.gap,
-          "h-full",
-          "px-2 sm:px-4 md:px-8",
-        )}
-      >
-        {/* First Grid Item */}
-        <AnimatedCard
-          className="col-span-1 md:col-span-1 xl:row-span-3 relative"
-          delay={0.3}
-        >
-          {/* Background Container */}
-          <div className={cn("w-full xl:w-4/5 mx-auto", SOFT_CARD_CLASS)}>
-            {/* Marquee Container */}
-            <div className="absolute inset-0 w-full h-full">
-              <div
-                className={cn(
-                  spacing.section.paddingY,
-                  "mt-32 sm:mt-44 md:mt-52 pt-16 sm:pt-20 md:pt-24",
-                )}
-              >
-                <div className="relative flex overflow-x-hidden overflow-y-hidden">
-                  <ProfileTickerRow className="animate-profile-scroll-1 whitespace-nowrap" />
-                  <ProfileTickerRow
-                    className="absolute top-0 animate-profile-scroll-2 whitespace-nowrap"
-                    dimLastItem
-                  />
-                </div>
-              </div>
-            </div>
+    <section id="about" data-anchor aria-labelledby="about-title" className="bg-[#FEFFFC] px-5 py-20 sm:px-10 sm:py-24">
+      <div className="mx-auto max-w-7xl">
+        <h2 id="about-title" data-anchor-heading className="mb-10 text-4xl font-semibold tracking-tight text-slate-900 sm:mb-14 md:text-6xl">
+          About me
+        </h2>
 
-            {/* Content Container */}
-            <div className="relative z-10 profile-container">
-              <Image
-                src={PROFILE_IMAGE_SRC}
-                alt="Portrait of Vedant Khare"
-                width={920}
-                height={720}
-                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
-                className="w-full h-[250px] sm:h-[276px] object-cover"
-              />
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/6 to-transparent"></div>
-              <div className="relative">
-                <p
-                  className={cn(
-                    "profile-heading font-site-default text-[#2c2f2a]",
-                    spacing.section.marginTop,
-                  )}
-                >
-                  Hi, I'm Vedant Khare
-                </p>
-                <p className="profile-description text-[#5a5f58]">
-                  With experience in web development, I have honed my skills in
-                  both frontend and backend technologies, including HTML, CSS,
-                  JavaScript, React, Next.js, Node.js, and MongoDB. I've
-                  completed over 20 projects, creating dynamic and responsive
-                  web applications tailored to user needs.
-                </p>
-              </div>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {/* Profile */}
+          <article className={CARD}>
+            <Image src="/newimages/vedant-profile.jpg" alt={`Portrait of ${profile.name}`} width={1080} height={720} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[260px] w-full object-cover" />
+            <div className="p-6">
+              <h3 className="text-3xl font-bold text-[#2c2f2a]">Hi, I&apos;m {profile.name}</h3>
+              <p className="mt-4 leading-relaxed text-[#4f544d]">{profile.aboutSummary}</p>
             </div>
-          </div>
-        </AnimatedCard>
-        {/* Second Grid Item - Tech Stack */}
-        <AnimatedCard
-          className="col-span-1 md:col-span-1 xl:row-span-3"
-          delay={0.6}
-        >
-          <div
-            className={cn(
-              "group",
-              FIXED_SIZE_CARD_CLASS,
-              SOFT_CARD_CLASS,
-              "transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(121,126,112,0.16)]",
-            )}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#f7efe6]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <Image
-              src="/newimages/cherry.png"
-              alt="Cherry blossom illustration"
-              width={960}
-              height={640}
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
-              className="object-contain opacity-90 transition-all duration-300"
-            />
-            <div className="relative p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-[#f5ecdf] rounded-lg border border-[#e6d5b8]">
-                  <Code2 className="w-6 h-6 text-yellow-500" />
-                </div>
-                <h3 className="font-site-default text-2xl text-[#2c2f2a] group-hover:text-[#8f6a2d] transition-colors duration-300">
-                  Tech Stack
-                </h3>
+            <PauseOffscreen className="pb-6 text-3xl text-[#8d9189]">
+              <div aria-hidden="true">
+                <Marquee items={Array(4).fill(profile.name)} />
               </div>
-              <p className="text-[0.98rem] leading-relaxed text-[#5a5f58]">
-                I specialize in a variety of languages, frameworks, and tools,
-                including HTML, CSS, JavaScript, React, Redux, Vue, Next.js,
-                Node.js, Express, MongoDB, MySQL, GraphQL, Apollo Client, and
-                Tailwind CSS, enabling me to build robust and scalable
-                applications.
+            </PauseOffscreen>
+          </article>
+
+          {/* Tech stack */}
+          <article className={CARD}>
+            <Image src="/newimages/cherry.png" alt="" width={1024} height={1024} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[260px] w-full object-cover opacity-90" />
+            <div className="p-6">
+              <h3 className="text-2xl text-[#2c2f2a]">Tech stack</h3>
+              <p className="mt-3 leading-relaxed text-[#4f544d]">
+                I specialize in a variety of languages, frameworks, and tools, including HTML, CSS, JavaScript, React, Redux, Vue, Next.js, Node.js, Express, MongoDB, MySQL, GraphQL, Apollo Client, and Tailwind CSS, enabling me to build robust and scalable applications.
               </p>
             </div>
-          </div>
-        </AnimatedCard>
+          </article>
 
-        {/* Third Grid Item - Globe */}
-        <AnimatedCard
-          className="col-span-1 md:col-span-1 xl:row-span-4"
-          delay={0.9}
-        >
-          <div
-            className={cn(
-              "group",
-              FIXED_SIZE_CARD_CLASS,
-              SOFT_CARD_CLASS,
-              "transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(121,126,112,0.16)]",
-            )}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br  duration-300" />
-            <div
-              ref={globeCardRef}
-              className="rounded-3xl w-full h-[240px] sm:h-[326px] flex justify-center items-center bg-black
-            "
-            >
-              {!shouldRenderInteractiveGlobe ? (
-                <div className="relative h-full w-full overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_30%,#123_0%,#0f172a_45%,#020617_100%)]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_64%,rgba(16,185,129,0.22),transparent_48%),radial-gradient(circle_at_40%_35%,rgba(56,189,248,0.16),transparent_42%)]" />
-                  <div className="relative z-10 grid h-full place-items-center text-center px-6">
-                    <p className="text-sm sm:text-base text-slate-100/90 leading-relaxed">
-                      Global collaboration enabled across multiple time zones.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <Globe
-                  height={isMobile ? 200 : 326}
-                  width={isMobile ? 200 : 326}
-                  backgroundColor="rgba(246, 247, 241, 0)"
-                  backgroundImageOpacity={0.95}
-                  showAtmosphere={!isMobile}
-                  showGraticules={!isMobile}
-                  cameraPosition={{ x: 1.5, y: 0, z: 0 }}
-                  cameraRotation={{ x: 0, y: -Math.PI / 2, z: 0 }}
-                  autoRotate={false}
-                  pointOfView={{ lat: 20, lng: 78, altitude: 0.6 }}
-                  htmlElementsData={GLOBE_LOCATIONS}
-                  htmlElement={createGlobeMarkerElement}
-                  htmlAltitude={0.1}
-                />
-              )}
-            </div>
-            <div className="relative p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-[#e9f0f7] rounded-lg border border-[#cadef0]">
-                  <Globe2 className="w-6 h-6 text-blue-500" />
-                </div>
-                <h3 className="font-site-default text-[1.35rem] leading-snug text-[#2c2f2a]">
-                  I'm very flexible with time zone communications & locations
-                </h3>
-              </div>
-              <p className="mb-6 text-[0.98rem] text-[#5a5f58]">
-                I&apos;m based in Chennai, India and open to remote work
-                worldwide.
-              </p>
-              <a href="#contact">
-                <Button
-                  name="Contact Me"
-                  isBeam
-                  containerClass={cn("w-full")}
-                />
+          {/* Location / globe */}
+          <article className={`${CARD} xl:row-span-2`}>
+            <AboutGlobe />
+            <div className="p-6">
+              <h3 className="text-[1.35rem] leading-snug text-[#2c2f2a]">I&apos;m very flexible with time zone communications &amp; locations</h3>
+              <p className="mt-3 text-[#4f544d]">I&apos;m based in {profile.location} and open to remote work worldwide.</p>
+              <a href="#contact" className="mt-6 flex min-h-12 w-full items-center justify-center gap-3 rounded-xl bg-[#1C1C21] px-4 text-white hover:bg-black">
+                <span className="relative flex h-3 w-3" aria-hidden="true">
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500" />
+                </span>
+                Contact me
               </a>
-              <div className="mt-4 flex justify-center">
-                <Sunflower className="w-[90px] h-[90px] sm:w-[140px] sm:h-[140px] md:w-[260px] md:h-[260px] lg:w-[340px] lg:h-[340px] mt-5 sm:mt-7" />
+              <div className="mt-8 flex justify-center">
+                <Sunflower className="h-auto w-[160px] sm:w-[220px] lg:w-[260px]" />
               </div>
             </div>
-          </div>
-        </AnimatedCard>
+          </article>
 
-        {/* Fourth Grid Item - Passion */}
-        <AnimatedCard
-          className="col-span-1 md:col-span-2 xl:col-span-2 xl:row-span-3"
-          delay={1.2}
-        >
-          <div
-            className={cn(
-              "group",
-              FIXED_SIZE_CARD_CLASS,
-              SOFT_CARD_CLASS,
-              "transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(121,126,112,0.16)]",
-              transitions.default,
-            )}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#f0e8f6]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <Image
-              src="/newimages/coast.png"
-              alt="Coastal landscape illustration"
-              width={960}
-              height={640}
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 66vw, 60vw"
-              className="object-contain opacity-90 transition-all duration-300"
-            />
-            <div className="relative p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <motion.div
-                  className="p-2 bg-[#eee7f8] rounded-lg border border-[#d8c9f2]"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <Heart
-                    className="w-6 h-6 text-purple-500"
-                    fill="currentColor"
-                  />
-                </motion.div>
-                <h3 className="font-site-default text-2xl text-[#2c2f2a] group-hover:text-purple-600 transition-colors duration-300">
-                  My Passion for Coding
-                </h3>
-              </div>
-              <p className="mb-6 leading-relaxed text-[0.98rem] text-[#5a5f58]">
-                I love solving problems and building things through code.
-                Programming isn&apos;t just my profession—it&apos;s my passion.
-                I enjoy exploring new technologies, and enhancing my skills.
+          {/* Passion */}
+          <article className={`${CARD} md:col-span-2`}>
+            <Image src="/newimages/coast.png" alt="" width={1024} height={412} sizes="(max-width: 768px) 100vw, 66vw" className="h-auto w-full object-cover opacity-90" />
+            <div className="p-6">
+              <h3 className="text-2xl text-[#2c2f2a]">My passion for coding</h3>
+              <p className="mt-3 leading-relaxed text-[#4f544d]">
+                I love solving problems and building things through code. Programming isn&apos;t just my profession—it&apos;s my passion. I enjoy exploring new technologies, and enhancing my skills.
               </p>
-              <TechMarquee />
+              <PauseOffscreen className="mx-auto mt-6 flex flex-col gap-5 rounded-2xl border border-[#d4d7cf] bg-[#eef1e6] py-6 text-sm text-[#4f564c] sm:w-4/5 sm:text-base">
+                <h4 className="sr-only">Technologies I have worked with</h4>
+                {TECH_ROWS.map((row, i) => (
+                  <Marquee key={i} items={row} reverse={i % 2 === 1} />
+                ))}
+              </PauseOffscreen>
             </div>
-          </div>
-        </AnimatedCard>
+          </article>
 
-        {/* Fifth Grid Item - Contact */}
-        <AnimatedCard
-          className="col-span-1 md:col-span-1 xl:col-span-1 xl:row-span-2"
-          delay={1.5}
-        >
-          <div
-            className={cn(
-              "group",
-              FIXED_SIZE_CARD_CLASS,
-              SOFT_CARD_CLASS,
-              "transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(121,126,112,0.16)]",
-              transitions.default,
-            )}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#e9f4ea]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <Image
-              src="/newimages/rooftop.png"
-              alt="Rooftop city view"
-              width={960}
-              height={640}
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 45vw, 30vw"
-              className="w-full h-[220px] sm:h-[250px] md:h-[276px] object-cover object-center opacity-90 transition-all duration-300"
-            />
-            <div className={cn("space-y-4 relative p-6")}>
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Mail className="w-5 h-5 text-green-500" />
-                <p className="text-center font-semibold text-[#2c2f2a]">
-                  Contact me
-                </p>
-              </div>
-              <motion.button
-                type="button"
-                className={cn(
-                  "copy-container cursor-pointer flex items-center justify-center gap-3 p-4 bg-[#f0f3ea] rounded-xl border border-[#cfd8c4] hover:border-green-500/40",
-                  transitions.default,
-                )}
-                onClick={handleCopy}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                aria-label="Copy email address to clipboard"
-              >
-                <motion.div
-                  animate={hasCopied ? { scale: [1, 1.2, 1] } : {}}
-                  transition={{ duration: 0.3 }}
-                >
-                  {hasCopied ? (
-                    <Check className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <Copy className="w-5 h-5 text-[#6e746a] group-hover:text-green-500 transition-colors" />
-                  )}
-                </motion.div>
-                <p
-                  className={cn(
-                    "text-sm md:text-base lg:text-lg font-medium hover:scale-105",
-                    transitions.default,
-                    hasCopied
-                      ? "text-green-600"
-                      : "text-[#5d645a] group-hover:text-[#2f3d2f]",
-                  )}
-                >
-                  {EMAIL_ADDRESS}
-                </p>
-              </motion.button>
-              {hasCopied && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-center text-green-600 text-sm"
-                  aria-live="polite"
-                >
-                  Email copied to clipboard!
-                </motion.p>
-              )}
+          {/* Contact card */}
+          <article className={CARD}>
+            <Image src="/newimages/rooftop.png" alt="" width={1024} height={1024} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[240px] w-full object-cover object-center opacity-90" />
+            <div className="p-6">
+              <h3 className="mb-4 text-center font-semibold text-[#2c2f2a]">Contact me</h3>
+              <CopyEmail email={profile.email} />
             </div>
-          </div>
-        </AnimatedCard>
+          </article>
+        </div>
       </div>
     </section>
   );
-};
-
-export default memo(About);
+}

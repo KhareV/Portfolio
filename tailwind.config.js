@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+const config = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -175,31 +175,7 @@ export default {
       },
     },
   },
-  plugins: [
-    require("tailwind-scrollbar"),
-    function ({ addComponents }) {
-      addComponents({
-        ".profile-container": {
-          transition: "all 0.3s ease-in-out",
-          padding: "1.5rem",
-        },
-        ".profile-transform": {
-          transform: "scale(1.02)",
-        },
-        ".profile-heading": {
-          fontSize: "1.875rem",
-          lineHeight: "2.25rem",
-          fontWeight: "700",
-          color: "#ffffff",
-          marginBottom: "1rem",
-        },
-        ".profile-description": {
-          fontSize: "1rem",
-          lineHeight: "1.5rem",
-          color: "#d1d5db",
-          marginBottom: "1rem",
-        },
-      });
-    },
-  ],
+  plugins: [],
 };
+
+export default config;

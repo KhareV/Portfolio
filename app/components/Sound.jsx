@@ -1,186 +1,60 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Volume2, VolumeX } from "lucide-react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import Modal from "./Modal";
-import { useLoadingContext } from "../contexts/LoadingContext";
-import useDeviceDetection from "../hooks/useDeviceDetection";
+import { useEffect, useRef, useState } from "react";
 
-const MODAL_OPEN_DELAY_MS = 3500;
-const MODAL_IDLE_TIMEOUT_MS = 1200;
+const TRACK = "/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3";
 
-const runWhenIdle = (task, timeout = MODAL_IDLE_TIMEOUT_MS) => {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  if ("requestIdleCallback" in window) {
-    return window.requestIdleCallback(task, { timeout });
-  }
-
-  return window.setTimeout(task, 150);
-};
-
-const cancelIdleTask = (id) => {
-  if (typeof window === "undefined" || id == null) {
-    return;
-  }
-
-  if ("cancelIdleCallback" in window) {
-    window.cancelIdleCallback(id);
-    return;
-  }
-
-  window.clearTimeout(id);
-};
-
-const Sound = () => {
+// Optional music, started only by an explicit press (no delayed prompt, no
+// autoplay). The file is not requested until then. Play rejection is reported
+// and the control returns to its off state.
+export default function Sound() {
   const audioRef = useRef(null);
-  const isPlayingRef = useRef(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const hasShownModalRef = useRef(false);
-  const { isAppReady } = useLoadingContext();
-  const { isMobile } = useDeviceDetection();
+  const [state, setState] = useState("off"); // off | loading | on | blocked
 
-  useEffect(() => {
-    isPlayingRef.current = isPlaying;
-  }, [isPlaying]);
+  useEffect(() => () => audioRef.current?.pause(), []);
 
-  const handleFirstUserInteraction = useCallback(() => {
-    const audio = audioRef.current;
-    if (audio && isPlayingRef.current) {
-      audio.play().catch(() => {
-        // Handle play() promise rejection without noisy logging.
-      });
+  const toggle = async () => {
+    if (!audioRef.current) {
+      const a = new Audio();
+      a.loop = true;
+      a.preload = "none";
+      a.src = encodeURI(TRACK);
+      a.addEventListener("pause", () => setState((s) => (s === "on" ? "off" : s)));
+      audioRef.current = a;
     }
-  }, []);
-
-  const removeInteractionListeners = useCallback(() => {
-    document.removeEventListener("click", handleFirstUserInteraction);
-    document.removeEventListener("keydown", handleFirstUserInteraction);
-    document.removeEventListener("touchstart", handleFirstUserInteraction);
-  }, [handleFirstUserInteraction]);
-
-  const addInteractionListeners = useCallback(() => {
-    document.addEventListener("click", handleFirstUserInteraction, {
-      once: true,
-      passive: true,
-    });
-    document.addEventListener("touchstart", handleFirstUserInteraction, {
-      once: true,
-      passive: true,
-    });
-    document.addEventListener("keydown", handleFirstUserInteraction, {
-      once: true,
-    });
-  }, [handleFirstUserInteraction]);
-
-  useEffect(() => {
-    if (!isAppReady) return; // Wait for loading to complete
-    if (hasShownModalRef.current) return; // Already shown modal this session
-
-    let idleTaskId = null;
-
-    const initTimer = window.setTimeout(() => {
-      idleTaskId = runWhenIdle(() => {
-        setShowModal(true);
-        hasShownModalRef.current = true;
-      });
-    }, MODAL_OPEN_DELAY_MS);
-
-    return () => {
-      window.clearTimeout(initTimer);
-      cancelIdleTask(idleTaskId);
-      removeInteractionListeners();
-    };
-  }, [isAppReady, removeInteractionListeners]);
-
-  // Effect to handle audio when isPlaying changes
-  useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !isAudioEnabled) {
-      return;
-    }
-
-    if (isPlaying) {
-      // Try to play, but don't change state if it fails (browser policy)
-      audio.play().catch(() => {
-        // Playback can fail before a trusted interaction.
-      });
-    } else {
+    if (state === "on") {
       audio.pause();
-    }
-  }, [isPlaying, isAudioEnabled]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (isAudioEnabled && audio) {
-      audio.load();
-    }
-  }, [isAudioEnabled]);
-
-  const handleConsent = useCallback(() => {
-    setIsAudioEnabled(true);
-    setIsPlaying(true);
-    addInteractionListeners();
-    setShowModal(false);
-  }, [addInteractionListeners]);
-
-  const handleClose = useCallback(() => {
-    setIsPlaying(false);
-    setShowModal(false);
-  }, []);
-
-  const toggle = useCallback(() => {
-    if (!isAudioEnabled) {
-      setIsAudioEnabled(true);
-      setIsPlaying(true);
+      setState("off");
       return;
     }
+    setState("loading");
+    try {
+      await audio.play();
+      setState("on");
+    } catch {
+      setState("blocked");
+    }
+  };
 
-    setIsPlaying((prev) => !prev);
-  }, [isAudioEnabled]);
-
+  const label =
+    state === "on" ? "Pause music" : state === "loading" ? "Starting music…" : state === "blocked" ? "Music was blocked — press to retry" : "Play music";
   return (
-    <div className="text-white-800 fixed top-4 right-2.5 xs:right-4 z-50 group">
-      {showModal && <Modal onClose={handleClose} toggle={handleConsent} />}
-      <audio ref={audioRef} loop preload="none">
-        {isAudioEnabled ? (
-          <source
-            src="/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3"
-            type="audio/mpeg"
-          />
-        ) : null}
-        Your browser does not support the audio element.
-      </audio>
-      <motion.button
-        onClick={toggle}
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 1 }}
-        className={`${
-          isMobile ? "w-8 h-8 p-2" : "w-10 h-10 xs:w-14 xs:h-14 p-2.5 xs:p-4"
-        } text-foreground rounded-full flex items-center justify-center cursor-pointer z-50 custom-bg`}
-        aria-label="Sound control button"
-        name="Sound control button"
-      >
-        {isPlaying ? (
-          <Volume2
-            className="w-full h-full text-foreground group-hover:text-accent"
-            strokeWidth={1.5}
-          />
-        ) : (
-          <VolumeX
-            className="w-full h-full text-foreground group-hover:text-accent"
-            strokeWidth={1.5}
-          />
-        )}
-      </motion.button>
-    </div>
+    <button
+      type="button"
+      onClick={toggle}
+      aria-pressed={state === "on"}
+      aria-label="Background music"
+      aria-describedby="music-status"
+      title={label}
+      className="js-only grid h-10 w-10 place-items-center rounded-full text-white/85 hover:bg-white/10 hover:text-white"
+    >
+      <span aria-hidden="true" className="text-base leading-none">
+        {state === "on" ? "❚❚" : state === "blocked" ? "!" : "♪"}
+      </span>
+      <span id="music-status" role="status" className="sr-only">
+        {state === "blocked" ? "Your browser blocked playback. Press again to retry." : state === "on" ? "Music playing." : ""}
+      </span>
+    </button>
   );
-};
-
-export default Sound;
+}

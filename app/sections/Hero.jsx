@@ -1,531 +1,63 @@
-"use client";
+import { profile, projects } from "../content/site";
+import HeroClock from "../components/HeroClock";
+import ChatBox from "../components/Chatbox";
 
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  Suspense,
-  lazy,
-} from "react";
-import { motion } from "framer-motion";
-import NextImage from "next/image";
+const featured = projects.find((p) => p.slug === "medwe") ?? projects[0];
 
-const loadChatBox = () => import("../components/Chatbox.jsx");
-const ChatBox = lazy(loadChatBox);
-import { MessageProvider } from "../contexts/MessageContext.jsx";
-import { cn } from "../styles/spacing.jsx";
-import { useLoadingContext } from "../contexts/LoadingContext";
-import Sunflower from "../components/Sunflower.jsx";
-
-const APP_TIMEZONE = "Asia/Kolkata";
-
-const HERO_BACKGROUNDS = {
-  morning: "/newimages/cofounder-bg.avif",
-  afternoon: "/newimages/after_alt.avif",
-  evening: "/newimages/vegas_night_hero.avif",
-  night: "/newimages/niag_night_hero.avif",
-};
-
-const getLocalHour = () => {
-  return Number(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: APP_TIMEZONE,
-      hour: "2-digit",
-      hour12: false,
-    }).format(new Date()),
-  );
-};
-
-const getLocalClock = () => {
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: APP_TIMEZONE,
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(new Date());
-};
-
-const getDayPhase = (hour) => {
-  if (hour >= 5 && hour < 12) return "morning";
-  if (hour >= 12 && hour < 17) return "afternoon";
-  if (hour >= 17 && hour < 21) return "evening";
-  return "night";
-};
-
-const HERO_INTRO_TEXT = "Hello,\nI'm Vedant Khare.";
-const HERO_SCRIPT_WORD = "Hello";
-const HERO_TYPING_INTERVAL_MS = 55;
-const HERO_TYPING_START_DELAY_MS = 500;
-const HERO_OBSERVER_THRESHOLD = 0.3;
-const HERO_BACKGROUND_FADE_MS = 1400;
-const CHAT_AUTOSTART_DELAY_MS = 220;
-const CHAT_AUTOSTART_TIMEOUT_MS = 2200;
-const CHAT_IDLE_TIMEOUT_MS = 1200;
-const HERO_PRELOAD_TIMEOUT_MS = 1400;
-const HERO_PRELOAD_QUALITY = 56;
-const HERO_PRELOAD_WIDTH_STEPS = [640, 750, 828, 1080, 1200, 1920];
-
-const getHeroPreloadWidth = () => {
-  if (typeof window === "undefined") {
-    return 1080;
-  }
-
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  const target = Math.ceil(window.innerWidth * dpr);
-
+export default function Hero() {
   return (
-    HERO_PRELOAD_WIDTH_STEPS.find((width) => width >= target) ||
-    HERO_PRELOAD_WIDTH_STEPS[HERO_PRELOAD_WIDTH_STEPS.length - 1]
-  );
-};
-
-const buildOptimizedImageUrl = (src, width, quality = HERO_PRELOAD_QUALITY) => {
-  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
-};
-
-const preloadAndDecodeImage = (src) => {
-  return new Promise((resolve) => {
-    const image = new Image();
-    let settled = false;
-
-    const finish = () => {
-      if (settled) {
-        return;
-      }
-
-      settled = true;
-      resolve();
-    };
-
-    image.onload = finish;
-    image.onerror = finish;
-    image.src = src;
-
-    if (typeof image.decode === "function") {
-      image.decode().then(finish).catch(finish);
-    }
-  });
-};
-
-const runWhenIdle = (task, timeout = CHAT_IDLE_TIMEOUT_MS) => {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  if ("requestIdleCallback" in window) {
-    return window.requestIdleCallback(task, { timeout });
-  }
-
-  return window.setTimeout(task, 220);
-};
-
-const cancelIdleTask = (id) => {
-  if (typeof window === "undefined" || id == null) {
-    return;
-  }
-
-  if ("cancelIdleCallback" in window) {
-    window.cancelIdleCallback(id);
-    return;
-  }
-
-  clearTimeout(id);
-};
-
-class HeroChatErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error) {
-    console.error("ChatBox failed to render:", error);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="grid h-full place-items-center rounded-[20px] bg-[#2b2120] text-[#ffe9d9]">
-          Chat is temporarily unavailable.
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-const Hero = () => {
-  const [dayPhase, setDayPhase] = useState(() => getDayPhase(getLocalHour()));
-  const [localClock, setLocalClock] = useState(() => getLocalClock());
-  const [previousPhase, setPreviousPhase] = useState(null);
-  const [typedIntro, setTypedIntro] = useState("");
-  const [isTypingDone, setIsTypingDone] = useState(false);
-  const [shouldStartTyping, setShouldStartTyping] = useState(false);
-  const [shouldMountChat, setShouldMountChat] = useState(false);
-  const [isInitialBackgroundReady, setIsInitialBackgroundReady] =
-    useState(false);
-  const headingRef = useRef(null);
-  const latestPhaseRef = useRef(dayPhase);
-  const initialBackgroundRef = useRef(HERO_BACKGROUNDS[dayPhase]);
-  const { setHeroReady, setModelsReady } = useLoadingContext();
-
-  useEffect(() => {
-    let mounted = true;
-    let settled = false;
-
-    const markReady = () => {
-      if (!mounted || settled) {
-        return;
-      }
-
-      settled = true;
-      setIsInitialBackgroundReady(true);
-
-      requestAnimationFrame(() => {
-        if (!mounted) {
-          return;
-        }
-
-        requestAnimationFrame(() => {
-          if (mounted) {
-            setHeroReady(true);
-          }
-        });
-      });
-    };
-
-    const preloadUrl = buildOptimizedImageUrl(
-      initialBackgroundRef.current,
-      getHeroPreloadWidth(),
-    );
-
-    preloadAndDecodeImage(preloadUrl).then(markReady);
-
-    const fallbackTimerId = window.setTimeout(
-      markReady,
-      HERO_PRELOAD_TIMEOUT_MS,
-    );
-
-    return () => {
-      mounted = false;
-      window.clearTimeout(fallbackTimerId);
-    };
-  }, [setHeroReady]);
-
-  useEffect(() => {
-    if (!shouldStartTyping || shouldMountChat) {
-      return;
-    }
-
-    let mounted = true;
-    let idleTaskId = null;
-
-    const mountChat = () => {
-      if (!mounted) {
-        return;
-      }
-
-      setShouldMountChat(true);
-    };
-
-    const delayTimerId = window.setTimeout(() => {
-      idleTaskId = runWhenIdle(async () => {
-        try {
-          await loadChatBox();
-        } catch (error) {
-          console.warn("Chat chunk preload failed:", error);
-        }
-
-        mountChat();
-      });
-    }, CHAT_AUTOSTART_DELAY_MS);
-
-    const fallbackTimerId = window.setTimeout(() => {
-      mountChat();
-    }, CHAT_AUTOSTART_TIMEOUT_MS);
-
-    return () => {
-      mounted = false;
-      window.clearTimeout(delayTimerId);
-      window.clearTimeout(fallbackTimerId);
-      cancelIdleTask(idleTaskId);
-    };
-  }, [shouldStartTyping, shouldMountChat]);
-
-  useEffect(() => {
-    if (setModelsReady) {
-      requestAnimationFrame(() => {
-        setModelsReady(true);
-      });
-    }
-  }, [setModelsReady]);
-
-  useEffect(() => {
-    let timerId;
-
-    const syncLocalState = () => {
-      const hour = getLocalHour();
-      const nextPhase = getDayPhase(hour);
-
-      setDayPhase((prev) => (prev === nextPhase ? prev : nextPhase));
-      setLocalClock(getLocalClock());
-
-      const msUntilNextMinute = 60000 - (Date.now() % 60000) + 20;
-      timerId = window.setTimeout(syncLocalState, msUntilNextMinute);
-    };
-
-    syncLocalState();
-
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        const hour = getLocalHour();
-        setDayPhase(getDayPhase(hour));
-        setLocalClock(getLocalClock());
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibility);
-
-    return () => {
-      window.clearTimeout(timerId);
-      document.removeEventListener("visibilitychange", handleVisibility);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (dayPhase === latestPhaseRef.current) {
-      return;
-    }
-
-    const outgoingPhase = latestPhaseRef.current;
-    latestPhaseRef.current = dayPhase;
-    setPreviousPhase(outgoingPhase);
-
-    const clearPreviousTimer = window.setTimeout(() => {
-      setPreviousPhase((current) =>
-        current === outgoingPhase ? null : current,
-      );
-    }, HERO_BACKGROUND_FADE_MS);
-
-    return () => {
-      window.clearTimeout(clearPreviousTimer);
-    };
-  }, [dayPhase]);
-
-  useEffect(() => {
-    const target = headingRef.current;
-    if (!target) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        setShouldStartTyping(true);
-        observer.disconnect();
-      },
-      {
-        threshold: HERO_OBSERVER_THRESHOLD,
-      },
-    );
-
-    observer.observe(target);
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!shouldStartTyping) return;
-
-    let rafId = null;
-    let cursor = 0;
-    let lastStepAt = 0;
-
-    setTypedIntro("");
-    setIsTypingDone(false);
-
-    const startDelay = window.setTimeout(() => {
-      const step = (timestamp) => {
-        if (lastStepAt === 0) {
-          lastStepAt = timestamp;
-        }
-
-        const elapsed = timestamp - lastStepAt;
-
-        if (elapsed >= HERO_TYPING_INTERVAL_MS) {
-          const stepCount = Math.floor(elapsed / HERO_TYPING_INTERVAL_MS);
-          cursor = Math.min(HERO_INTRO_TEXT.length, cursor + stepCount);
-          setTypedIntro(HERO_INTRO_TEXT.slice(0, cursor));
-          lastStepAt = timestamp;
-
-          if (cursor >= HERO_INTRO_TEXT.length) {
-            setIsTypingDone(true);
-            return;
-          }
-        }
-
-        rafId = window.requestAnimationFrame(step);
-      };
-
-      rafId = window.requestAnimationFrame(step);
-    }, HERO_TYPING_START_DELAY_MS);
-
-    return () => {
-      window.clearTimeout(startDelay);
-
-      if (rafId !== null) {
-        window.cancelAnimationFrame(rafId);
-      }
-    };
-  }, [shouldStartTyping]);
-
-  const typedLines = useMemo(() => typedIntro.split("\n"), [typedIntro]);
-  const visibleBackgroundPhases = useMemo(
-    () =>
-      previousPhase && previousPhase !== dayPhase
-        ? [dayPhase, previousPhase]
-        : [dayPhase],
-    [dayPhase, previousPhase],
-  );
-
-  const renderTypedLine = useCallback((line, index) => {
-    if (index !== 0 || !line) {
-      return line;
-    }
-
-    const scriptLength = Math.min(line.length, HERO_SCRIPT_WORD.length);
-    const scriptPart = line.slice(0, scriptLength);
-    const defaultPart = line.slice(scriptLength);
-
-    return (
-      <>
-        <span className="font-hero-script">{scriptPart}</span>
-        {defaultPart}
-      </>
-    );
-  }, []);
-
-  return (
-    <section
-      id="hero"
-      className={cn(
-        "relative w-screen min-h-[180vh] md:min-h-[200vh] overflow-hidden text-white",
-      )}
-    >
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgba(253,230,138,0.32),rgba(76,29,149,0.14)_38%,rgba(2,6,23,0.92)_82%)]" />
-
-        {visibleBackgroundPhases.map((phase) => (
-          <NextImage
-            key={phase}
-            src={HERO_BACKGROUNDS[phase]}
-            alt=""
-            aria-hidden="true"
-            fill
-            sizes="100vw"
-            quality={58}
-            priority={dayPhase === phase}
-            fetchPriority={dayPhase === phase ? "high" : "auto"}
-            onLoad={() => {
-              if (phase === dayPhase && previousPhase === null) {
-                setIsInitialBackgroundReady(true);
-              }
-            }}
-            className={cn(
-              "absolute inset-0 h-full w-full object-cover object-center transition-opacity ease-out",
-              phase === previousPhase
-                ? "opacity-0"
-                : phase === dayPhase &&
-                    previousPhase === null &&
-                    !isInitialBackgroundReady
-                  ? "opacity-0"
-                  : "opacity-100",
-            )}
-            style={{ transitionDuration: `${HERO_BACKGROUND_FADE_MS}ms` }}
-          />
-        ))}
-      </div>
-
-      <div className="relative z-10 mx-auto flex min-h-[180vh] md:min-h-[200vh] w-full max-w-[1480px] flex-col items-center px-4 pb-0 pt-24 sm:px-8 md:px-12 md:pt-40">
-        <motion.h1
-          ref={headingRef}
-          className="font-hero-display -mt-2 sm:-mt-4 md:-mt-8 mx-auto max-w-[860px] text-center text-[clamp(1.65rem,3.1vw,3.6rem)] leading-[1.15] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
-          aria-live="polite"
-          aria-atomic="true"
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
-        >
-          {typedLines.map((line, idx) => (
-            <React.Fragment key={idx}>
-              {renderTypedLine(line, idx)}
-              {idx < typedLines.length - 1 ? <br /> : null}
-            </React.Fragment>
-          ))}
-          {!isTypingDone ? (
-            <span className="ml-1 inline-block h-[0.95em] w-[2px] translate-y-[2px] animate-pulse bg-white/90 align-middle" />
-          ) : null}
-        </motion.h1>
-
-        <div className="mt-[3vh] grid w-full grid-cols-1 gap-8 sm:gap-12 md:mt-[12vh] md:grid-cols-[minmax(0,620px)_1fr] md:items-end">
-          <motion.article
-            className="-mt-[15px] w-full max-w-[620px] rounded-[26px] border border-[#e8c8b3]/35 bg-[#8c5b52]/43 p-5 shadow-[0_24px_70px_rgba(25,12,12,0.3)] backdrop-blur-[12px] sm:p-8 md:p-10"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.85, ease: "easeOut" }}
-          >
-            <h2 className="font-hero-serif text-[clamp(2.15rem,4.5vw,3.9rem)] leading-[1.03] text-[#fff7f1]">
-              Articulate, Poised, Principled, Vision-Driven
-            </h2>
-            <p className="mt-4 max-w-[560px] font-hero-serif text-[clamp(0.9rem,1.2vw,1.08rem)] leading-[1.6] text-[#fff1e8]">
-              B.Tech. CSE student at VIT Chennai with 40+ projects and multiple
-              hackathon wins. Specializing in full-stack development, blockchain
-              solutions, and AI integration.
-            </p>
-
-            <div className="mt-6 h-[320px] sm:h-[420px] md:h-[560px]">
-              <MessageProvider>
-                <HeroChatErrorBoundary>
-                  {shouldMountChat ? (
-                    <Suspense
-                      fallback={
-                        <div className="grid h-full place-items-center rounded-[20px] bg-[#2b2120] text-[#ffe9d9]">
-                          Loading chat...
-                        </div>
-                      }
-                    >
-                      <ChatBox />
-                    </Suspense>
-                  ) : (
-                    <div className="grid h-full place-items-center rounded-[20px] border border-white/15 bg-[#2b2120]/70 p-6 text-center">
-                      <div>
-                        <p className="font-hero-serif text-[#ffe9d9]">
-                          Chat assistant is starting with the hero.
-                        </p>
-                        <p className="mt-2 text-sm text-[#ffe9d9]/80">
-                          Optimizing startup and loading your chat interface...
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </HeroChatErrorBoundary>
-              </MessageProvider>
-            </div>
-          </motion.article>
+    <section id="hero" data-anchor className="relative isolate overflow-hidden text-white">
+      <span id="home" aria-hidden="true" className="absolute top-0" />
+      {/* Day-phase plate (CSS chooses it from html[data-phase]); decorative. */}
+      <div aria-hidden="true" className="hero-art absolute inset-0 -z-20" />
+      <div aria-hidden="true" className="hero-art-prev absolute inset-0 -z-20" />
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(6,10,20,0.88)_0%,rgba(6,10,20,0.68)_42%,rgba(6,10,20,0.25)_75%,rgba(6,10,20,0.15)_100%)]" />
+      <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-[rgba(6,10,20,0.75)] to-transparent" />
+
+      <div className="mx-auto grid min-h-[100svh] w-full max-w-[1400px] grid-cols-1 items-center gap-10 px-5 pb-16 pt-28 sm:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:gap-14 lg:pt-32">
+        <div className="max-w-[44rem]">
+          <p className="font-hero-script text-3xl text-amber-200 sm:text-4xl" aria-hidden="true">
+            Hello,
+          </p>
+          <h1 data-anchor-heading className="mt-2 text-[clamp(2.75rem,7vw,5.5rem)] font-semibold leading-[1.02] tracking-tight text-white">
+            I&apos;m {profile.name}.
+          </h1>
+          <p className="mt-5 text-lg text-amber-50/95 sm:text-xl">
+            {profile.role} · {profile.education}
+          </p>
+          <p className="mt-2 font-hero-serif text-base italic text-amber-100/80">
+            Articulate, poised, principled, vision-driven.
+          </p>
+          <p className="mt-6 max-w-[38rem] text-[1.02rem] leading-relaxed text-slate-100/90">{profile.heroSummary}</p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <a href="#projects" className="inline-flex min-h-12 items-center rounded-full bg-amber-300 px-6 text-base font-semibold text-slate-950 transition-colors hover:bg-amber-200">
+              View selected work
+            </a>
+            <a href="#contact" className="inline-flex min-h-12 items-center rounded-full border border-white/40 bg-white/10 px-6 text-base font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20">
+              Contact
+            </a>
+            <a href={`mailto:${profile.email}`} className="inline-flex min-h-12 items-center px-2 text-base text-white/90 underline decoration-white/40 underline-offset-4 hover:decoration-white">
+              {profile.email}
+            </a>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-white/15 bg-slate-950/45 px-5 py-4 text-sm backdrop-blur-sm sm:w-fit">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200/90">Featured</span>
+            <a href="#projects" className="font-medium text-white underline-offset-4 hover:underline">
+              {featured.title} — {featured.subtitle}
+            </a>
+            <a href={featured.source} target="_blank" rel="noopener noreferrer" className="text-white/80 underline decoration-white/30 underline-offset-4 hover:text-white">
+              Source on GitHub<span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <HeroClock />
+          </div>
         </div>
 
-        <div className="mt-8 self-end rounded-full border border-[#f5d2bc]/40 bg-[#7d514a]/40 px-4 py-2 font-hero-serif text-sm text-[#ffe5d5] md:hidden">
-          {localClock} IST
+        <div className="h-[30rem] w-full sm:h-[34rem]">
+          <ChatBox />
         </div>
       </div>
     </section>
   );
-};
-
-export default memo(Hero);
+}

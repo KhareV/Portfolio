@@ -1,6 +1,9 @@
 "use client";
 
 import { memo, useEffect, useRef } from "react";
+// Changes in the repair pass: `paused` prop (stops the rAF loop without
+// destroying the context), `onFail` for renderer-creation failure and context
+// loss, DPR capped at 1.25 for a full-viewport raymarch.
 import { Renderer, Triangle, Program, Mesh } from "ogl";
 
 const clampShaderSteps = (value) => {
@@ -28,8 +31,21 @@ const Prism = ({
   suspendWhenOffscreen = false,
   timeScale = 0.5,
   steps,
+  paused = false,
+  onFail,
 }) => {
   const containerRef = useRef(null);
+  const loopRef = useRef(null);
+  const pausedRef = useRef(paused);
+  const onFailRef = useRef(onFail);
+  useEffect(() => {
+    onFailRef.current = onFail;
+  }, [onFail]);
+  useEffect(() => {
+    pausedRef.current = paused;
+    if (paused) loopRef.current?.stop();
+    else loopRef.current?.start();
+  }, [paused]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -67,13 +83,25 @@ const Prism = ({
       Number.isFinite(steps) ? steps : isConstrainedDevice ? 64 : 96,
     );
 
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const renderer = new Renderer({
-      dpr,
-      alpha: transparent,
-      antialias: false,
-    });
+    const dpr = Math.min(1.25, window.devicePixelRatio || 1);
+    let renderer;
+    try {
+      renderer = new Renderer({
+        dpr,
+        alpha: transparent,
+        antialias: false,
+      });
+      if (!renderer.gl) throw new Error("WebGL unavailable");
+    } catch (error) {
+      onFailRef.current?.(error);
+      return undefined;
+    }
     const gl = renderer.gl;
+    const onLost = (e) => {
+      e.preventDefault();
+      onFailRef.current?.(new Error("WebGL context lost"));
+    };
+    gl.canvas.addEventListener("webglcontextlost", onLost);
     gl.disable(gl.DEPTH_TEST);
     gl.disable(gl.CULL_FACE);
     gl.disable(gl.BLEND);
@@ -296,7 +324,7 @@ const Prism = ({
     let raf = 0;
     const t0 = performance.now();
     const startRAF = () => {
-      if (raf) return;
+      if (raf || pausedRef.current) return;
       raf = requestAnimationFrame(render);
     };
     const stopRAF = () => {
@@ -412,13 +440,14 @@ const Prism = ({
       }
 
       renderer.render({ scene: mesh });
-      if (continueRAF) {
+      if (continueRAF && !pausedRef.current) {
         raf = requestAnimationFrame(render);
       } else {
         raf = 0;
       }
     };
 
+    loopRef.current = { start: startRAF, stop: stopRAF };
     let io = null;
     if (suspendWhenOffscreen) {
       io = new IntersectionObserver((entries) => {
@@ -434,6 +463,8 @@ const Prism = ({
 
     return () => {
       stopRAF();
+      loopRef.current = null;
+      gl.canvas.removeEventListener("webglcontextlost", onLost);
       ro.disconnect();
       if (animationType === "hover") {
         if (onPointerMove)

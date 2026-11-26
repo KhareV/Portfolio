@@ -1,0 +1,97 @@
+/* ---- Generated: day-phase art (do not hand-edit; see scripts/build-media.mjs) ---- */
+/* No-JS default is the afternoon plate. */
+.hero-art {
+  background-image: url(/media/hero/afternoon-1200.webp);
+  background-image: image-set(url(/media/hero/afternoon-1200.avif) type("image/avif"), url(/media/hero/afternoon-1200.webp) type("image/webp"));
+}
+html[data-phase="morning"] .hero-art {
+  background-image: url(/media/hero/morning-1200.webp);
+  background-image: image-set(url(/media/hero/morning-1200.avif) type("image/avif"), url(/media/hero/morning-1200.webp) type("image/webp"));
+}
+html[data-phase-prev="morning"] .hero-art-prev {
+  background-image: url(/media/hero/morning-1200.webp);
+  background-image: image-set(url(/media/hero/morning-1200.avif) type("image/avif"), url(/media/hero/morning-1200.webp) type("image/webp"));
+}
+html[data-phase="afternoon"] .hero-art {
+  background-image: url(/media/hero/afternoon-1200.webp);
+  background-image: image-set(url(/media/hero/afternoon-1200.avif) type("image/avif"), url(/media/hero/afternoon-1200.webp) type("image/webp"));
+}
+html[data-phase-prev="afternoon"] .hero-art-prev {
+  background-image: url(/media/hero/afternoon-1200.webp);
+  background-image: image-set(url(/media/hero/afternoon-1200.avif) type("image/avif"), url(/media/hero/afternoon-1200.webp) type("image/webp"));
+}
+html[data-phase="evening"] .hero-art {
+  background-image: url(/media/hero/evening-1200.webp);
+  background-image: image-set(url(/media/hero/evening-1200.avif) type("image/avif"), url(/media/hero/evening-1200.webp) type("image/webp"));
+}
+html[data-phase-prev="evening"] .hero-art-prev {
+  background-image: url(/media/hero/evening-1200.webp);
+  background-image: image-set(url(/media/hero/evening-1200.avif) type("image/avif"), url(/media/hero/evening-1200.webp) type("image/webp"));
+}
+html[data-phase="night"] .hero-art {
+  background-image: url(/media/hero/night-1200.webp);
+  background-image: image-set(url(/media/hero/night-1200.avif) type("image/avif"), url(/media/hero/night-1200.webp) type("image/webp"));
+}
+html[data-phase-prev="night"] .hero-art-prev {
+  background-image: url(/media/hero/night-1200.webp);
+  background-image: image-set(url(/media/hero/night-1200.avif) type("image/avif"), url(/media/hero/night-1200.webp) type("image/webp"));
+}
+@media (max-width: 600px) {
+  .hero-art {
+    background-image: url(/media/hero/afternoon-720.webp);
+    background-image: image-set(url(/media/hero/afternoon-720.avif) type("image/avif"), url(/media/hero/afternoon-720.webp) type("image/webp"));
+  }
+  html[data-phase="morning"] .hero-art {
+    background-image: url(/media/hero/morning-720.webp);
+    background-image: image-set(url(/media/hero/morning-720.avif) type("image/avif"), url(/media/hero/morning-720.webp) type("image/webp"));
+  }
+  html[data-phase-prev="morning"] .hero-art-prev {
+    background-image: url(/media/hero/morning-720.webp);
+    background-image: image-set(url(/media/hero/morning-720.avif) type("image/avif"), url(/media/hero/morning-720.webp) type("image/webp"));
+  }
+  html[data-phase="afternoon"] .hero-art {
+    background-image: url(/media/hero/afternoon-720.webp);
+    background-image: image-set(url(/media/hero/afternoon-720.avif) type("image/avif"), url(/media/hero/afternoon-720.webp) type("image/webp"));
+  }
+  html[data-phase-prev="afternoon"] .hero-art-prev {
+    background-image: url(/media/hero/afternoon-720.webp);
+    background-image: image-set(url(/media/hero/afternoon-720.avif) type("image/avif"), url(/media/hero/afternoon-720.webp) type("image/webp"));
+  }
+  html[data-phase="evening"] .hero-art {
+    background-image: url(/media/hero/evening-720.webp);
+    background-image: image-set(url(/media/hero/evening-720.avif) type("image/avif"), url(/media/hero/evening-720.webp) type("image/webp"));
+  }
+  html[data-phase-prev="evening"] .hero-art-prev {
+    background-image: url(/media/hero/evening-720.webp);
+    background-image: image-set(url(/media/hero/evening-720.avif) type("image/avif"), url(/media/hero/evening-720.webp) type("image/webp"));
+  }
+  html[data-phase="night"] .hero-art {
+    background-image: url(/media/hero/night-720.webp);
+    background-image: image-set(url(/media/hero/night-720.avif) type("image/avif"), url(/media/hero/night-720.webp) type("image/webp"));
+  }
+  html[data-phase-prev="night"] .hero-art-prev {
+    background-image: url(/media/hero/night-720.webp);
+    background-image: image-set(url(/media/hero/night-720.avif) type("image/avif"), url(/media/hero/night-720.webp) type("image/webp"));
+  }
+}
+/* Footer art only loads once the footer is near (class set by FooterArt). */
+.footer-art.is-near {
+  background-image: url(/media/footer/afternoon.webp);
+  background-image: image-set(url(/media/footer/afternoon.avif) type("image/avif"), url(/media/footer/afternoon.webp) type("image/webp"));
+}
+html[data-phase="morning"] .footer-art.is-near {
+  background-image: url(/media/footer/morning.webp);
+  background-image: image-set(url(/media/footer/morning.avif) type("image/avif"), url(/media/footer/morning.webp) type("image/webp"));
+}
+html[data-phase="afternoon"] .footer-art.is-near {
+  background-image: url(/media/footer/afternoon.webp);
+  background-image: image-set(url(/media/footer/afternoon.avif) type("image/avif"), url(/media/footer/afternoon.webp) type("image/webp"));
+}
+html[data-phase="evening"] .footer-art.is-near {
+  background-image: url(/media/footer/evening.webp);
+  background-image: image-set(url(/media/footer/evening.avif) type("image/avif"), url(/media/footer/evening.webp) type("image/webp"));
+}
+html[data-phase="night"] .footer-art.is-near {
+  background-image: url(/media/footer/night.webp);
+  background-image: image-set(url(/media/footer/night.avif) type("image/avif"), url(/media/footer/night.webp) type("image/webp"));
+}

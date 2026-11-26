@@ -1,284 +1,251 @@
 "use client";
 
-import Image from "next/image";
-import { memo, useMemo } from "react";
+import { useEffect, useState } from "react";
+import { profile } from "../content/site";
+import { CACHE_KEY, CACHE_TTL_MS, isValidViewModel } from "../lib/github";
 
-import {
-  ContribBar,
-  DonutChart,
-  ImpactAreaChart,
-  RepoBarChart,
-} from "./github/charts";
-import { RepoCard, StatCard } from "./github/cards";
-import { SKILL_GROUPS } from "./github/constants";
-import useGithubData from "./github/useGithubData";
+const LANG_COLORS = {
+  JavaScript: "#E2C93A", TypeScript: "#3178C6", Python: "#3776AB", HTML: "#E34F26", CSS: "#264DE4", "C++": "#00599C",
+  Solidity: "#8A92B2", Java: "#ED8B00", "Jupyter Notebook": "#DA5B0B", Shell: "#89E051", Go: "#00ADD8", Rust: "#DEA584",
+};
 
-// Premium panel styling
-const PANEL_CLASSNAME =
-  "group/panel relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]";
+const SKILL_GROUPS = {
+  Frontend: ["React", "Next.js", "TypeScript", "Tailwind", "Three.js", "Redux", "D3.js", "Sass"],
+  Backend: ["Node.js", "GraphQL", "PostgreSQL", "MongoDB", "Supabase", "Firebase", "Appwrite"],
+  Cloud: ["AWS", "Docker", "Kubernetes", "Cloudflare", "Vercel", "Netlify", "IPFS"],
+  Tools: ["Git", "Figma", "Linux", "Vite", "GitHub", "VS Code", "npm"],
+};
 
-const Github = () => {
-  const {
-    username,
-    user,
-    repos,
-    topRepos,
-    langData,
-    totalStars,
-    loading,
-    error,
-    fromCache,
-    isRefreshing,
-  } = useGithubData();
-  const skillGroups = useMemo(() => Object.entries(SKILL_GROUPS), []);
-  const showAnalytics = repos.length > 1;
-
-  if (loading) {
-    return (
-      <section className="w-full bg-[#FAFAFA] py-16 sm:py-24 relative overflow-hidden">
-        <div className="mx-auto w-full max-w-[1280px] rounded-3xl border border-slate-200/60 bg-white/50 backdrop-blur-sm p-6 shadow-sm">
-          <div className="grid place-items-center py-20" role="status">
-            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-[3px] border-slate-100 border-t-emerald-500 shadow-sm" />
-            <p className="text-sm font-medium text-slate-400 tracking-wide">
-              Syncing GitHub ecosystem...
-            </p>
-          </div>
-        </div>
-      </section>
-    );
+const readCache = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+    return isValidViewModel(parsed) ? parsed : null;
+  } catch {
+    return null;
   }
+};
+const writeCache = (vm) => {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(vm));
+  } catch {}
+};
 
-  if (error) {
-    return (
-      <section className="w-full bg-[#FAFAFA] py-16">
-        <div className="mx-auto w-full max-w-[1280px] rounded-3xl border border-slate-200 bg-white p-6">
-          <div className="rounded-2xl border border-rose-200 bg-rose-50/50 px-5 py-10 text-center">
-            <p className="text-sm font-semibold text-rose-700">{error}</p>
-            <p className="mt-2 text-xs text-rose-500">
-              Could not sync with the GitHub API at this time.
-            </p>
+function useGithub() {
+  const [state, setState] = useState({ status: "loading", vm: null, message: "" });
+  useEffect(() => {
+    const ctrl = new AbortController();
+    const cached = readCache();
+    const fresh = cached && Date.now() - Date.parse(cached.fetchedAt) < CACHE_TTL_MS;
+    if (cached) setState({ status: fresh ? "ready" : "refreshing", vm: cached, message: "" });
+    if (fresh) return () => ctrl.abort();
+    fetch("/api/github", { signal: ctrl.signal })
+      .then(async (res) => {
+        const body = await res.json().catch(() => null);
+        if (!res.ok || !isValidViewModel(body)) {
+          const err = new Error(body?.error || "GitHub data is unavailable right now.");
+          err.rateLimited = Boolean(body?.rateLimited);
+          throw err;
+        }
+        writeCache(body);
+        setState({ status: "ready", vm: body, message: "" });
+      })
+      .catch((e) => {
+        if (e?.name === "AbortError") return;
+        const message = e?.rateLimited ? "GitHub's rate limit was reached." : "GitHub data is unavailable right now.";
+        setState(cached ? { status: "stale", vm: cached, message } : { status: "error", vm: null, message });
+      });
+    return () => ctrl.abort();
+  }, []);
+  return state;
+}
+
+const fmtDate = (iso) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
+const PANEL = "rounded-3xl border border-slate-200/70 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]";
+
+function PushChart({ pushes }) {
+  const max = Math.max(1, ...pushes.map((p) => p.count));
+  const total = pushes.reduce((a, p) => a + p.count, 0);
+  return (
+    <figure>
+      <div className="flex h-36 items-end gap-1.5" role="img" aria-label={`Repositories by month of their latest push, last 12 months: ${pushes.map((p) => `${p.label} ${p.year} ${p.count}`).join(", ")}.`}>
+        {pushes.map((p) => (
+          <div key={p.key} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
+            <span className="text-[10px] tabular-nums text-slate-500">{p.count || ""}</span>
+            <div className="w-full rounded-t bg-emerald-500/80" style={{ height: `${(p.count / max) * 100}%`, minHeight: p.count ? 4 : 1 }} />
           </div>
-        </div>
-      </section>
-    );
-  }
+        ))}
+      </div>
+      <div className="mt-2 flex gap-1.5 text-[10px] text-slate-500">
+        {pushes.map((p) => (
+          <span key={p.key} className="flex-1 text-center">{p.label}</span>
+        ))}
+      </div>
+      <figcaption className="mt-3 text-xs text-slate-500">
+        {total} of the listed repositories were last pushed in this window. Each repository counts once, in the month of its latest push — not a commit history.
+      </figcaption>
+    </figure>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div role="status" className="grid gap-6">
+      <span className="sr-only">Loading GitHub data…</span>
+      <div className={`${PANEL} h-[8.5rem] animate-pulse bg-slate-100/70 motion-reduce:animate-none`} />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className={`${PANEL} h-[17rem] animate-pulse bg-slate-100/70 motion-reduce:animate-none`} />
+        <div className={`${PANEL} h-[17rem] animate-pulse bg-slate-100/70 motion-reduce:animate-none`} />
+      </div>
+      <div className={`${PANEL} h-[26rem] animate-pulse bg-slate-100/70 motion-reduce:animate-none`} />
+    </div>
+  );
+}
+
+export default function Github() {
+  const { status, vm, message } = useGithub();
 
   return (
-    <section
-      className="relative w-full overflow-hidden bg-slate-50 py-16 sm:py-24"
-      aria-label="GitHub analytics section"
-    >
-      {/* Absolute Dot Grid Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px][mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
-
-      <div className="relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-          <div className="space-y-2">
-            <span className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-emerald-600">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-              </span>
-              Developer Metrics
-            </span>
-            <h2 className="text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
-              GitHub Stats
+    <section id="github" data-anchor aria-labelledby="github-title" className="relative bg-slate-50 px-5 py-20 sm:px-10 sm:py-24">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 id="github-title" data-anchor-heading className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+              On GitHub
             </h2>
+            <p className="mt-3 text-slate-600">
+              Public activity for{" "}
+              <a href={profile.github} target="_blank" rel="noopener noreferrer" className="font-medium text-emerald-700 underline underline-offset-4">
+                @{profile.githubUser}<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+              .
+            </p>
           </div>
+          <p className="text-xs text-slate-500" aria-live="polite">
+            {status === "refreshing" && "Showing saved data while refreshing…"}
+            {status === "stale" && vm && `${message} Showing data saved ${fmtDate(vm.fetchedAt)}.`}
+            {status === "ready" && vm && `Updated ${fmtDate(vm.fetchedAt)}.`}
+          </p>
+        </div>
 
-          <div className="text-xs font-medium" aria-live="polite">
-            {isRefreshing ? (
-              <span className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-500 shadow-sm">
-                <div className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600" />
-                Refreshing...
-              </span>
-            ) : fromCache ? (
-              <span className="flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-emerald-700 shadow-sm">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                Up to date
-              </span>
-            ) : null}
+        {status === "loading" ? <Skeleton /> : null}
+
+        {status === "error" ? (
+          <div className={`${PANEL} grid h-[8.5rem] place-items-center text-center`}>
+            <p className="text-slate-700">
+              {message}{" "}
+              <a href={profile.github} target="_blank" rel="noopener noreferrer" className="font-medium text-emerald-700 underline underline-offset-4">
+                View the profile on GitHub<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+              .
+            </p>
           </div>
-        </div>
+        ) : null}
 
-        {/* Profile Card */}
-        <div
-          className={`${PANEL_CLASSNAME} mb-6 flex flex-wrap items-center gap-6 sm:p-8`}
-        >
-          {user?.avatar_url && (
-            <a
-              href={`https://github.com/${username}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group/avatar relative shrink-0 rounded-full"
-            >
-              <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-emerald-500 to-sky-400 opacity-0 blur transition-all duration-500 group-hover/avatar:opacity-40" />
-              <Image
-                src={user.avatar_url}
-                alt={username}
-                width={80}
-                height={80}
-                sizes="80px"
-                className="relative z-10 rounded-full ring-4 ring-white shadow-md transition-transform duration-500 group-hover/avatar:scale-105"
-              />
-            </a>
-          )}
-
-          <div className="min-w-[180px] flex-1">
-            <h3 className="text-2xl font-bold tracking-tight text-slate-900">
-              {user?.name || username}
-            </h3>
-            <a
-              href={`https://github.com/${username}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 mt-1 font-mono text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-500"
-            >
-              @{username}
-            </a>
-            {user?.bio && (
-              <p className="mt-3 text-sm leading-relaxed text-slate-500 max-w-xl">
-                {user.bio}
-              </p>
-            )}
-          </div>
-
-          {showAnalytics && (
-            <div className="w-full max-w-[240px] sm:w-[240px]">
-              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
-                Activity Sparkline
-              </p>
-              <ContribBar repos={repos} />
-            </div>
-          )}
-        </div>
-
-        {/* Stat Grid */}
-        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <StatCard
-            label="Repositories"
-            value={user?.public_repos}
-            accent="#10B981"
-            link={`https://github.com/${username}?tab=repositories`}
-          />
-          <StatCard
-            label="Total Stars"
-            value={totalStars}
-            accent="#0ea5e9"
-            link={`https://github.com/${username}?tab=repositories&sort=stargazers`}
-          />
-          <StatCard
-            label="Followers"
-            value={user?.followers}
-            accent="#f97316"
-            link={`https://github.com/${username}?tab=followers`}
-          />
-          <StatCard
-            label="Following"
-            value={user?.following}
-            accent="#8b5cf6"
-            link={`https://github.com/${username}?tab=following`}
-          />
-        </div>
-
-        {/* Charts Grid */}
-        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className={PANEL_CLASSNAME}>
-            <h3 className="mb-6 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
-              Star Distribution
-            </h3>
-            <RepoBarChart repos={repos} />
-          </article>
-          <article className={PANEL_CLASSNAME}>
-            <h3 className="mb-6 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
-              Impact Spectrum
-            </h3>
-            <ImpactAreaChart repos={repos} />
-          </article>
-        </div>
-
-        {/* Bottom Split Grid */}
-        <div className="mb-6 grid grid-cols-1 gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
-          <article className={PANEL_CLASSNAME}>
-            <h3 className="mb-8 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
-              Languages
-            </h3>
-            <div className="mb-8 flex justify-center">
-              <DonutChart data={langData} size={170} />
-            </div>
-            <div className="flex flex-col gap-3.5">
-              {langData.map((lang) => (
-                <div key={lang.name} className="group flex items-center gap-3">
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full shadow-sm transition-transform duration-300 group-hover:scale-125"
-                    style={{ background: lang.color }}
-                  />
-                  <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-slate-700 transition-colors group-hover:text-slate-950">
-                    {lang.name}
-                  </span>
-                  <div className="h-1.5 w-12 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${lang.pct}%`, background: lang.color }}
-                    />
-                  </div>
-                  <span className="w-9 text-right font-mono text-[11px] text-slate-400 group-hover:text-slate-600">
-                    {lang.pct}%
-                  </span>
+        {vm ? (
+          <div className="grid gap-6">
+            <dl className={`${PANEL} grid h-auto grid-cols-2 gap-4 sm:h-[8.5rem] sm:grid-cols-4`}>
+              {[
+                ["Public repositories", vm.user.publicRepos],
+                ["Stars across listed repos", vm.totals.stars],
+                ["Followers", vm.user.followers],
+                ["Following", vm.user.following],
+              ].map(([label, value]) => (
+                <div key={label} className="flex flex-col items-center justify-center text-center">
+                  <dt className="order-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</dt>
+                  <dd className="order-1 font-mono text-3xl font-bold text-slate-900">{value}</dd>
                 </div>
               ))}
-            </div>
-          </article>
+            </dl>
 
-          <article>
-            <h3 className="mb-4 px-2 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
-              Top Repositories
-            </h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {topRepos.map((repo) => (
-                <RepoCard key={repo.id} repo={repo} />
-              ))}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <article className={`${PANEL} lg:h-[17rem]`}>
+                <h3 className="mb-4 text-sm font-semibold text-slate-700">Repositories by month of latest push</h3>
+                <PushChart pushes={vm.pushes} />
+              </article>
+              <article className={`${PANEL} lg:h-[17rem]`}>
+                <h3 className="mb-4 text-sm font-semibold text-slate-700">Stars by repository</h3>
+                {vm.starLeaders.length ? (
+                  <ul className="flex flex-col gap-3">
+                    {vm.starLeaders.map((r) => (
+                      <li key={r.id}>
+                        <div className="flex justify-between text-[13px]">
+                          <span className="truncate font-medium text-slate-700">{r.name}</span>
+                          <span className="font-mono text-slate-500">{r.stars} ★</span>
+                        </div>
+                        <div className="mt-1 h-2 rounded-full bg-slate-100">
+                          <div className="h-full rounded-full bg-emerald-500" style={{ width: `${(r.stars / vm.starLeaders[0].stars) * 100}%` }} />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-slate-500">No listed repository has stars yet.</p>
+                )}
+              </article>
             </div>
-          </article>
-        </div>
 
-        {/* Technologies / Skills */}
-        <article className={PANEL_CLASSNAME}>
-          <h3 className="mb-6 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
-            Ecosystem &amp; Tools
-          </h3>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-4">
-            {skillGroups.map(([group, items]) => (
+            <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+              <article className={PANEL}>
+                <h3 className="text-sm font-semibold text-slate-700">Primary language</h3>
+                <p className="mb-4 text-xs text-slate-500">Share of {vm.totals.reposWithLanguage} repositories that report one (one language per repository).</p>
+                {vm.languages.length ? (
+                  <ul className="flex flex-col gap-3">
+                    {vm.languages.map((l) => (
+                      <li key={l.name} className="flex items-center gap-3 text-[13px]">
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: LANG_COLORS[l.name] || "#94A3B8" }} aria-hidden="true" />
+                        <span className="flex-1 truncate text-slate-700">{l.name}</span>
+                        <span className="font-mono text-slate-500">
+                          {l.count} · {l.pct}%
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-slate-500">No language data.</p>
+                )}
+              </article>
+              <article>
+                <h3 className="mb-3 px-1 text-sm font-semibold text-slate-700">Top repositories</h3>
+                {vm.top.length ? (
+                  <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {vm.top.map((r) => (
+                      <li key={r.id}>
+                        <a href={r.url} target="_blank" rel="noopener noreferrer" className="flex h-full min-h-[8.5rem] flex-col justify-between rounded-2xl border border-slate-200/70 bg-white p-5 hover:border-slate-300">
+                          <span>
+                            <span className="block truncate font-semibold text-slate-800">{r.name}</span>
+                            <span className="mt-1 line-clamp-2 block text-[13px] text-slate-500">{r.description || "No description provided."}</span>
+                          </span>
+                          <span className="mt-3 flex gap-4 text-xs text-slate-500">
+                            {r.language ? <span>{r.language}</span> : null}
+                            <span>{r.stars} ★</span>
+                            <span>{r.forks} forks</span>
+                          </span>
+                          <span className="sr-only"> (opens in a new tab)</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500">No public repositories to show.</p>
+                )}
+              </article>
+            </div>
+          </div>
+        ) : null}
+
+        <article className={`${PANEL} mt-6`}>
+          <h3 className="mb-5 text-sm font-semibold text-slate-700">Ecosystem &amp; tools</h3>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {Object.entries(SKILL_GROUPS).map(([group, items]) => (
               <div key={group}>
-                <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.15em] text-emerald-600">
-                  {group}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {items.map((skill) => (
-                    <span
-                      key={skill.name}
-                      className="group flex cursor-default items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50/50 px-3 py-1.5 text-[12px] font-medium text-slate-600 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white hover:text-slate-900 hover:shadow-md"
-                    >
-                      <span
-                        className="h-1.5 w-1.5 rounded-full shadow-[inset_0_1px_1px_rgba(0,0,0,0.1)] transition-transform duration-300 group-hover:scale-150"
-                        style={{ backgroundColor: skill.color }}
-                      />
-                      {skill.name}
-                    </span>
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-emerald-700">{group}</h4>
+                <ul className="flex flex-wrap gap-2">
+                  {items.map((s) => (
+                    <li key={s} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[12px] text-slate-700">
+                      {s}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             ))}
           </div>
@@ -286,6 +253,4 @@ const Github = () => {
       </div>
     </section>
   );
-};
-
-export default memo(Github);
+}

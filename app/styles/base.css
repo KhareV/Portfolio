@@ -1,0 +1,181 @@
+/* Base styles that are not expressible as Tailwind utilities. */
+
+@font-face {
+  font-family: "SiteDefault";
+  src: url("/newimages/fonts/default.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "HeroScript";
+  src: url("/newimages/fonts/Anime.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "HeroSerif";
+  src: url("/newimages/fonts/IMFellEnglishSC-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  --header-offset: 5.5rem;
+  color-scheme: light;
+}
+
+html {
+  scroll-padding-top: var(--header-offset);
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: #fefffc;
+  color: #1f2420;
+  font-family: "SiteDefault", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  overflow-x: clip;
+}
+
+.font-site-default {
+  font-family: "SiteDefault", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+.font-hero-script {
+  font-family: "HeroScript", "Times New Roman", serif;
+}
+.font-hero-serif {
+  font-family: "HeroSerif", Georgia, "Times New Roman", serif;
+}
+
+/* Anchor targets clear the fixed header via html scroll-padding-top (do not
+   also add scroll-margin-top: the two offsets add up). Focus lands on the heading. */
+[data-anchor-heading]:focus {
+  outline: none;
+}
+[data-anchor-heading]:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+/* Progressive enhancement switches (html.js is set before first paint). */
+html:not(.js) .js-only {
+  display: none !important;
+}
+html.js .no-js-only {
+  display: none !important;
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  color: #fff;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Hero plates: chosen by html[data-phase]; fallback afternoon. */
+.hero-art,
+.hero-art-prev {
+  background-color: #1b2338;
+  background-size: cover;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+}
+.hero-art-prev {
+  opacity: 0;
+}
+html[data-phase-prev] .hero-art-prev {
+  animation: phase-fade-out 1.4s ease-out forwards;
+}
+@keyframes phase-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Time bands: a stepped gradient per phase (was a JS-computed inline style). */
+.time-bands {
+  --b0: #1d3f5b; --b1: #4d748f; --b2: #86a4b3; --b3: #bcc4c2; --b4: #dcded7; --b5: #c4ccc8;
+  background-image:
+    linear-gradient(90deg, rgb(11 23 50 / 0.3), transparent 50%, rgb(11 23 50 / 0.22)),
+    linear-gradient(to bottom, var(--b0) 0 10%, var(--b1) 10% 20%, var(--b2) 20% 30%, var(--b3) 30% 40%, var(--b4) 40% 50%, var(--b5) 50% 60%, var(--b0) 60% 70%, var(--b1) 70% 80%, var(--b2) 80% 90%, var(--b3) 90% 100%);
+}
+html[data-phase="morning"] .time-bands { --b0: #0f3342; --b1: #4e7f8c; --b2: #8ea8a5; --b3: #b9beb3; --b4: #d6d7cf; --b5: #b6beb8; }
+html[data-phase="evening"] .time-bands { --b0: #0f2b45; --b1: #2a4b67; --b2: #5f7386; --b3: #98a1a5; --b4: #c7c8c1; --b5: #d9d9d3; }
+html[data-phase="night"] .time-bands { --b0: #08172c; --b1: #20324b; --b2: #4f5e6f; --b3: #818890; --b4: #b6b9b5; --b5: #d0d1cd; }
+
+.footer-art {
+  background-color: #10151f;
+  background-size: cover;
+  background-position: center bottom;
+}
+
+/* Marquees: compositor-only transforms; stopped for reduced motion and while
+   offscreen (data-paused is set by an IntersectionObserver). */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-left 40s linear infinite;
+}
+.marquee-track.reverse {
+  animation-name: marquee-right;
+}
+[data-paused="true"] .marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: auto;
+  }
+  .marquee-track [aria-hidden="true"] {
+    display: none;
+  }
+  html[data-phase-prev] .hero-art-prev {
+    animation: none;
+  }
+}
+
+/* Sunflower cells: transform-origin per cell; transforms only while hovering. */
+.sunflower rect {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.canvas-fade {
+  transition: opacity 600ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .canvas-fade {
+    transition: none;
+  }
+}

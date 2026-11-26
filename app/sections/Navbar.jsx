@@ -1,139 +1,121 @@
 "use client";
 
-import { memo, useCallback, useState } from "react";
-import { ArrowRight, Menu, X } from "lucide-react";
-import { cn } from "../styles/spacing.jsx";
+import { useCallback, useEffect, useRef } from "react";
+import { nav, profile } from "../content/site";
+import Sound from "../components/Sound";
 
-const navItems = [
-  { label: "Home", href: "#hero" },
-  { label: "About", href: "#about" },
-  { label: "Work", href: "#work" },
-  { label: "Contact", href: "#contact" },
-];
+// Mobile menu is a native <details>: it opens/closes without JavaScript, its
+// closed links are not focusable, and browsers expose its expanded state.
+// JS only adds: close on selection, Escape to close (focus returns to the
+// toggle), and close on outside click.
+export default function Navbar() {
+  const detailsRef = useRef(null);
+  const summaryRef = useRef(null);
 
-const NOOP = () => {};
+  const close = useCallback((returnFocus) => {
+    const d = detailsRef.current;
+    if (!d?.open) return;
+    d.open = false;
+    if (returnFocus) summaryRef.current?.focus();
+  }, []);
 
-const NavItems = memo(function NavItems({ onClick = NOOP }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape" && detailsRef.current?.open) {
+        e.preventDefault();
+        close(true);
+      }
+    };
+    const onPointer = (e) => {
+      if (detailsRef.current?.open && !detailsRef.current.contains(e.target)) close(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [close]);
+
   return (
-    <ul className="flex items-center gap-1">
-      {navItems.map((item) => (
-        <li key={item.label}>
-          <a
-            href={item.href}
-            className="relative block px-4 py-2 text-[0.95rem] text-white/70 font-site-default tracking-wide transition-all duration-300 rounded-full hover:text-white hover:bg-white/10 active:scale-95"
-            onClick={onClick}
-          >
-            {item.label}
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
-});
-
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleMenu = useCallback(() => setIsOpen((prev) => !prev), []);
-  const closeMenu = useCallback(() => setIsOpen(false), []);
-
-  return (
-    <header className="fixed inset-x-0 top-5 z-50">
-      <div className="mx-auto max-w-7xl px-4 relative">
-        {/* MAIN NAVBAR PILL */}
-        <div
-          className={cn(
-            "mx-auto flex w-fit items-center gap-2 p-1.5 transform-gpu [will-change:transform]",
-            "rounded-full",
-            "bg-slate-950/60 backdrop-blur-xl",
-            "border border-white/10",
-            "shadow-[0_8px_32px_-8px_rgba(0,0,0,0.5)]",
-          )}
+    <header className="fixed inset-x-0 top-4 z-50 px-4">
+      <nav aria-label="Primary" className="relative mx-auto flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-slate-950/70 p-1.5 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+        <a
+          href="#hero"
+          className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 text-white"
+          aria-label={`${profile.name} — back to top`}
         >
-          {/* LOGO */}
-          <a
-            href="#hero"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-white/20 to-white/5 border border-white/10 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] transition-transform duration-300 hover:scale-105 active:scale-95"
-          >
-            <span className="font-hero-script text-[0.95rem] tracking-wider">
-              VK
-            </span>
-          </a>
+          <span className="font-site-default text-sm font-semibold tracking-wide" aria-hidden="true">
+            VK
+          </span>
+        </a>
 
-          {/* DESKTOP NAV */}
-          <nav className="hidden sm:flex px-1">
-            <NavItems />
-          </nav>
-
-          {/* SEPARATOR (Desktop) */}
-          <div className="hidden sm:block w-px h-5 bg-white/15 mx-1" />
-
-          {/* DESKTOP CTA */}
-          <a
-            href="https://github.com/kharev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group hidden sm:flex items-center gap-2 pl-4 pr-1.5 py-1.5 rounded-full bg-white text-slate-950 text-[0.9rem] font-medium transition-all duration-300 hover:bg-neutral-200 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-          >
-            Github
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-slate-950/10 transition-transform duration-300 group-hover:translate-x-0.5">
-              <ArrowRight size={14} />
-            </span>
-          </a>
-
-          {/* MOBILE MENU BUTTON */}
-          <button
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-            className="sm:hidden grid h-10 w-10 place-items-center rounded-full text-white/80 transition-all hover:bg-white/10 hover:text-white active:scale-95"
-          >
-            {isOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
-
-        {/* MOBILE DROPDOWN */}
-        <div
-          className={cn(
-            "sm:hidden absolute top-[calc(100%+1rem)] left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-[340px] transform-gpu overflow-hidden",
-            "rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/10",
-            "shadow-[0_16px_40px_-10px_rgba(0,0,0,0.5)]",
-            "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top",
-            isOpen
-              ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
-              : "opacity-0 scale-95 -translate-y-4 pointer-events-none",
-          )}
-        >
-          <div className="flex flex-col p-3">
-            {navItems.map((item) => (
+        <ul className="hidden items-center gap-0.5 px-1 sm:flex">
+          {nav.map((item) => (
+            <li key={item.href}>
               <a
-                key={item.label}
                 href={item.href}
-                onClick={closeMenu}
-                className="block px-4 py-3 text-white/80 text-sm font-medium hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 active:scale-[0.98]"
+                className="block rounded-full px-4 py-2 text-[0.95rem] tracking-wide text-white/80 transition-colors hover:bg-white/10 hover:text-white"
               >
                 {item.label}
               </a>
-            ))}
+            </li>
+          ))}
+        </ul>
 
-            <div className="my-2 h-px w-full bg-white/10" />
+        <a
+          href={profile.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden items-center gap-2 rounded-full bg-white py-2 pl-4 pr-4 text-[0.9rem] font-medium text-slate-950 transition-colors hover:bg-neutral-200 sm:flex"
+        >
+          GitHub
+          <span className="sr-only">(opens in a new tab)</span>
+        </a>
 
-            <a
-              href="https://github.com/kharev"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={closeMenu}
-              className="group flex items-center justify-between px-4 py-3 rounded-xl bg-white text-slate-950 text-sm font-medium transition-all duration-200 hover:bg-neutral-200 active:scale-[0.98]"
-            >
-              Github
-              <ArrowRight
-                size={16}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
-            </a>
+        <Sound />
+
+        <details ref={detailsRef} className="group sm:hidden">
+          <summary
+            ref={summaryRef}
+            className="grid h-10 cursor-pointer list-none place-items-center rounded-full px-4 text-sm font-medium text-white/90 hover:bg-white/10 [&::-webkit-details-marker]:hidden"
+            aria-label="Menu"
+          >
+            <span aria-hidden="true" className="group-open:hidden">
+              Menu
+            </span>
+            <span aria-hidden="true" className="hidden group-open:inline">
+              Close
+            </span>
+          </summary>
+          <div className="absolute left-1/2 top-[calc(100%+0.75rem)] w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl border border-white/10 bg-slate-950/95 p-3 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+            <ul className="flex flex-col">
+              {nav.map((item) => (
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    onClick={() => close(false)}
+                    className="block rounded-xl px-4 py-3 text-base text-white/90 hover:bg-white/10"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+              <li className="mt-2 border-t border-white/10 pt-2">
+                <a
+                  href={profile.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => close(false)}
+                  className="block rounded-xl bg-white px-4 py-3 text-base font-medium text-slate-950"
+                >
+                  GitHub <span className="sr-only">(opens in a new tab)</span>
+                </a>
+              </li>
+            </ul>
           </div>
-        </div>
-      </div>
+        </details>
+      </nav>
     </header>
   );
-};
-
-export default memo(Navbar);
+}
