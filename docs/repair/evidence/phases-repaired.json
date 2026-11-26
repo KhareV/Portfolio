@@ -1,0 +1,218 @@
+[
+  {
+    "ist": "04:59",
+    "vw": 390,
+    "phase": "night",
+    "clock": "4:59 AM",
+    "bg": "night-720.avif",
+    "heroRequests": [
+      "200 night-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "04:59",
+    "vw": 1440,
+    "phase": "night",
+    "clock": "4:59 AM",
+    "bg": "night-1200.avif",
+    "heroRequests": [
+      "200 night-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "05:00",
+    "vw": 390,
+    "phase": "morning",
+    "clock": "5:00 AM",
+    "bg": "morning-720.avif",
+    "heroRequests": [
+      "200 morning-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "05:00",
+    "vw": 1440,
+    "phase": "morning",
+    "clock": "5:00 AM",
+    "bg": "morning-1200.avif",
+    "heroRequests": [
+      "200 morning-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "11:59",
+    "vw": 390,
+    "phase": "morning",
+    "clock": "11:59 AM",
+    "bg": "morning-720.avif",
+    "heroRequests": [
+      "200 morning-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "11:59",
+    "vw": 1440,
+    "phase": "morning",
+    "clock": "11:59 AM",
+    "bg": "morning-1200.avif",
+    "heroRequests": [
+      "200 morning-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "12:00",
+    "vw": 390,
+    "phase": "afternoon",
+    "clock": "12:00 PM",
+    "bg": "afternoon-720.avif",
+    "heroRequests": [
+      "200 afternoon-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "12:00",
+    "vw": 1440,
+    "phase": "afternoon",
+    "clock": "12:00 PM",
+    "bg": "afternoon-1200.avif",
+    "heroRequests": [
+      "200 afternoon-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "16:59",
+    "vw": 390,
+    "phase": "afternoon",
+    "clock": "4:59 PM",
+    "bg": "afternoon-720.avif",
+    "heroRequests": [
+      "200 afternoon-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "16:59",
+    "vw": 1440,
+    "phase": "afternoon",
+    "clock": "4:59 PM",
+    "bg": "afternoon-1200.avif",
+    "heroRequests": [
+      "200 afternoon-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "17:00",
+    "vw": 390,
+    "phase": "evening",
+    "clock": "5:00 PM",
+    "bg": "evening-720.avif",
+    "heroRequests": [
+      "200 evening-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "17:00",
+    "vw": 1440,
+    "phase": "evening",
+    "clock": "5:00 PM",
+    "bg": "evening-1200.avif",
+    "heroRequests": [
+      "200 evening-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "20:59",
+    "vw": 390,
+    "phase": "evening",
+    "clock": "8:59 PM",
+    "bg": "evening-720.avif",
+    "heroRequests": [
+      "200 evening-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "20:59",
+    "vw": 1440,
+    "phase": "evening",
+    "clock": "8:59 PM",
+    "bg": "evening-1200.avif",
+    "heroRequests": [
+      "200 evening-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "21:00",
+    "vw": 390,
+    "phase": "night",
+    "clock": "9:00 PM",
+    "bg": "night-720.avif",
+    "heroRequests": [
+      "200 night-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "21:00",
+    "vw": 1440,
+    "phase": "night",
+    "clock": "9:00 PM",
+    "bg": "night-1200.avif",
+    "heroRequests": [
+      "200 night-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "00:00",
+    "vw": 390,
+    "phase": "night",
+    "clock": "12:00 AM",
+    "bg": "night-720.avif",
+    "heroRequests": [
+      "200 night-720.avif"
+    ],
+    "bad": [],
+    "errs": []
+  },
+  {
+    "ist": "00:00",
+    "vw": 1440,
+    "phase": "night",
+    "clock": "12:00 AM",
+    "bg": "night-1200.avif",
+    "heroRequests": [
+      "200 night-1200.avif"
+    ],
+    "bad": [],
+    "errs": []
+  }
+]

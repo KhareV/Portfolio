@@ -1,0 +1,38 @@
+{
+  "sunflowerRects": 966,
+  "sunflowerVisibleResting": 0,
+  "sunflowerHoverMoving": 71,
+  "sunflowerPointerStationaryAfter1_5s": 0,
+  "sunflowerAfterLeaveSettled": 0,
+  "offscreen": 0,
+  "projectsActive": 60,
+  "projectsWhileHiddenRaf": 0,
+  "sceneVideoPausedWhileHidden": "n/a (video element not in DOM; paused via active=false)",
+  "projectsAfterReturn": 60,
+  "canvasAfterReturn": 1,
+  "tierAfterReduce": "static",
+  "canvasesAfterReduce": 0,
+  "rafAfterReduce": 0,
+  "a11y": {
+    "h1": [
+      "I'm Vedant Khare."
+    ],
+    "landmarks": [
+      "header",
+      "nav[Primary]",
+      "main#main",
+      "section#projects",
+      "nav[All projects]",
+      "section#experience",
+      "section#about",
+      "section#github",
+      "section#contact",
+      "footer",
+      "nav[Elsewhere]"
+    ],
+    "mains": 1,
+    "imgsNoAlt": 0,
+    "buttonsNoName": 0
+  },
+  "errors": []
+}

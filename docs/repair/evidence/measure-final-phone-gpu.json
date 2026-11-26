@@ -1,0 +1,691 @@
+{
+  "label": "final",
+  "tier": "phone",
+  "gpu": true,
+  "override": true,
+  "trials": 3,
+  "medians": {
+    "lcp": 584,
+    "lcpRange": [
+      576,
+      600
+    ],
+    "cls": 0,
+    "tbt": 0,
+    "longTasks": 0,
+    "jsInitial": 168409,
+    "allInitial": 611223,
+    "all": 1188846,
+    "jsAll": 168409,
+    "frameP50": 16.7,
+    "frameP95": 16.8,
+    "over33": 0,
+    "over50": 0,
+    "nextProjectMs": 29.6,
+    "rafHeroIdle": 0,
+    "rafProjects": 0.3,
+    "rafContact": 0,
+    "rafIdleTop": 0
+  },
+  "warm": {
+    "lcp": 376,
+    "allInitial": 1238,
+    "jsInitial": 133
+  },
+  "runs": [
+    {
+      "run": 0,
+      "warm": false,
+      "loadMs": 3166,
+      "modalSeen": false,
+      "lcp": 600,
+      "lcpEl": "P.mt-6 max-w-[38rem] text-[1.02rem] leading-relaxed text-slate B.Tech. CSE student at VIT Chennai with ",
+      "cls": 0.0004,
+      "shifts": [
+        [
+          2876,
+          0.0002
+        ],
+        [
+          2934,
+          0.0002
+        ]
+      ],
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "maxLongTask": 0,
+      "tbtApprox": 0,
+      "events": [
+        [
+          "pointerout",
+          12432,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12432,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12432,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          12432,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12432,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12432,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12432,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12432,
+          16,
+          0
+        ],
+        [
+          "mouseout",
+          12432,
+          16,
+          0
+        ],
+        [
+          "mouseover",
+          12432,
+          16,
+          0
+        ],
+        [
+          "pointerout",
+          12565,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12565,
+          16,
+          0
+        ]
+      ],
+      "nextProjectMs": [
+        29.6,
+        31.7,
+        26.9
+      ],
+      "bytes": {
+        "jsInitial": 168409,
+        "allInitial": 611223,
+        "jsAll": 168409,
+        "all": 1188846,
+        "byKey": {
+          "initial:Document": 26294,
+          "initial:Stylesheet": 8787,
+          "initial:Script": 168409,
+          "initial:Font": 259493,
+          "initial:Image": 144520,
+          "initial:Fetch": 3720,
+          "scroll:Image": 504243,
+          "projects:Image": 73380
+        }
+      },
+      "frames": {
+        "n": 246,
+        "p50": 16.7,
+        "p95": 16.8,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 0.3,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 1218
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 10576
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /newimages/fonts/default.woff2 59378B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=1200&q=75 22502B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [],
+        "analytics404": 0
+      }
+    },
+    {
+      "run": 1,
+      "warm": false,
+      "loadMs": 3165,
+      "modalSeen": false,
+      "lcp": 576,
+      "lcpEl": "P.mt-6 max-w-[38rem] text-[1.02rem] leading-relaxed text-slate B.Tech. CSE student at VIT Chennai with ",
+      "cls": 0.0004,
+      "shifts": [
+        [
+          2882,
+          0.0002
+        ],
+        [
+          2949,
+          0.0002
+        ]
+      ],
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "maxLongTask": 0,
+      "tbtApprox": 0,
+      "events": [
+        [
+          "pointerout",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12447,
+          16,
+          0
+        ],
+        [
+          "mouseout",
+          12447,
+          16,
+          0
+        ],
+        [
+          "mouseover",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerout",
+          12581,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12581,
+          16,
+          0
+        ]
+      ],
+      "nextProjectMs": [
+        31,
+        31.8,
+        27
+      ],
+      "bytes": {
+        "jsInitial": 168409,
+        "allInitial": 611223,
+        "jsAll": 168409,
+        "all": 1188846,
+        "byKey": {
+          "initial:Document": 26294,
+          "initial:Stylesheet": 8787,
+          "initial:Script": 168409,
+          "initial:Font": 259493,
+          "initial:Image": 144520,
+          "initial:Fetch": 3720,
+          "scroll:Image": 504243,
+          "projects:Image": 73380
+        }
+      },
+      "frames": {
+        "n": 245,
+        "p50": 16.7,
+        "p95": 16.8,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 0.3,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 1218
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 10576
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /newimages/fonts/default.woff2 59378B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=1200&q=75 22502B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [],
+        "analytics404": 0
+      }
+    },
+    {
+      "run": 2,
+      "warm": false,
+      "loadMs": 3165,
+      "modalSeen": false,
+      "lcp": 584,
+      "lcpEl": "P.mt-6 max-w-[38rem] text-[1.02rem] leading-relaxed text-slate B.Tech. CSE student at VIT Chennai with ",
+      "cls": 0.0004,
+      "shifts": [
+        [
+          2889,
+          0.0002
+        ],
+        [
+          2932,
+          0.0002
+        ]
+      ],
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "maxLongTask": 0,
+      "tbtApprox": 0,
+      "events": [
+        [
+          "pointerout",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          12447,
+          16,
+          0
+        ],
+        [
+          "mouseout",
+          12447,
+          16,
+          0
+        ],
+        [
+          "mouseover",
+          12447,
+          16,
+          0
+        ],
+        [
+          "pointerout",
+          12581,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          12581,
+          16,
+          0
+        ]
+      ],
+      "nextProjectMs": [
+        28.6,
+        31.5,
+        28
+      ],
+      "bytes": {
+        "jsInitial": 168409,
+        "allInitial": 611223,
+        "jsAll": 168409,
+        "all": 1188846,
+        "byKey": {
+          "initial:Document": 26294,
+          "initial:Stylesheet": 8787,
+          "initial:Script": 168409,
+          "initial:Font": 259493,
+          "initial:Image": 144520,
+          "initial:Fetch": 3720,
+          "scroll:Image": 504243,
+          "projects:Image": 73380
+        }
+      },
+      "frames": {
+        "n": 245,
+        "p50": 16.7,
+        "p95": 16.7,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 0.3,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 1218
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 10576
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /newimages/fonts/default.woff2 59378B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=1200&q=75 22502B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [],
+        "analytics404": 0
+      }
+    }
+  ],
+  "warmRun": {
+    "run": 99,
+    "warm": true,
+    "loadMs": 400,
+    "modalSeen": false,
+    "lcp": 376,
+    "lcpEl": "P.mt-6 max-w-[38rem] text-[1.02rem] leading-relaxed text-slate B.Tech. CSE student at VIT Chennai with ",
+    "cls": 0,
+    "shifts": [],
+    "longTasks": 2,
+    "longTaskMs": 100,
+    "maxLongTask": 50,
+    "tbtApprox": 0,
+    "events": [
+      [
+        "pointerout",
+        10230,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        10230,
+        16,
+        1
+      ],
+      [
+        "pointerleave",
+        10230,
+        16,
+        1
+      ],
+      [
+        "pointerleave",
+        10230,
+        16,
+        1
+      ],
+      [
+        "pointerover",
+        10230,
+        16,
+        1
+      ],
+      [
+        "pointerenter",
+        10230,
+        16,
+        1
+      ],
+      [
+        "pointerenter",
+        10230,
+        16,
+        1
+      ],
+      [
+        "pointerenter",
+        10230,
+        16,
+        1
+      ],
+      [
+        "mouseout",
+        10230,
+        16,
+        1
+      ],
+      [
+        "mouseover",
+        10230,
+        16,
+        1
+      ],
+      [
+        "pointerout",
+        10313,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        10313,
+        16,
+        0
+      ]
+    ],
+    "nextProjectMs": [
+      28.6,
+      30.5,
+      27.1
+    ],
+    "bytes": {
+      "jsInitial": 133,
+      "allInitial": 1238,
+      "jsAll": 133,
+      "all": 1238,
+      "byKey": {
+        "initial:Stylesheet": 0,
+        "initial:Document": 374,
+        "initial:Script": 133,
+        "initial:Image": 0,
+        "initial:Font": 731,
+        "scroll:Image": 0,
+        "projects:Image": 0
+      }
+    },
+    "frames": {
+      "n": 244,
+      "p50": 16.7,
+      "p95": 16.7,
+      "over33": 0,
+      "over50": 0
+    },
+    "phases": [
+      {
+        "name": "hero-idle",
+        "rafPerSec": 0,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 0
+      },
+      {
+        "name": "projects",
+        "rafPerSec": 0.3,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 1218
+      },
+      {
+        "name": "contact",
+        "rafPerSec": 0,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 10576
+      },
+      {
+        "name": "idle-top",
+        "rafPerSec": 0,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 0
+      }
+    ],
+    "heroImg": [
+      "200 /newimages/fonts/default.woff2 243B",
+      "200 /_next/image?url=/media/projects/propertydhundo.webp&w=1200&q=75 0B",
+      "200 /newimages/fonts/Anime.otf 244B",
+      "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 244B"
+    ],
+    "errors": {
+      "page": [],
+      "badStatus": [],
+      "analytics404": 0
+    }
+  }
+}

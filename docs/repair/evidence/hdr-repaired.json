@@ -1,0 +1,79 @@
+{
+  "base": "http://localhost:3102",
+  "control": {
+    "hdr": "valid",
+    "contextLoss": false,
+    "browser": "chromium",
+    "state": {
+      "sections": [
+        "hero",
+        "about",
+        "projects",
+        "work",
+        "experience",
+        "contact"
+      ],
+      "sectionCount": 6,
+      "h1": [
+        "I'm Vedant Khare."
+      ],
+      "h2": [
+        "Ask about my work",
+        "Selected work",
+        "Experience",
+        "About me",
+        "On GitHub",
+        "Let's talk"
+      ],
+      "mailto": 6,
+      "canvases": 0,
+      "bodyText": "Skip to content\nVK\nWork\nExperience\nAbout\nContact\nGitHub\n(opens in a new tab)\n♪\n\nHello,\n\nI'm Vedant Khare.\n\nFull-stack developer · B.Tech. Computer Science and Engineering, VIT Chennai\n\nArticulate, poi",
+      "appError": false,
+      "projectsControls": true
+    },
+    "hdrRequests": [],
+    "aborted": [],
+    "errors": {
+      "page": [],
+      "console": []
+    }
+  },
+  "treatment": {
+    "hdr": "abort",
+    "contextLoss": false,
+    "browser": "chromium",
+    "state": {
+      "sections": [
+        "hero",
+        "about",
+        "projects",
+        "work",
+        "experience",
+        "contact"
+      ],
+      "sectionCount": 6,
+      "h1": [
+        "I'm Vedant Khare."
+      ],
+      "h2": [
+        "Ask about my work",
+        "Selected work",
+        "Experience",
+        "About me",
+        "On GitHub",
+        "Let's talk"
+      ],
+      "mailto": 6,
+      "canvases": 0,
+      "bodyText": "Skip to content\nVK\nWork\nExperience\nAbout\nContact\nGitHub\n(opens in a new tab)\n♪\n\nHello,\n\nI'm Vedant Khare.\n\nFull-stack developer · B.Tech. Computer Science and Engineering, VIT Chennai\n\nArticulate, poi",
+      "appError": false,
+      "projectsControls": true
+    },
+    "hdrRequests": [],
+    "aborted": [],
+    "errors": {
+      "page": [],
+      "console": []
+    }
+  }
+}

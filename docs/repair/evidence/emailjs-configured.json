@@ -1,0 +1,18 @@
+{
+  "success": {
+    "sendsCaptured": 1,
+    "payloadHasFields": true,
+    "status": "Thanks — your message was sent. I'll reply by email.",
+    "messageAfter": "",
+    "mailtoOffered": 0,
+    "pageErrors": []
+  },
+  "failure": {
+    "sendsCaptured": 1,
+    "payloadHasFields": true,
+    "status": "Your message wasn't sent. Your draft is kept below — try again, or email me directly. Open your email app with this message or write to kharevedant05@gmail.com.",
+    "messageAfter": "Captured test message",
+    "mailtoOffered": 1,
+    "pageErrors": []
+  }
+}

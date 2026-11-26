@@ -1,0 +1,734 @@
+{
+  "label": "final",
+  "tier": "desktop",
+  "gpu": true,
+  "override": true,
+  "trials": 3,
+  "medians": {
+    "lcp": 172,
+    "lcpRange": [
+      172,
+      200
+    ],
+    "cls": 0,
+    "tbt": 76,
+    "longTasks": 2,
+    "jsInitial": 168409,
+    "allInitial": 726676,
+    "all": 8679073,
+    "jsAll": 788139,
+    "frameP50": 16.7,
+    "frameP95": 16.7,
+    "over33": 0,
+    "over50": 0,
+    "nextProjectMs": 54.3,
+    "rafHeroIdle": 0,
+    "rafProjects": 53.5,
+    "rafContact": 106,
+    "rafIdleTop": 0
+  },
+  "warm": {
+    "lcp": 140,
+    "allInitial": 1238,
+    "jsInitial": 133
+  },
+  "runs": [
+    {
+      "run": 0,
+      "warm": false,
+      "loadMs": 647,
+      "modalSeen": false,
+      "lcp": 200,
+      "lcpEl": "H1.mt-2 text-[clamp(2.75rem,7vw,5.5rem)] font-semibold leading- I'm Vedant Khare.",
+      "cls": 0.0001,
+      "shifts": [
+        [
+          517,
+          0.0001
+        ],
+        [
+          555,
+          0
+        ]
+      ],
+      "longTasks": 2,
+      "longTaskMs": 190,
+      "maxLongTask": 104,
+      "tbtApprox": 90,
+      "events": [
+        [
+          "pointerout",
+          9799,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9799,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9799,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9799,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          9799,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          9799,
+          16,
+          0
+        ],
+        [
+          "mouseout",
+          9799,
+          16,
+          0
+        ],
+        [
+          "mouseover",
+          9799,
+          16,
+          0
+        ],
+        [
+          "pointerout",
+          10199,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          10199,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          10199,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          10199,
+          16,
+          0
+        ]
+      ],
+      "nextProjectMs": [
+        63,
+        54.1,
+        54.3
+      ],
+      "bytes": {
+        "jsInitial": 168409,
+        "allInitial": 726676,
+        "jsAll": 788139,
+        "all": 8679073,
+        "byKey": {
+          "initial:Document": 26294,
+          "initial:Stylesheet": 8787,
+          "initial:Font": 259493,
+          "initial:Script": 168409,
+          "initial:Image": 259973,
+          "initial:Fetch": 3720,
+          "scroll:Image": 300464,
+          "scroll:Fetch": 6505464,
+          "scroll:Script": 309893,
+          "scroll:Media": 140553,
+          "projects:Script": 309837,
+          "projects:Fetch": 0,
+          "projects:Image": 51118,
+          "projects:Media": 335068
+        }
+      },
+      "frames": {
+        "n": 257,
+        "p50": 16.7,
+        "p95": 16.8,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 53.5,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 866
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 105.8,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 6975
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 0,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /newimages/fonts/default.woff2 59378B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=828&q=75 16472B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=96&q=75 1506B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /_next/image?url=/media/projects/medwe.webp&w=96&q=75 1995B",
+        "200 /_next/image?url=/media/projects/chatapp.webp&w=96&q=75 1101B",
+        "200 /_next/image?url=/media/projects/pixabay-gallery.webp&w=96&q=75 2030B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [],
+        "analytics404": 0
+      }
+    },
+    {
+      "run": 1,
+      "warm": false,
+      "loadMs": 643,
+      "modalSeen": false,
+      "lcp": 172,
+      "lcpEl": "H1.mt-2 text-[clamp(2.75rem,7vw,5.5rem)] font-semibold leading- I'm Vedant Khare.",
+      "cls": 0.0001,
+      "shifts": [
+        [
+          515,
+          0.0001
+        ],
+        [
+          550,
+          0
+        ]
+      ],
+      "longTasks": 2,
+      "longTaskMs": 165,
+      "maxLongTask": 89,
+      "tbtApprox": 65,
+      "events": [
+        [
+          "pointerout",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          9780,
+          16,
+          0
+        ],
+        [
+          "mouseout",
+          9780,
+          16,
+          0
+        ],
+        [
+          "mouseover",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerout",
+          10264,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          10264,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          10264,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          10264,
+          16,
+          0
+        ]
+      ],
+      "nextProjectMs": [
+        55,
+        61.7,
+        58.4
+      ],
+      "bytes": {
+        "jsInitial": 168409,
+        "allInitial": 726676,
+        "jsAll": 788139,
+        "all": 8679073,
+        "byKey": {
+          "initial:Document": 26294,
+          "initial:Stylesheet": 8787,
+          "initial:Font": 259493,
+          "initial:Script": 168409,
+          "initial:Image": 259973,
+          "initial:Fetch": 3720,
+          "scroll:Image": 300464,
+          "scroll:Fetch": 6505464,
+          "scroll:Script": 309893,
+          "scroll:Media": 140553,
+          "projects:Script": 309837,
+          "projects:Fetch": 0,
+          "projects:Image": 51118,
+          "projects:Media": 335068
+        }
+      },
+      "frames": {
+        "n": 256,
+        "p50": 16.7,
+        "p95": 16.7,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 54,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 866
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 106,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 6975
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 0,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /newimages/fonts/default.woff2 59378B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=828&q=75 16472B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=96&q=75 1506B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /_next/image?url=/media/projects/medwe.webp&w=96&q=75 1995B",
+        "200 /_next/image?url=/media/projects/chatapp.webp&w=96&q=75 1101B",
+        "200 /_next/image?url=/media/projects/pixabay-gallery.webp&w=96&q=75 2030B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [],
+        "analytics404": 0
+      }
+    },
+    {
+      "run": 2,
+      "warm": false,
+      "loadMs": 642,
+      "modalSeen": false,
+      "lcp": 172,
+      "lcpEl": "H1.mt-2 text-[clamp(2.75rem,7vw,5.5rem)] font-semibold leading- I'm Vedant Khare.",
+      "cls": 0.0001,
+      "shifts": [
+        [
+          514,
+          0.0001
+        ],
+        [
+          549,
+          0
+        ]
+      ],
+      "longTasks": 2,
+      "longTaskMs": 176,
+      "maxLongTask": 92,
+      "tbtApprox": 76,
+      "events": [
+        [
+          "pointerout",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          9780,
+          16,
+          0
+        ],
+        [
+          "mouseout",
+          9780,
+          16,
+          0
+        ],
+        [
+          "mouseover",
+          9780,
+          16,
+          0
+        ],
+        [
+          "pointerout",
+          10263,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          10263,
+          16,
+          0
+        ],
+        [
+          "pointerover",
+          10263,
+          16,
+          0
+        ],
+        [
+          "pointerenter",
+          10263,
+          16,
+          0
+        ]
+      ],
+      "nextProjectMs": [
+        52.5,
+        44.8,
+        44.3
+      ],
+      "bytes": {
+        "jsInitial": 168409,
+        "allInitial": 726676,
+        "jsAll": 788139,
+        "all": 8679073,
+        "byKey": {
+          "initial:Document": 26294,
+          "initial:Stylesheet": 8787,
+          "initial:Font": 259493,
+          "initial:Script": 168409,
+          "initial:Image": 259973,
+          "initial:Fetch": 3720,
+          "scroll:Image": 300464,
+          "scroll:Fetch": 6505464,
+          "scroll:Script": 309893,
+          "scroll:Media": 140553,
+          "projects:Script": 309837,
+          "projects:Fetch": 0,
+          "projects:Image": 51118,
+          "projects:Media": 335068
+        }
+      },
+      "frames": {
+        "n": 257,
+        "p50": 16.7,
+        "p95": 16.7,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 0,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 53.5,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 866
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 106,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 6975
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 0,
+          "canvases": 5,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /newimages/fonts/default.woff2 59378B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=828&q=75 16472B",
+        "200 /_next/image?url=/media/projects/propertydhundo.webp&w=96&q=75 1506B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /_next/image?url=/media/projects/medwe.webp&w=96&q=75 1995B",
+        "200 /_next/image?url=/media/projects/chatapp.webp&w=96&q=75 1101B",
+        "200 /_next/image?url=/media/projects/pixabay-gallery.webp&w=96&q=75 2030B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [],
+        "analytics404": 0
+      }
+    }
+  ],
+  "warmRun": {
+    "run": 99,
+    "warm": true,
+    "loadMs": 122,
+    "modalSeen": false,
+    "lcp": 140,
+    "lcpEl": "H1.mt-2 text-[clamp(2.75rem,7vw,5.5rem)] font-semibold leading- I'm Vedant Khare.",
+    "cls": 0.0001,
+    "shifts": [
+      [
+        120,
+        0.0001
+      ]
+    ],
+    "longTasks": 2,
+    "longTaskMs": 145,
+    "maxLongTask": 78,
+    "tbtApprox": 45,
+    "events": [
+      [
+        "pointerout",
+        9732,
+        72,
+        0
+      ],
+      [
+        "pointerover",
+        9732,
+        72,
+        0
+      ],
+      [
+        "pointerenter",
+        9732,
+        72,
+        0
+      ],
+      [
+        "pointerenter",
+        9732,
+        72,
+        0
+      ],
+      [
+        "pointerenter",
+        9732,
+        72,
+        0
+      ],
+      [
+        "mouseout",
+        9732,
+        72,
+        0
+      ],
+      [
+        "mouseover",
+        9732,
+        72,
+        0
+      ],
+      [
+        "pointerout",
+        9831,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        9831,
+        16,
+        0
+      ],
+      [
+        "pointerover",
+        9831,
+        16,
+        0
+      ],
+      [
+        "pointerenter",
+        9831,
+        16,
+        0
+      ],
+      [
+        "mouseout",
+        9831,
+        16,
+        0
+      ]
+    ],
+    "nextProjectMs": [
+      55.3,
+      60.1,
+      60.3
+    ],
+    "bytes": {
+      "jsInitial": 133,
+      "allInitial": 1238,
+      "jsAll": 133,
+      "all": 1238,
+      "byKey": {
+        "initial:Stylesheet": 0,
+        "initial:Document": 374,
+        "initial:Image": 0,
+        "initial:Script": 133,
+        "initial:Font": 731,
+        "scroll:Image": 0,
+        "scroll:Fetch": 0,
+        "scroll:Script": 0,
+        "scroll:Media": 0,
+        "projects:Image": 0,
+        "projects:Media": 0
+      }
+    },
+    "frames": {
+      "n": 278,
+      "p50": 16.7,
+      "p95": 16.7,
+      "over33": 2,
+      "over50": 1
+    },
+    "phases": [
+      {
+        "name": "hero-idle",
+        "rafPerSec": 0,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 0
+      },
+      {
+        "name": "projects",
+        "rafPerSec": 57.8,
+        "canvases": 5,
+        "videosPlaying": 0,
+        "scrollY": 866
+      },
+      {
+        "name": "contact",
+        "rafPerSec": 107.3,
+        "canvases": 5,
+        "videosPlaying": 0,
+        "scrollY": 6975
+      },
+      {
+        "name": "idle-top",
+        "rafPerSec": 0,
+        "canvases": 5,
+        "videosPlaying": 0,
+        "scrollY": 0
+      }
+    ],
+    "heroImg": [
+      "200 /newimages/fonts/default.woff2 243B",
+      "200 /newimages/fonts/Anime.otf 244B",
+      "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 244B",
+      "200 /_next/image?url=/media/projects/propertydhundo.webp&w=828&q=75 0B",
+      "200 /_next/image?url=/media/projects/propertydhundo.webp&w=96&q=75 0B",
+      "200 /_next/image?url=/media/projects/medwe.webp&w=96&q=75 0B",
+      "200 /_next/image?url=/media/projects/chatapp.webp&w=96&q=75 0B",
+      "200 /_next/image?url=/media/projects/pixabay-gallery.webp&w=96&q=75 0B"
+    ],
+    "errors": {
+      "page": [],
+      "badStatus": [],
+      "analytics404": 0
+    }
+  }
+}

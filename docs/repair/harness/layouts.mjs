@@ -1,0 +1,24 @@
+import { chromium } from "playwright";
+import path from "node:path"; import fs from "node:fs";
+import { EVIDENCE } from "./lib.mjs";
+const base = process.argv[2]; const dir = path.join(EVIDENCE, "shots", "layouts"); fs.mkdirSync(dir, { recursive: true });
+const b = await chromium.launch({ args: ["--enable-unsafe-swiftshader"] });
+const istUtc = (h) => new Date(Date.UTC(2026, 10, 20, h, 0) - 330 * 60000).toISOString();
+const shoot = async (name, ctx, hash = "", iso = istUtc(14)) => {
+  const c = await b.newContext(ctx);
+  await c.addInitScript((iso) => { const R = Date; const off = R.parse(iso) - R.now(); class D extends R { constructor(...a) { if (a.length) super(...a); else super(R.now() + off); } static now() { return R.now() + off; } } window.Date = D; }, iso);
+  await c.route(/\/_vercel\//, (r) => r.fulfill({ status: 200, body: "" }));
+  const p = await c.newPage(); await p.goto(base + "/" + hash); await p.waitForTimeout(1800);
+  const overflow = await p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  await p.screenshot({ path: path.join(dir, name + ".png") }); await c.close(); return overflow;
+};
+const res = {};
+res.tablet = await shoot("tablet-768", { viewport: { width: 768, height: 1024 }, hasTouch: true, isMobile: true });
+res.tabletProjects = await shoot("tablet-768-projects", { viewport: { width: 768, height: 1024 }, hasTouch: true, isMobile: true }, "#projects");
+res.wide = await shoot("wide-2560", { viewport: { width: 2560, height: 1300 } });
+res.zoom200 = await shoot("zoom200-hero", { viewport: { width: 720, height: 450 }, deviceScaleFactor: 2 });
+res.zoom200p = await shoot("zoom200-projects", { viewport: { width: 720, height: 450 }, deviceScaleFactor: 2 }, "#projects");
+res.landscape = await shoot("phone-landscape", { viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
+for (const [h, n] of [[7, "morning"], [14, "afternoon"], [18, "evening"], [23, "night"]]) res["phone-" + n] = await shoot("phone-hero-" + n, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 }, "", istUtc(h));
+for (const [h, n] of [[7, "morning"], [18, "evening"], [23, "night"]]) res["desk-" + n] = await shoot("desk-hero-" + n, { viewport: { width: 1440, height: 900 } }, "", istUtc(h));
+await b.close(); console.log("horizontal overflow px:", JSON.stringify(res)); console.log(dir);

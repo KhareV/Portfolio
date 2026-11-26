@@ -1,0 +1,864 @@
+{
+  "label": "baseline",
+  "tier": "phone",
+  "gpu": true,
+  "override": true,
+  "trials": 3,
+  "medians": {
+    "lcp": 3832,
+    "lcpRange": [
+      3824,
+      6536
+    ],
+    "cls": 0.1,
+    "tbt": 0,
+    "longTasks": 0,
+    "jsInitial": 291717,
+    "allInitial": 3787930,
+    "all": 4370162,
+    "jsAll": 291717,
+    "frameP50": 16.7,
+    "frameP95": 16.8,
+    "over33": 0,
+    "over50": 0,
+    "nextProjectMs": 47,
+    "rafHeroIdle": 77.3,
+    "rafProjects": 92.8,
+    "rafContact": 73,
+    "rafIdleTop": 76.2
+  },
+  "warm": {
+    "lcp": 3900,
+    "allInitial": 2681141,
+    "jsInitial": 133
+  },
+  "runs": [
+    {
+      "run": 0,
+      "warm": false,
+      "loadMs": 18523,
+      "modalSeen": false,
+      "lcp": 3824,
+      "lcpEl": "H1.font-hero-display -mt-2 sm:-mt-4 md:-mt-8 mx-auto max-w-[860 H",
+      "cls": 0.1216,
+      "shifts": [
+        [
+          3205,
+          0.0557
+        ],
+        [
+          3399,
+          0.0001
+        ],
+        [
+          3865,
+          0
+        ],
+        [
+          3931,
+          0.0001
+        ],
+        [
+          3998,
+          0.0001
+        ],
+        [
+          4064,
+          0.0001
+        ],
+        [
+          4099,
+          0
+        ],
+        [
+          4115,
+          0
+        ],
+        [
+          4148,
+          0
+        ],
+        [
+          4199,
+          0.0525
+        ]
+      ],
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "maxLongTask": 0,
+      "tbtApprox": 0,
+      "events": [
+        [
+          "pointerout",
+          27696,
+          16,
+          0
+        ],
+        [
+          "pointerleave",
+          27696,
+          16,
+          1
+        ],
+        [
+          "pointerleave",
+          27696,
+          16,
+          1
+        ],
+        [
+          "pointerleave",
+          27696,
+          16,
+          1
+        ],
+        [
+          "pointerleave",
+          27696,
+          16,
+          1
+        ],
+        [
+          "pointerleave",
+          27696,
+          16,
+          1
+        ],
+        [
+          "pointerleave",
+          27696,
+          16,
+          1
+        ],
+        [
+          "pointerleave",
+          27696,
+          16,
+          1
+        ],
+        [
+          "pointerover",
+          27696,
+          16,
+          1
+        ],
+        [
+          "mouseout",
+          27696,
+          16,
+          1
+        ],
+        [
+          "mouseover",
+          27696,
+          16,
+          1
+        ],
+        [
+          "pointerout",
+          27930,
+          16,
+          0
+        ]
+      ],
+      "nextProjectMs": [
+        50.9,
+        47,
+        60.3
+      ],
+      "bytes": {
+        "jsInitial": 291717,
+        "allInitial": 3787930,
+        "jsAll": 291717,
+        "all": 4370174,
+        "byKey": {
+          "initial:Document": 11923,
+          "initial:Script": 291717,
+          "initial:Stylesheet": 15314,
+          "initial:Font": 259493,
+          "initial:Image": 3206083,
+          "initial:Fetch": 3400,
+          "scroll:Image": 464201,
+          "projects:Image": 118043
+        }
+      },
+      "frames": {
+        "n": 290,
+        "p50": 16.7,
+        "p95": 16.8,
+        "over33": 4,
+        "over50": 2
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 77.3,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 92.8,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 9187
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 73,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 10168
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 76.2,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /_next/image?url=/newimages/after_alt.avif&w=1200&q=75 371868B",
+        "200 /newimages/fonts/default.woff2 59378B",
+        "400 /_next/image?url=/newimages/hero-1.avif&w=640&q=56 44B",
+        "400 /_next/image?url=/newimages/after_alt.avif&w=640&q=56 44B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B",
+        "200 /_next/image?url=https://avatars.githubusercontent.com/u/0?v=4&w=256&q=75 173B",
+        "200 /_next/image?url=/newimages/vedant-profile.jpg&w=1200&q=75 26739B"
+      ],
+      "errors": {
+        "page": [
+          "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+        ],
+        "badStatus": [
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fhero-1.avif&w=640&q=56",
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fafter_alt.avif&w=640&q=56"
+        ],
+        "analytics404": 0
+      }
+    },
+    {
+      "run": 1,
+      "warm": false,
+      "loadMs": 18527,
+      "modalSeen": false,
+      "lcp": 3832,
+      "lcpEl": "H1.font-hero-display -mt-2 sm:-mt-4 md:-mt-8 mx-auto max-w-[860 H",
+      "cls": 0.122,
+      "shifts": [
+        [
+          3219,
+          0.0557
+        ],
+        [
+          3399,
+          0.0001
+        ],
+        [
+          3826,
+          0.0002
+        ],
+        [
+          3882,
+          0
+        ],
+        [
+          3948,
+          0.0001
+        ],
+        [
+          4014,
+          0.0001
+        ],
+        [
+          4083,
+          0.0001
+        ],
+        [
+          4117,
+          0
+        ],
+        [
+          4132,
+          0
+        ],
+        [
+          4183,
+          0
+        ]
+      ],
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "maxLongTask": 0,
+      "tbtApprox": 0,
+      "events": [
+        [
+          "pointerover",
+          27573,
+          16,
+          7
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          7
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          7
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          7
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          7
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          8
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          8
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          8
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          8
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          8
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          8
+        ],
+        [
+          "pointerenter",
+          27573,
+          16,
+          8
+        ]
+      ],
+      "nextProjectMs": [
+        46.4,
+        47.4,
+        45.3
+      ],
+      "bytes": {
+        "jsInitial": 291717,
+        "allInitial": 3787930,
+        "jsAll": 291717,
+        "all": 4370162,
+        "byKey": {
+          "initial:Document": 11923,
+          "initial:Script": 291717,
+          "initial:Stylesheet": 15314,
+          "initial:Font": 259493,
+          "initial:Image": 3206083,
+          "initial:Fetch": 3400,
+          "scroll:Image": 464194,
+          "projects:Image": 118038
+        }
+      },
+      "frames": {
+        "n": 296,
+        "p50": 16.7,
+        "p95": 16.7,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 77.3,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 92.8,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 9187
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 73,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 10168
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 76.2,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /_next/image?url=/newimages/after_alt.avif&w=1200&q=75 371868B",
+        "200 /newimages/fonts/default.woff2 59378B",
+        "400 /_next/image?url=/newimages/hero-1.avif&w=640&q=56 44B",
+        "400 /_next/image?url=/newimages/after_alt.avif&w=640&q=56 44B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B",
+        "200 /_next/image?url=https://avatars.githubusercontent.com/u/0?v=4&w=256&q=75 173B",
+        "200 /_next/image?url=/newimages/vedant-profile.jpg&w=1200&q=75 26739B"
+      ],
+      "errors": {
+        "page": [
+          "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+        ],
+        "badStatus": [
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fhero-1.avif&w=640&q=56",
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fafter_alt.avif&w=640&q=56"
+        ],
+        "analytics404": 0
+      }
+    },
+    {
+      "run": 2,
+      "warm": false,
+      "loadMs": 4572,
+      "modalSeen": false,
+      "lcp": 6536,
+      "lcpEl": "IMG.object-cover object-bottom http://localhost:3101/_next/image?url=%2Fnewimages%2Fafternoonfoot.png&w=1200&q=75",
+      "cls": 0.12,
+      "shifts": [
+        [
+          3201,
+          0.0557
+        ],
+        [
+          3414,
+          0.0001
+        ],
+        [
+          3514,
+          0.0013
+        ],
+        [
+          3807,
+          0.0002
+        ],
+        [
+          3864,
+          0
+        ],
+        [
+          3931,
+          0.0001
+        ],
+        [
+          3998,
+          0.0001
+        ],
+        [
+          4065,
+          0.0001
+        ],
+        [
+          4098,
+          0
+        ],
+        [
+          4114,
+          0
+        ]
+      ],
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "maxLongTask": 0,
+      "tbtApprox": 0,
+      "events": [
+        [
+          "pointerover",
+          13613,
+          32,
+          16
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ],
+        [
+          "pointerenter",
+          13613,
+          32,
+          17
+        ]
+      ],
+      "nextProjectMs": [
+        45,
+        47.9,
+        45
+      ],
+      "bytes": {
+        "jsInitial": 291717,
+        "allInitial": 1108424,
+        "jsAll": 291717,
+        "all": 1690829,
+        "byKey": {
+          "initial:Document": 11923,
+          "initial:Script": 291717,
+          "initial:Stylesheet": 15314,
+          "initial:Font": 259493,
+          "initial:Image": 526577,
+          "initial:Fetch": 3400,
+          "scroll:Image": 464367,
+          "projects:Image": 118038
+        }
+      },
+      "frames": {
+        "n": 296,
+        "p50": 16.7,
+        "p95": 16.8,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 75.7,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 91.8,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 9187
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 73,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 10168
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 70.8,
+          "canvases": 0,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /_next/image?url=/newimages/after_alt.avif&w=1200&q=75 371868B",
+        "200 /newimages/fonts/default.woff2 59378B",
+        "400 /_next/image?url=/newimages/hero-1.avif&w=640&q=56 44B",
+        "400 /_next/image?url=/newimages/after_alt.avif&w=640&q=56 44B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B",
+        "200 /_next/image?url=/newimages/vedant-profile.jpg&w=1200&q=75 26739B",
+        "200 /_next/image?url=/newimages/afternoonfoot.png&w=1200&q=75 126809B"
+      ],
+      "errors": {
+        "page": [
+          "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+        ],
+        "badStatus": [
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fhero-1.avif&w=640&q=56",
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fafter_alt.avif&w=640&q=56"
+        ],
+        "analytics404": 0
+      }
+    }
+  ],
+  "warmRun": {
+    "run": 99,
+    "warm": true,
+    "loadMs": 13520,
+    "modalSeen": false,
+    "lcp": 3900,
+    "lcpEl": "IMG.object-cover object-bottom http://localhost:3101/_next/image?url=%2Fnewimages%2Fafternoonfoot.png&w=1200&q=75",
+    "cls": 0.066,
+    "shifts": [
+      [
+        999,
+        0.0002
+      ],
+      [
+        1065,
+        0
+      ],
+      [
+        1132,
+        0.0001
+      ],
+      [
+        1198,
+        0.0001
+      ],
+      [
+        1248,
+        0
+      ],
+      [
+        1265,
+        0.0001
+      ],
+      [
+        1315,
+        0
+      ],
+      [
+        1348,
+        0
+      ],
+      [
+        1365,
+        0
+      ],
+      [
+        1398,
+        0.0525
+      ]
+    ],
+    "longTasks": 0,
+    "longTaskMs": 0,
+    "maxLongTask": 0,
+    "tbtApprox": 0,
+    "events": [
+      [
+        "pointerout",
+        22680,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        22680,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        22680,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        22680,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        22680,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        22680,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        22680,
+        16,
+        0
+      ],
+      [
+        "pointerleave",
+        22680,
+        16,
+        0
+      ],
+      [
+        "pointerover",
+        22680,
+        16,
+        0
+      ],
+      [
+        "mouseout",
+        22680,
+        16,
+        0
+      ],
+      [
+        "mouseover",
+        22680,
+        16,
+        1
+      ],
+      [
+        "pointerout",
+        22913,
+        16,
+        1
+      ]
+    ],
+    "nextProjectMs": [
+      62.6,
+      61.6,
+      43.9
+    ],
+    "bytes": {
+      "jsInitial": 133,
+      "allInitial": 2681141,
+      "jsAll": 133,
+      "all": 2681314,
+      "byKey": {
+        "initial:Image": 2679903,
+        "initial:Stylesheet": 0,
+        "initial:Document": 374,
+        "initial:Script": 133,
+        "initial:Font": 731,
+        "scroll:Image": 173,
+        "projects:Image": 0
+      }
+    },
+    "frames": {
+      "n": 294,
+      "p50": 16.7,
+      "p95": 16.8,
+      "over33": 1,
+      "over50": 1
+    },
+    "phases": [
+      {
+        "name": "hero-idle",
+        "rafPerSec": 65.3,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 0
+      },
+      {
+        "name": "projects",
+        "rafPerSec": 80.3,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 9187
+      },
+      {
+        "name": "contact",
+        "rafPerSec": 73,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 10168
+      },
+      {
+        "name": "idle-top",
+        "rafPerSec": 70.2,
+        "canvases": 0,
+        "videosPlaying": 0,
+        "scrollY": 0
+      }
+    ],
+    "heroImg": [
+      "200 /_next/image?url=/newimages/after_alt.avif&w=1200&q=75 0B",
+      "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 244B",
+      "200 /newimages/fonts/Anime.otf 244B",
+      "200 /newimages/fonts/default.woff2 243B",
+      "400 /_next/image?url=/newimages/hero-1.avif&w=640&q=56 44B",
+      "400 /_next/image?url=/newimages/after_alt.avif&w=640&q=56 44B",
+      "200 /_next/image?url=/newimages/vedant-profile.jpg&w=1200&q=75 0B",
+      "200 /_next/image?url=/newimages/afternoonfoot.png&w=1200&q=75 0B"
+    ],
+    "errors": {
+      "page": [
+        "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "badStatus": [
+        "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fhero-1.avif&w=640&q=56",
+        "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fafter_alt.avif&w=640&q=56"
+      ],
+      "analytics404": 0
+    }
+  }
+}

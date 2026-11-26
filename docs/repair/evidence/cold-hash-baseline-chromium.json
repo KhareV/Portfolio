@@ -1,0 +1,172 @@
+[
+  {
+    "viewport": "desktop-1440",
+    "hash": "contact",
+    "firstSeenMs": 3592,
+    "scrollY": 0,
+    "exists": true,
+    "top": 7501,
+    "visible": false,
+    "headingTop": 7617,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#contact",
+    "docHeight": 10581,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "desktop-1440",
+    "hash": "projects",
+    "firstSeenMs": 3594,
+    "scrollY": 0,
+    "exists": true,
+    "top": 6457,
+    "visible": false,
+    "headingTop": 6553,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#projects",
+    "docHeight": 10581,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "desktop-1440",
+    "hash": "about",
+    "firstSeenMs": 3278,
+    "scrollY": 0,
+    "exists": true,
+    "top": 1949,
+    "visible": false,
+    "headingTop": 2045,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#about",
+    "docHeight": 10581,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "desktop-1440",
+    "hash": "work",
+    "firstSeenMs": 3572,
+    "scrollY": 0,
+    "exists": true,
+    "top": 8587,
+    "visible": false,
+    "headingTop": 8587,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#work",
+    "docHeight": 10581,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "desktop-1440",
+    "hash": "hero",
+    "firstSeenMs": 40,
+    "scrollY": 0,
+    "exists": true,
+    "top": 0,
+    "visible": true,
+    "headingTop": 128,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#hero",
+    "docHeight": 10581,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "phone-390",
+    "hash": "contact",
+    "firstSeenMs": 3632,
+    "scrollY": 0,
+    "exists": true,
+    "top": 10332,
+    "visible": false,
+    "headingTop": 10432,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#contact",
+    "docHeight": 13848,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "phone-390",
+    "hash": "projects",
+    "firstSeenMs": 3558,
+    "scrollY": 0,
+    "exists": true,
+    "top": 9275,
+    "visible": false,
+    "headingTop": 9307,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#projects",
+    "docHeight": 13848,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "phone-390",
+    "hash": "about",
+    "firstSeenMs": 3579,
+    "scrollY": 0,
+    "exists": true,
+    "top": 1614,
+    "visible": false,
+    "headingTop": 1662,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#about",
+    "docHeight": 13848,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "phone-390",
+    "hash": "work",
+    "firstSeenMs": 3645,
+    "scrollY": 0,
+    "exists": true,
+    "top": 11278,
+    "visible": false,
+    "headingTop": 11278,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#work",
+    "docHeight": 13848,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "phone-390",
+    "hash": "hero",
+    "firstSeenMs": 38,
+    "scrollY": 0,
+    "exists": true,
+    "top": 0,
+    "visible": true,
+    "headingTop": 88,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#hero",
+    "docHeight": 13848,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  }
+]

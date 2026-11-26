@@ -18,8 +18,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Deprecated legacy section retained for reference only.
-    "app/sections/Contact_old.jsx",
+    "docs/**",
+    "test-results/**",
+    "playwright-report/**",
   ]),
 ]);
 

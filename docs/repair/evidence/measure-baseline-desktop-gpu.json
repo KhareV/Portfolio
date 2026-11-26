@@ -1,0 +1,873 @@
+{
+  "label": "baseline",
+  "tier": "desktop",
+  "gpu": true,
+  "override": true,
+  "trials": 3,
+  "medians": {
+    "lcp": 1100,
+    "lcpRange": [
+      1100,
+      1104
+    ],
+    "cls": 0,
+    "tbt": 16,
+    "longTasks": 1,
+    "jsInitial": 816774,
+    "allInitial": 6675838,
+    "all": 12145380,
+    "jsAll": 1257570,
+    "frameP50": 16.7,
+    "frameP95": 16.8,
+    "over33": 1,
+    "over50": 0,
+    "nextProjectMs": 48.9,
+    "rafHeroIdle": 197,
+    "rafProjects": 455,
+    "rafContact": 516.3,
+    "rafIdleTop": 431.4
+  },
+  "warm": {
+    "lcp": 808,
+    "allInitial": 256015,
+    "jsInitial": 133
+  },
+  "runs": [
+    {
+      "run": 0,
+      "warm": false,
+      "loadMs": 2879,
+      "modalSeen": true,
+      "lcp": 1100,
+      "lcpEl": "H2.font-hero-serif text-[clamp(2.15rem,4.5vw,3.9rem)] leading-[ Articulate, Poised, Principled, Vision-D",
+      "cls": 0.0429,
+      "shifts": [
+        [
+          715,
+          0.0004
+        ],
+        [
+          799,
+          0
+        ],
+        [
+          1288,
+          0.0002
+        ],
+        [
+          1348,
+          0
+        ],
+        [
+          1416,
+          0
+        ],
+        [
+          1482,
+          0.0001
+        ],
+        [
+          1548,
+          0.0001
+        ],
+        [
+          1582,
+          0
+        ],
+        [
+          1598,
+          0
+        ],
+        [
+          1614,
+          0
+        ]
+      ],
+      "longTasks": 1,
+      "longTaskMs": 69,
+      "maxLongTask": 69,
+      "tbtApprox": 19,
+      "events": [
+        [
+          "pointerover",
+          11951,
+          24,
+          0
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11951,
+          24,
+          1
+        ],
+        [
+          "mouseover",
+          11951,
+          24,
+          1
+        ],
+        [
+          "pointerdown",
+          11951,
+          24,
+          2
+        ]
+      ],
+      "nextProjectMs": [
+        78,
+        57.4,
+        45.4
+      ],
+      "bytes": {
+        "jsInitial": 816774,
+        "allInitial": 6675838,
+        "jsAll": 1257570,
+        "all": 12145386,
+        "byKey": {
+          "initial:Document": 11923,
+          "initial:Script": 816774,
+          "initial:Stylesheet": 15314,
+          "initial:Image": 3188189,
+          "initial:Font": 259493,
+          "initial:Fetch": 2343142,
+          "initial:Media": 41003,
+          "scroll:Fetch": 4341060,
+          "scroll:Image": 293108,
+          "scroll:Script": 440796,
+          "projects:Image": 223391,
+          "projects:Media": 170950,
+          "idle-top:Media": 243
+        }
+      },
+      "frames": {
+        "n": 343,
+        "p50": 16.7,
+        "p95": 16.8,
+        "over33": 2,
+        "over50": 2
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 197,
+          "canvases": 1,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 455,
+          "canvases": 4,
+          "videosPlaying": 0,
+          "scrollY": 10600
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 514.8,
+          "canvases": 3,
+          "videosPlaying": 0,
+          "scrollY": 7501
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 431.6,
+          "canvases": 2,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /_next/image?url=/newimages/after_alt.avif&w=1920&q=75 380886B",
+        "400 /_next/image?url=/newimages/hero-1.avif&w=1920&q=56 44B",
+        "200 /newimages/fonts/default.woff2 59378B",
+        "400 /_next/image?url=/newimages/after_alt.avif&w=1920&q=56 44B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B",
+        "200 /_next/image?url=/newimages/afternoonfoot.png&w=1920&q=75 126809B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fhero-1.avif&w=1920&q=56",
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fafter_alt.avif&w=1920&q=56"
+        ],
+        "analytics404": 0
+      }
+    },
+    {
+      "run": 1,
+      "warm": false,
+      "loadMs": 2877,
+      "modalSeen": true,
+      "lcp": 1100,
+      "lcpEl": "H2.font-hero-serif text-[clamp(2.15rem,4.5vw,3.9rem)] leading-[ Articulate, Poised, Principled, Vision-D",
+      "cls": 0.0429,
+      "shifts": [
+        [
+          714,
+          0.0004
+        ],
+        [
+          797,
+          0
+        ],
+        [
+          1303,
+          0.0002
+        ],
+        [
+          1363,
+          0
+        ],
+        [
+          1431,
+          0
+        ],
+        [
+          1497,
+          0.0001
+        ],
+        [
+          1564,
+          0.0001
+        ],
+        [
+          1596,
+          0
+        ],
+        [
+          1613,
+          0
+        ],
+        [
+          1630,
+          0
+        ]
+      ],
+      "longTasks": 1,
+      "longTaskMs": 65,
+      "maxLongTask": 65,
+      "tbtApprox": 15,
+      "events": [
+        [
+          "pointerover",
+          11949,
+          24,
+          0
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11949,
+          24,
+          1
+        ],
+        [
+          "mouseover",
+          11949,
+          24,
+          1
+        ],
+        [
+          "pointerdown",
+          11949,
+          24,
+          1
+        ]
+      ],
+      "nextProjectMs": [
+        58.4,
+        42.8,
+        47.1
+      ],
+      "bytes": {
+        "jsInitial": 816774,
+        "allInitial": 6675838,
+        "jsAll": 1257570,
+        "all": 12145380,
+        "byKey": {
+          "initial:Document": 11923,
+          "initial:Script": 816774,
+          "initial:Stylesheet": 15314,
+          "initial:Image": 3188189,
+          "initial:Font": 259493,
+          "initial:Fetch": 2343142,
+          "initial:Media": 41003,
+          "scroll:Fetch": 4341060,
+          "scroll:Image": 293108,
+          "scroll:Script": 440796,
+          "projects:Image": 223385,
+          "projects:Media": 170950,
+          "idle-top:Media": 243
+        }
+      },
+      "frames": {
+        "n": 344,
+        "p50": 16.7,
+        "p95": 16.8,
+        "over33": 0,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 197,
+          "canvases": 1,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 455.3,
+          "canvases": 4,
+          "videosPlaying": 0,
+          "scrollY": 10600
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 516.3,
+          "canvases": 3,
+          "videosPlaying": 0,
+          "scrollY": 7501
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 430.2,
+          "canvases": 2,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /_next/image?url=/newimages/after_alt.avif&w=1920&q=75 380886B",
+        "400 /_next/image?url=/newimages/hero-1.avif&w=1920&q=56 44B",
+        "200 /newimages/fonts/default.woff2 59378B",
+        "400 /_next/image?url=/newimages/after_alt.avif&w=1920&q=56 44B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B",
+        "200 /_next/image?url=/newimages/afternoonfoot.png&w=1920&q=75 126809B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fhero-1.avif&w=1920&q=56",
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fafter_alt.avif&w=1920&q=56"
+        ],
+        "analytics404": 0
+      }
+    },
+    {
+      "run": 2,
+      "warm": false,
+      "loadMs": 2878,
+      "modalSeen": true,
+      "lcp": 1104,
+      "lcpEl": "H2.font-hero-serif text-[clamp(2.15rem,4.5vw,3.9rem)] leading-[ Articulate, Poised, Principled, Vision-D",
+      "cls": 0.0429,
+      "shifts": [
+        [
+          717,
+          0.0004
+        ],
+        [
+          800,
+          0
+        ],
+        [
+          1308,
+          0.0002
+        ],
+        [
+          1367,
+          0
+        ],
+        [
+          1433,
+          0
+        ],
+        [
+          1500,
+          0.0001
+        ],
+        [
+          1567,
+          0.0001
+        ],
+        [
+          1600,
+          0
+        ],
+        [
+          1616,
+          0
+        ],
+        [
+          1633,
+          0
+        ]
+      ],
+      "longTasks": 1,
+      "longTaskMs": 66,
+      "maxLongTask": 66,
+      "tbtApprox": 16,
+      "events": [
+        [
+          "pointerover",
+          11936,
+          24,
+          0
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerenter",
+          11936,
+          24,
+          1
+        ],
+        [
+          "mouseover",
+          11936,
+          24,
+          1
+        ],
+        [
+          "pointerdown",
+          11936,
+          24,
+          2
+        ]
+      ],
+      "nextProjectMs": [
+        64,
+        42.5,
+        48.9
+      ],
+      "bytes": {
+        "jsInitial": 816774,
+        "allInitial": 6675838,
+        "jsAll": 1257570,
+        "all": 12145380,
+        "byKey": {
+          "initial:Document": 11923,
+          "initial:Script": 816774,
+          "initial:Stylesheet": 15314,
+          "initial:Image": 3188189,
+          "initial:Font": 259493,
+          "initial:Fetch": 2343142,
+          "initial:Media": 41003,
+          "scroll:Fetch": 4341060,
+          "scroll:Image": 293108,
+          "scroll:Script": 440796,
+          "projects:Image": 223385,
+          "projects:Media": 170950,
+          "idle-top:Media": 243
+        }
+      },
+      "frames": {
+        "n": 344,
+        "p50": 16.7,
+        "p95": 16.8,
+        "over33": 1,
+        "over50": 0
+      },
+      "phases": [
+        {
+          "name": "hero-idle",
+          "rafPerSec": 198,
+          "canvases": 1,
+          "videosPlaying": 0,
+          "scrollY": 0
+        },
+        {
+          "name": "projects",
+          "rafPerSec": 453.5,
+          "canvases": 4,
+          "videosPlaying": 0,
+          "scrollY": 10600
+        },
+        {
+          "name": "contact",
+          "rafPerSec": 516.3,
+          "canvases": 3,
+          "videosPlaying": 0,
+          "scrollY": 7501
+        },
+        {
+          "name": "idle-top",
+          "rafPerSec": 431.4,
+          "canvases": 2,
+          "videosPlaying": 0,
+          "scrollY": 0
+        }
+      ],
+      "heroImg": [
+        "200 /_next/image?url=/newimages/after_alt.avif&w=1920&q=75 380886B",
+        "400 /_next/image?url=/newimages/hero-1.avif&w=1920&q=56 44B",
+        "200 /newimages/fonts/default.woff2 59378B",
+        "400 /_next/image?url=/newimages/after_alt.avif&w=1920&q=56 44B",
+        "200 /newimages/fonts/Anime.otf 91335B",
+        "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 108780B",
+        "200 /_next/image?url=/newimages/afternoonfoot.png&w=1920&q=75 126809B"
+      ],
+      "errors": {
+        "page": [],
+        "badStatus": [
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fhero-1.avif&w=1920&q=56",
+          "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fafter_alt.avif&w=1920&q=56"
+        ],
+        "analytics404": 0
+      }
+    }
+  ],
+  "warmRun": {
+    "run": 99,
+    "warm": true,
+    "loadMs": 134,
+    "modalSeen": true,
+    "lcp": 808,
+    "lcpEl": "H1.font-hero-display -mt-2 sm:-mt-4 md:-mt-8 mx-auto max-w-[860 H",
+    "cls": 0.0426,
+    "shifts": [
+      [
+        786,
+        0.0002
+      ],
+      [
+        852,
+        0
+      ],
+      [
+        918,
+        0
+      ],
+      [
+        985,
+        0.0001
+      ],
+      [
+        1036,
+        0
+      ],
+      [
+        1053,
+        0.0001
+      ],
+      [
+        1101,
+        0
+      ],
+      [
+        1118,
+        0
+      ],
+      [
+        1134,
+        0
+      ],
+      [
+        1151,
+        0
+      ]
+    ],
+    "longTasks": 2,
+    "longTaskMs": 185,
+    "maxLongTask": 116,
+    "tbtApprox": 85,
+    "events": [
+      [
+        "pointerover",
+        9186,
+        24,
+        0
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerenter",
+        9186,
+        24,
+        1
+      ],
+      [
+        "mouseover",
+        9186,
+        24,
+        1
+      ],
+      [
+        "pointerdown",
+        9187,
+        24,
+        1
+      ]
+    ],
+    "nextProjectMs": [
+      62.6,
+      56.7,
+      45.1
+    ],
+    "bytes": {
+      "jsInitial": 133,
+      "allInitial": 256015,
+      "jsAll": 133,
+      "all": 258382,
+      "byKey": {
+        "initial:Image": 2764,
+        "initial:Stylesheet": 0,
+        "initial:Document": 374,
+        "initial:Script": 133,
+        "initial:Font": 731,
+        "initial:Fetch": 251769,
+        "initial:Media": 244,
+        "scroll:Fetch": 1221,
+        "scroll:Image": 173,
+        "scroll:Script": 0,
+        "projects:Image": 0,
+        "projects:Media": 730,
+        "idle-top:Media": 243
+      }
+    },
+    "frames": {
+      "n": 348,
+      "p50": 16.7,
+      "p95": 16.7,
+      "over33": 3,
+      "over50": 3
+    },
+    "phases": [
+      {
+        "name": "hero-idle",
+        "rafPerSec": 185.3,
+        "canvases": 1,
+        "videosPlaying": 0,
+        "scrollY": 0
+      },
+      {
+        "name": "projects",
+        "rafPerSec": 929,
+        "canvases": 4,
+        "videosPlaying": 0,
+        "scrollY": 10600
+      },
+      {
+        "name": "contact",
+        "rafPerSec": 999.3,
+        "canvases": 3,
+        "videosPlaying": 0,
+        "scrollY": 7501
+      },
+      {
+        "name": "idle-top",
+        "rafPerSec": 910.2,
+        "canvases": 2,
+        "videosPlaying": 0,
+        "scrollY": 0
+      }
+    ],
+    "heroImg": [
+      "200 /_next/image?url=/newimages/after_alt.avif&w=1920&q=75 0B",
+      "200 /newimages/fonts/IMFellEnglishSC-Regular.ttf 244B",
+      "200 /newimages/fonts/default.woff2 243B",
+      "200 /newimages/fonts/Anime.otf 244B",
+      "400 /_next/image?url=/newimages/hero-1.avif&w=1920&q=56 44B",
+      "400 /_next/image?url=/newimages/after_alt.avif&w=1920&q=56 44B",
+      "200 /_next/image?url=/newimages/afternoonfoot.png&w=1920&q=75 0B"
+    ],
+    "errors": {
+      "page": [],
+      "badStatus": [
+        "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fhero-1.avif&w=1920&q=56",
+        "400 http://localhost:3101/_next/image?url=%2Fnewimages%2Fafter_alt.avif&w=1920&q=56"
+      ],
+      "analytics404": 0
+    }
+  }
+}

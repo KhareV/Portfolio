@@ -1,0 +1,82 @@
+{
+  "base": "http://localhost:3101",
+  "control": {
+    "hdr": "valid",
+    "contextLoss": false,
+    "browser": "chromium",
+    "state": {
+      "sections": [
+        "hero",
+        "about",
+        "projects",
+        "work",
+        "contact",
+        "footer"
+      ],
+      "sectionCount": 6,
+      "h1": [
+        "Hello,I'm Vedant Khare."
+      ],
+      "h2": [
+        "Articulate, Poised, Principled, Vision-Driven",
+        "Ask Vedant",
+        "About Me",
+        "GitHub Stats",
+        "Selected Work.",
+        "Let's Talk",
+        "My Work Experience"
+      ],
+      "mailto": 2,
+      "canvases": 1,
+      "bodyText": "VK\nHome\nAbout\nWork\nContact\nGithub\nHello,\nI'm Vedant Khare.\nArticulate, Poised, Principled, Vision-Driven\n\nB.Tech. CSE student at VIT Chennai with 40+ projects and multiple hackathon wins. Specializing",
+      "appError": false,
+      "projectsControls": true
+    },
+    "hdrRequests": [
+      "https://raw.githack.com/pmndrs/drei-assets/456060a26bbeb8fdf79326f224b6d99b8bcce736/hdri/studio_small_03_1k.hdr"
+    ],
+    "aborted": [],
+    "errors": {
+      "page": [],
+      "console": [
+        "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+        "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+      ]
+    }
+  },
+  "treatment": {
+    "hdr": "abort",
+    "contextLoss": false,
+    "browser": "chromium",
+    "state": {
+      "sections": [],
+      "sectionCount": 0,
+      "h1": [],
+      "h2": [
+        "Application error: a client-side exception has occurred while loading localhost (see the browser console for more information)."
+      ],
+      "mailto": 0,
+      "canvases": 0,
+      "bodyText": "Application error: a client-side exception has occurred while loading localhost (see the browser console for more information).",
+      "appError": true,
+      "projectsControls": false
+    },
+    "hdrRequests": [
+      "https://raw.githack.com/pmndrs/drei-assets/456060a26bbeb8fdf79326f224b6d99b8bcce736/hdri/studio_small_03_1k.hdr"
+    ],
+    "aborted": [
+      "https://raw.githack.com/pmndrs/drei-assets/456060a26bbeb8fdf79326f224b6d99b8bcce736/hdri/studio_small_03_1k.hdr"
+    ],
+    "errors": {
+      "page": [
+        "Could not load studio_small_03_1k.hdr: Failed to fetch",
+        "Could not load studio_small_03_1k.hdr: Failed to fetch"
+      ],
+      "console": [
+        "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+        "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+        "Failed to load resource: net::ERR_FAILED"
+      ]
+    }
+  }
+}

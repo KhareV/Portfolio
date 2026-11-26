@@ -1,0 +1,66 @@
+[
+  {
+    "viewport": "desktop-1440",
+    "hash": "contact",
+    "firstSeenMs": 3657,
+    "scrollY": 0,
+    "exists": true,
+    "top": 7501,
+    "visible": false,
+    "headingTop": 7617,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#contact",
+    "docHeight": 11667,
+    "pageErrors": []
+  },
+  {
+    "viewport": "desktop-1440",
+    "hash": "projects",
+    "firstSeenMs": 3699,
+    "scrollY": 0,
+    "exists": true,
+    "top": 6457,
+    "visible": false,
+    "headingTop": 6553,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#projects",
+    "docHeight": 11667,
+    "pageErrors": []
+  },
+  {
+    "viewport": "phone-390",
+    "hash": "contact",
+    "firstSeenMs": 3592,
+    "scrollY": 0,
+    "exists": true,
+    "top": 10332,
+    "visible": false,
+    "headingTop": 10432,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#contact",
+    "docHeight": 13848,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "viewport": "phone-390",
+    "hash": "projects",
+    "firstSeenMs": 3579,
+    "scrollY": 0,
+    "exists": true,
+    "top": 9275,
+    "visible": false,
+    "headingTop": 9307,
+    "headerBottom": 74,
+    "active": "BODY#",
+    "hashNow": "#projects",
+    "docHeight": 13848,
+    "pageErrors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  }
+]
