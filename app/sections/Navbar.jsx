@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "../styles/spacing.jsx";
 
@@ -35,6 +35,20 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = useCallback(() => setIsOpen((prev) => !prev), []);
   const closeMenu = useCallback(() => setIsOpen(false), []);
+  const toggleRef = useRef(null);
+
+  // Escape closes the open mobile menu and returns focus to its toggle.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isOpen]);
 
   return (
     <header className="fixed inset-x-0 top-5 z-50">
@@ -82,16 +96,21 @@ const Navbar = () => {
 
           {/* MOBILE MENU BUTTON */}
           <button
+            ref={toggleRef}
             onClick={toggleMenu}
             aria-label="Toggle menu"
+            aria-expanded={isOpen}
+            aria-controls="mobile-nav-menu"
             className="sm:hidden grid h-10 w-10 place-items-center rounded-full text-white/80 transition-all hover:bg-white/10 hover:text-white active:scale-95"
           >
             {isOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
 
-        {/* MOBILE DROPDOWN */}
+        {/* MOBILE DROPDOWN (inert while closed: invisible links must not take focus) */}
         <div
+          id="mobile-nav-menu"
+          inert={!isOpen}
           className={cn(
             "sm:hidden absolute top-[calc(100%+1rem)] left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-[340px] transform-gpu overflow-hidden",
             "rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/10",

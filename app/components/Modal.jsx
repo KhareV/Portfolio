@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import {
@@ -13,6 +13,27 @@ import {
 
 const Modal = ({ onClose, toggle }) => {
   const modalRoot = document.getElementById("my-modal");
+  const yesButtonRef = useRef(null);
+
+  // Dialog keyboard semantics: focus the first action on open, Escape = "No",
+  // focus returns to where it was when the dialog closes.
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    yesButtonRef.current?.focus({ preventScroll: true });
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (previouslyFocused instanceof HTMLElement && document.contains(previouslyFocused)) {
+        previouslyFocused.focus({ preventScroll: true });
+      }
+    };
+  }, [onClose]);
 
   if (!modalRoot) return null;
 
@@ -33,6 +54,9 @@ const Modal = ({ onClose, toggle }) => {
         }}
       />
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="music-consent-title"
         initial={{ opacity: 0, scale: 0.97, y: 14 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
@@ -52,7 +76,10 @@ const Modal = ({ onClose, toggle }) => {
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/12 to-transparent" />
 
-        <p className="relative text-white font-semibold tracking-wide text-lg">
+        <p
+          id="music-consent-title"
+          className="relative text-white font-semibold tracking-wide text-lg"
+        >
           Would you like to play the background music?
         </p>
 
@@ -64,6 +91,7 @@ const Modal = ({ onClose, toggle }) => {
           className={cn(layout.flex.center, spacing.interactive.gap, "pt-1")}
         >
           <motion.button
+            ref={yesButtonRef}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             onClick={toggle}

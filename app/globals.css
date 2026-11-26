@@ -482,3 +482,16 @@ body {
   color: var(--foreground);
   font-family: var(--font-neuton), Arial, Helvetica, sans-serif;
 }
+
+/* Reduced motion: the infinite tech/name marquees hold still (content stays
+   visible). Previously only phones <=480px honoured the preference. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee2,
+  .animate-marquee-reverse,
+  .animate-marquee2-reverse,
+  .animate-profile-scroll-1,
+  .animate-profile-scroll-2 {
+    animation-play-state: paused;
+  }
+}

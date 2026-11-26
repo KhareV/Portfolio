@@ -112,6 +112,7 @@ const Footer = () => {
     };
   }, []);
 
+  const isRevealing = progress > PROGRESS_EPSILON;
   const parallaxY = (1 - progress) * MAX_PARALLAX_OFFSET;
   const overlayOpacity = clamp(0.6 - progress * 0.5, 0.08, 0.6);
   const footerImage = useMemo(
@@ -124,6 +125,10 @@ const Footer = () => {
       ref={footerRef}
       id="footer"
       className="fixed bottom-0 left-0 h-screen w-full overflow-hidden z-0"
+      // Fully covered by the page until the reveal starts: not painted, not
+      // focusable, not an LCP candidate. Identical pixels (it was occluded).
+      style={isRevealing ? undefined : { visibility: "hidden" }}
+      inert={!isRevealing}
     >
       <div
         className="absolute left-1/2 top-1/2 will-change-transform"
