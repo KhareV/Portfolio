@@ -159,7 +159,7 @@ export const cn = (...classes) => {
   return classes.filter(Boolean).join(" ");
 };
 
-export default {
+const spacingTokens = {
   spacing,
   layout,
   responsive,
@@ -167,3 +167,5 @@ export default {
   borders,
   cn,
 };
+
+export default spacingTokens;

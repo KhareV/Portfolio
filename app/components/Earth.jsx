@@ -47,7 +47,7 @@ const prewarmEarthModel = async (signal) => {
   }
 };
 
-const Earth = memo(() => {
+const Earth = memo(function Earth() {
   const earth = useGLTF(EARTH_MODEL_URL, DRACO_DECODER_PATH);
 
   return (

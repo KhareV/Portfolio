@@ -11,7 +11,6 @@ import { useGSAP } from "@gsap/react";
 import { DRACO_DECODER_PATH } from "../lib/assetPaths";
 
 const DemoComputer = (props) => {
-  // eslint-disable-next-line no-unused-vars
   const { texture: _texture, isActive: _isActive, ...groupProps } = props;
   const group = useRef();
   const { nodes, materials } = useGLTF("/models/computer.glb", DRACO_DECODER_PATH);

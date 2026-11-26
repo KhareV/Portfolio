@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import Globe from "react-globe.gl";
 
 /**
@@ -12,11 +12,12 @@ import Globe from "react-globe.gl";
  * project scene) and left animation loops running. We release them here.
  */
 export default function GlobeView(props) {
-  const globeRef = useRef(null);
+  // Holder for the library instance (set via callback ref, read on unmount).
+  const [holder] = useState(() => ({ globe: null }));
 
   useEffect(() => {
     return () => {
-      const globe = globeRef.current;
+      const globe = holder.globe;
       if (!globe) return;
       try {
         globe.pauseAnimation?.();
@@ -28,7 +29,14 @@ export default function GlobeView(props) {
         console.warn("Globe teardown failed:", error);
       }
     };
-  }, []);
+  }, [holder]);
 
-  return <Globe ref={globeRef} {...props} />;
+  return (
+    <Globe
+      ref={(instance) => {
+        if (instance) holder.globe = instance;
+      }}
+      {...props}
+    />
+  );
 }

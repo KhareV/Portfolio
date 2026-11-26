@@ -18,6 +18,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored third-party build (Google Draco decoder, see PROVENANCE.md).
+    "public/draco/**",
     // Deprecated legacy section retained for reference only.
     "app/sections/Contact_old.jsx",
   ]),

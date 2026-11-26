@@ -7,8 +7,14 @@ export const metadata = {
   keywords:
     "Full-Stack Developer, Blockchain, AI/ML, React, Next.js, Portfolio, Vedant, Web Development, Three.js",
   authors: [{ name: "Vedant" }],
+  // Without NEXT_PUBLIC_SITE_URL the OG/Twitter image pointed at
+  // http://localhost:3000. Fall back to Vercel's production URL, then to the
+  // live domain.
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : "https://kharevedant.is-a.dev"),
   ),
   openGraph: {
     title: "Vedant's Portfolio",
@@ -17,8 +23,9 @@ export const metadata = {
     images: [
       {
         url: "/snoopy.png",
-        width: 1200,
-        height: 630,
+        // actual file dimensions (was declared as 1200x630)
+        width: 1000,
+        height: 1000,
         alt: "Vedant's Portfolio",
       },
     ],
@@ -40,7 +47,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="icon" type="image/x-icon" href="/snoopy.png" />
+        <link rel="icon" type="image/png" href="/snoopy.png" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <div className="app-scale">{children}</div>
