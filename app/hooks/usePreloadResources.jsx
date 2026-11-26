@@ -32,8 +32,6 @@ const OPTIONAL_HEAVY_ASSETS = [
 
 const BACKGROUND_WARMUP_TIMEOUT = 1500;
 const CRITICAL_WARMUP_CAP_MS = 1800;
-const LAB_UA_PATTERN =
-  /(chrome-lighthouse|lighthouse|pagespeed|headlesschrome|gtmetrix|webpagetest)/i;
 
 const getConnectionProfile = () => {
   if (typeof navigator === "undefined") {
@@ -53,17 +51,11 @@ const getConnectionProfile = () => {
   const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
   const isConstrained =
     Boolean(connection?.saveData) || slowType || downlink < 1.5;
-  const userAgent = navigator.userAgent || "";
-  const isLabTool = LAB_UA_PATTERN.test(userAgent);
-  const isAutomation = Boolean(navigator.webdriver);
 
   return {
     isConstrained,
-    isLabTool,
-    isAutomation,
+    // No Lighthouse/headless/webdriver special case: audits see real behaviour.
     canWarmHeavy:
-      !isLabTool &&
-      !isAutomation &&
       !isConstrained &&
       downlink >= 5 &&
       deviceMemory >= 6 &&

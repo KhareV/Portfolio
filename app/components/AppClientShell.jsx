@@ -73,18 +73,37 @@ const cancelIdleTask = (id) => {
   clearTimeout(id);
 };
 
+// Server-rendered, above-the-fold sections. Memoised with no props so that
+// AppContent state changes during hydration (device/profile detection, render
+// stages) cannot force React to discard and client-render their SSR markup.
+const CriticalSections = React.memo(function CriticalSections() {
+  return (
+    <>
+      <Guarded>
+        <Navbar />
+      </Guarded>
+      <Guarded>
+        <Hero />
+      </Guarded>
+      <Guarded>
+        <TimeBands className="-mt-px" />
+      </Guarded>
+    </>
+  );
+});
+
 const AppContent = () => {
   const isResourcesReady = usePreloadResources();
   const { isAppReady } = useLoadingContext();
   const { isMobile } = useDeviceDetection();
-  const { disableHeavyVisuals, isLabTool } = useRuntimePerformanceMode();
+  const { disableHeavyVisuals } = useRuntimePerformanceMode();
   const [renderStage, setRenderStage] = useState(0);
 
   const isFullyLoaded = isResourcesReady && isAppReady;
   const shouldRenderPointer = !disableHeavyVisuals;
   const shouldRenderSound = !disableHeavyVisuals;
   const shouldRenderEarthCanvas = !isMobile && !disableHeavyVisuals;
-  const shouldShowLoadingOverlay = !disableHeavyVisuals && !isLabTool;
+  const shouldShowLoadingOverlay = !disableHeavyVisuals;
   const shouldRenderStageOne = renderStage >= 1;
   const shouldRenderStageTwo = renderStage >= 2;
   const shouldRenderStageThree = renderStage >= 3;
@@ -382,15 +401,7 @@ const AppContent = () => {
               <Pointer />
             </Guarded>
           )}
-          <Guarded>
-            <Navbar />
-          </Guarded>
-          <Guarded>
-            <Hero />
-          </Guarded>
-          <Guarded>
-            <TimeBands className="-mt-px" />
-          </Guarded>
+          <CriticalSections />
 
           {shouldRenderStageOne && (
             <>

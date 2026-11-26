@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-const LAB_UA_PATTERN =
-  /(chrome-lighthouse|lighthouse|pagespeed|headlesschrome|gtmetrix|webpagetest)/i;
-
-const DEFAULT_PROFILE = {
-  isLabTool: false,
-  isAutomation: false,
+// Rendering policy: heavy visuals are disabled for an explicit user
+// preference (reduced motion), for phones (mobile UA, or coarse pointer on a
+// small viewport — the existing mobile design), and for a constrained network
+// on a low-end device. There is deliberately NO special case for Lighthouse,
+// headless browsers or navigator.webdriver: automated audits measure the same
+// experience real visitors get.
+const DEFAULT_PROFILE = Object.freeze({
   prefersReducedMotion: false,
   isConstrainedNetwork: false,
   isLowerEndDevice: false,
   isMobileDevice: false,
   disableHeavyVisuals: false,
-};
+});
 
 const getConnection = () => {
   if (typeof navigator === "undefined") {
@@ -25,6 +26,19 @@ const getConnection = () => {
     navigator.mozConnection ||
     navigator.webkitConnection
   );
+};
+
+// Device class is decided once per page load (as before): a later resize or
+// rotation does not swap the visual variant mid-visit.
+let mobileDeviceAtLoad = null;
+const getIsMobileDeviceAtLoad = (userAgent) => {
+  if (mobileDeviceAtLoad === null) {
+    const isMobileUserAgent = /android|iphone|ipad|ipod|mobile/i.test(userAgent);
+    const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    const isSmallViewport = window.innerWidth < 900;
+    mobileDeviceAtLoad = isMobileUserAgent || (isCoarsePointer && isSmallViewport);
+  }
+  return mobileDeviceAtLoad;
 };
 
 const readRuntimeProfile = () => {
@@ -44,67 +58,73 @@ const readRuntimeProfile = () => {
   const deviceMemory = Number(navigator.deviceMemory ?? 8);
   const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
   const isLowerEndDevice = deviceMemory <= 4 || hardwareConcurrency <= 4;
-  const isLabTool = LAB_UA_PATTERN.test(userAgent);
-  const isAutomation = Boolean(navigator.webdriver);
-  const isMobileUserAgent = /android|iphone|ipad|ipod|mobile/i.test(userAgent);
-  const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
-  const isSmallViewport = window.innerWidth < 900;
-  const isMobileDevice =
-    isMobileUserAgent || (isCoarsePointer && isSmallViewport);
+  const isMobileDevice = getIsMobileDeviceAtLoad(userAgent);
 
   return {
-    isLabTool,
-    isAutomation,
     prefersReducedMotion,
     isConstrainedNetwork,
     isLowerEndDevice,
     isMobileDevice,
     disableHeavyVisuals:
-      isLabTool ||
-      isAutomation ||
       prefersReducedMotion ||
       isMobileDevice ||
       (isConstrainedNetwork && isLowerEndDevice),
   };
 };
 
-const useRuntimePerformanceMode = () => {
-  const [profile, setProfile] = useState(() => readRuntimeProfile());
+// Snapshot cache: useSyncExternalStore needs a stable identity while the
+// underlying values are unchanged (otherwise every read would re-render).
+let cachedProfile = null;
+let cachedKey = "";
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const connection = getConnection();
-
-    const updateProfile = () => {
-      setProfile(readRuntimeProfile());
-    };
-
-    updateProfile();
-
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", updateProfile);
-    } else {
-      mediaQuery.addListener(updateProfile);
-    }
-
-    if (typeof connection?.addEventListener === "function") {
-      connection.addEventListener("change", updateProfile);
-    }
-
-    return () => {
-      if (typeof mediaQuery.removeEventListener === "function") {
-        mediaQuery.removeEventListener("change", updateProfile);
-      } else {
-        mediaQuery.removeListener(updateProfile);
-      }
-
-      if (typeof connection?.removeEventListener === "function") {
-        connection.removeEventListener("change", updateProfile);
-      }
-    };
-  }, []);
-
-  return profile;
+const getSnapshot = () => {
+  const next = readRuntimeProfile();
+  const key = JSON.stringify(next);
+  if (key !== cachedKey) {
+    cachedKey = key;
+    cachedProfile = Object.freeze(next);
+  }
+  return cachedProfile;
 };
+
+// The static prerender cannot know the visitor's device, so the server and the
+// hydration pass both use the default profile; React then switches to the
+// client snapshot without a hydration mismatch (previously React error #418).
+const getServerSnapshot = () => DEFAULT_PROFILE;
+
+// Same change sources as before: reduced-motion preference and network changes.
+const subscribe = (onChange) => {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const connection = getConnection();
+
+  if (typeof mediaQuery.addEventListener === "function") {
+    mediaQuery.addEventListener("change", onChange);
+  } else {
+    mediaQuery.addListener(onChange);
+  }
+
+  if (typeof connection?.addEventListener === "function") {
+    connection.addEventListener("change", onChange);
+  }
+
+  return () => {
+    if (typeof mediaQuery.removeEventListener === "function") {
+      mediaQuery.removeEventListener("change", onChange);
+    } else {
+      mediaQuery.removeListener(onChange);
+    }
+
+    if (typeof connection?.removeEventListener === "function") {
+      connection.removeEventListener("change", onChange);
+    }
+  };
+};
+
+const useRuntimePerformanceMode = () =>
+  useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
 export default useRuntimePerformanceMode;

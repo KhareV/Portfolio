@@ -309,6 +309,16 @@ body {
   pointer-events: none;
 }
 
+/* Visitors who get the lightweight variant (reduced motion, phones) never see
+   the overlay after hydration; hide the server-rendered copy before hydration
+   too, instead of flashing it for a few frames. Mirrors the device policy in
+   useRuntimePerformanceMode (mobile UA is covered by pointer/viewport). */
+@media (prefers-reduced-motion: reduce), (pointer: coarse) and (max-width: 899px) {
+  .loading-screen {
+    display: none;
+  }
+}
+
 .loading-content {
   display: flex;
   flex-direction: column;

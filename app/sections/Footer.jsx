@@ -4,8 +4,8 @@ import NextImage from "next/image";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { FaGithub, FaTwitter, FaInstagram } from "react-icons/fa";
 import { cn, transitions } from "../styles/spacing.jsx";
+import { getDayPhase, getLocalHour } from "../lib/dayPhase";
 
-const APP_TIMEZONE = "Asia/Kolkata";
 const FOOTER_IMAGES = {
   morning: "/newimages/morningfoot.png",
   afternoon: "/newimages/afternoonfoot.png",
@@ -22,23 +22,6 @@ const FOOTER_ASPECT_RATIO = FOOTER_ASPECT_WIDTH / FOOTER_ASPECT_HEIGHT;
 const FOOTER_ASPECT_RATIO_INVERSE = FOOTER_ASPECT_HEIGHT / FOOTER_ASPECT_WIDTH;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-
-const getLocalHour = () => {
-  return Number(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: APP_TIMEZONE,
-      hour: "2-digit",
-      hour12: false,
-    }).format(new Date()),
-  );
-};
-
-const getDayPhase = (hour) => {
-  if (hour >= 5 && hour < 12) return "morning";
-  if (hour >= 12 && hour < 17) return "afternoon";
-  if (hour >= 17 && hour < 21) return "evening";
-  return "night";
-};
 
 const Footer = () => {
   const footerRef = useRef(null);

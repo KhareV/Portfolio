@@ -56,7 +56,7 @@ const useDeviceDetection = () => {
         isTabletUA || (isTabletScreen && touchSupport && !isMobileUA);
       const isDesktop = !isMobile && !isTablet && isDesktopScreen;
 
-      setDeviceInfo({
+      const next = {
         isMobile,
         isTablet,
         isDesktop,
@@ -64,7 +64,12 @@ const useDeviceDetection = () => {
         screenWidth,
         screenHeight,
         touchSupport,
-      });
+      };
+
+      // Keep the same object when nothing changed so consumers don't re-render.
+      setDeviceInfo((prev) =>
+        Object.keys(next).every((key) => prev[key] === next[key]) ? prev : next,
+      );
     };
 
     // Initial detection

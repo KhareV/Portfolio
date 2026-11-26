@@ -2,7 +2,10 @@
 // Headed Chromium is used so WebGL runs on the real GPU; set PW_HEADLESS=1 for CI (software WebGL).
 import { defineConfig, devices } from "@playwright/test";
 
+// PW_BASE_URL targets an already-running server (e.g. the baseline build) and
+// disables webServer so Playwright can never silently start a different build.
 const PORT = Number(process.env.PW_PORT || 3600);
+const EXTERNAL = process.env.PW_BASE_URL;
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -13,7 +16,7 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"], ["json", { outputFile: "test-results/e2e-results.json" }]],
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: EXTERNAL || `http://localhost:${PORT}`,
     headless: process.env.PW_HEADLESS === "1",
     timezoneId: "Asia/Kolkata",
     trace: "retain-on-failure",
@@ -23,10 +26,12 @@ export default defineConfig({
     { name: "firefox", use: { ...devices["Desktop Firefox"], viewport: { width: 1440, height: 900 } }, grep: /@xbrowser/ },
     { name: "webkit", use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 900 } }, grep: /@xbrowser/ },
   ],
-  webServer: {
-    command: `npx next start -p ${PORT}`,
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  webServer: EXTERNAL
+    ? undefined
+    : {
+        command: `npx next start -p ${PORT}`,
+        url: `http://localhost:${PORT}`,
+        reuseExistingServer: false,
+        timeout: 60_000,
+      },
 });
