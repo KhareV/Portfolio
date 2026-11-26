@@ -1,6 +1,7 @@
 "use client";
 
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
+import useHashNavigation from "../hooks/useHashNavigation";
 import LoadingSpinner from "./LoadingSpinner";
 import SceneBoundary from "./SceneBoundary";
 import { LoadingProvider, useLoadingContext } from "../contexts/LoadingContext";
@@ -98,12 +99,39 @@ const AppContent = () => {
   const { isMobile } = useDeviceDetection();
   const { disableHeavyVisuals } = useRuntimePerformanceMode();
   const [renderStage, setRenderStage] = useState(0);
+  const lenisRef = useRef(null);
+  // The loading overlay belongs to the initial load only: once it has
+  // finished (or this visit started in the lightweight variant) it never
+  // re-appears, e.g. when reduced motion is toggled mid-visit.
+  const [overlayDone, setOverlayDone] = useState(false);
+  const [readinessTimedOut, setReadinessTimedOut] = useState(false);
+  const handleOverlayComplete = useCallback(() => setOverlayDone(true), []);
 
-  const isFullyLoaded = isResourcesReady && isAppReady;
+  // Bounded fail-open: if a readiness signal never arrives (e.g. the hero
+  // chunk failed to load) the overlay must not cover the page forever.
+  useEffect(() => {
+    const timerId = window.setTimeout(() => setReadinessTimedOut(true), 8000);
+    return () => window.clearTimeout(timerId);
+  }, []);
+
+  useEffect(() => {
+    if (disableHeavyVisuals) {
+      setOverlayDone(true);
+    }
+  }, [disableHeavyVisuals]);
+
+  // Deep links / early nav clicks to sections that mount in a later stage
+  // advance staging immediately and land once the target geometry settles.
+  const requestAllStages = useCallback(() => {
+    setRenderStage((current) => (current >= 3 ? current : 3));
+  }, []);
+  useHashNavigation({ lenisRef, onTargetMissing: requestAllStages });
+
+  const isFullyLoaded = (isResourcesReady && isAppReady) || readinessTimedOut;
   const shouldRenderPointer = !disableHeavyVisuals;
   const shouldRenderSound = !disableHeavyVisuals;
   const shouldRenderEarthCanvas = !isMobile && !disableHeavyVisuals;
-  const shouldShowLoadingOverlay = !disableHeavyVisuals;
+  const shouldShowLoadingOverlay = !disableHeavyVisuals && !overlayDone;
   const shouldRenderStageOne = renderStage >= 1;
   const shouldRenderStageTwo = renderStage >= 2;
   const shouldRenderStageThree = renderStage >= 3;
@@ -286,7 +314,7 @@ const AppContent = () => {
         const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
         const isLowerEndDevice = deviceMemory <= 4 || hardwareConcurrency <= 4;
 
-        lenisInstance = new Lenis({
+        lenisInstance = lenisRef.current = new Lenis({
           autoRaf: false,
           smoothWheel: true,
           syncTouch: true,
@@ -385,13 +413,17 @@ const AppContent = () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       lenisInstance?.destroy();
       lenisInstance = null;
+      lenisRef.current = null;
     };
   }, [disableHeavyVisuals]);
 
   return (
     <>
       {shouldShowLoadingOverlay && (
-        <LoadingSpinner shouldHide={isFullyLoaded} onLoadComplete={() => {}} />
+        <LoadingSpinner
+          shouldHide={isFullyLoaded}
+          onLoadComplete={handleOverlayComplete}
+        />
       )}
 
       <main className="relative z-10 overflow-x-hidden">
