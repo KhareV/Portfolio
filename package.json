@@ -17,6 +17,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.1.0",
     "autoprefixer": "^10.4.23",
     "lucide-react": "^0.562.0",
     "next": "16.0.10",

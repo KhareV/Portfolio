@@ -25,7 +25,7 @@ export const test = base.extend({
   external: [
     async ({ context }, use) => {
       const seen = [];
-      await context.route(/\/_vercel\/insights\//, (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
+      await context.route(/\/_vercel\/(insights|speed-insights)\//, (r) => r.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
       await context.route(/\/api\/github$/, (r) => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(githubVm()) }));
       await context.route(
         (url) => !/^(http:\/\/(localhost|127\.0\.0\.1)|data:|blob:)/.test(url.href),

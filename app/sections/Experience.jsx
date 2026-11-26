@@ -38,7 +38,7 @@ export default function Experience() {
         <h2 id="experience-title" data-anchor-heading className="text-4xl font-semibold tracking-tight text-slate-900 md:text-6xl">
           Experience
         </h2>
-        <p className="mt-4 max-w-2xl text-lg text-slate-600">{profile.incomingRole}.</p>
+        <p className="mt-4 max-w-2xl text-lg text-slate-600">{profile.walmartRole}.</p>
 
         <div className={`mt-10 grid grid-cols-1 gap-6 ${showScene ? "lg:grid-cols-3" : ""}`}>
           {showScene ? (

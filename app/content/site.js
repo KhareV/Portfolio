@@ -16,13 +16,13 @@ export const profile = {
   github: "https://github.com/KhareV",
   githubUser: "KhareV",
   linkedin: "https://www.linkedin.com/in/kharevedant05/",
-  // confirm: Hero says 40+ projects; About says "over 20". Both kept verbatim.
+  // Owner-confirmed 2026-11-26: 40+ projects.
   heroSummary:
     "B.Tech. CSE student at VIT Chennai with 40+ projects and multiple hackathon wins. Specializing in full-stack development, blockchain solutions, and AI integration.",
-  // confirm: "Summer 2026" may now be complete; wording kept as "incoming".
-  incomingRole: "Incoming Software Engineering Intern at Walmart Global Tech (Sparkplug 2026)",
+  // Owner-confirmed 2026-11-26: the Summer 2026 internship is completed.
+  walmartRole: "Software Engineering Intern at Walmart Global Tech (Sparkplug program, Summer 2026)",
   aboutSummary:
-    "With experience in web development, I have honed my skills in both frontend and backend technologies, including HTML, CSS, JavaScript, React, Next.js, Node.js, and MongoDB. I've completed over 20 projects, creating dynamic and responsive web applications tailored to user needs.",
+    "With experience in web development, I have honed my skills in both frontend and backend technologies, including HTML, CSS, JavaScript, React, Next.js, Node.js, and MongoDB. I've completed 40+ projects, creating dynamic and responsive web applications tailored to user needs.",
 };
 
 export const nav = [
@@ -152,7 +152,7 @@ export const experience = [
 
 export const funFacts = [
   "Started out aiming for civil engineering, explored optometry, and eventually found my edge in full-stack development.",
-  profile.incomingRole + ".",
+  `Interned as a software engineer at Walmart Global Tech (Sparkplug, Summer 2026).`,
   "Secured 3rd place at the Spectrum National Level Hackathon.",
   "Smart India Hackathon Finalist with MedWE (healthcare + blockchain platform).",
   "Ranked 19th out of 2000+ teams in the Devshouse Hackathon.",

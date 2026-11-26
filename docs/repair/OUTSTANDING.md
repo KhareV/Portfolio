@@ -2,12 +2,12 @@
 
 ## Needs the owner (facts were kept verbatim, not changed)
 
-1. **Project count** — hero says "40+ projects", About says "over 20 projects". Both kept in `app/content/site.js` (`heroSummary`, `aboutSummary`). Pick one.
-2. **Walmart Sparkplug** — copy says *Incoming* SWE Intern (Summer 2026). It is now late November 2026; if the internship is complete, update `profile.incomingRole` (it feeds the fun facts, experience intro and chat).
+1. ~~Project count~~ — **resolved by owner (2026-11-26): 40+**, now used in both places.
+2. ~~Walmart Sparkplug~~ — **resolved by owner (2026-11-26): internship completed**; page, fun fact, chat answers and assistant prompt updated (`profile.walmartRole`). Exact months were not given, so it is not yet an entry in the dated experience list.
 3. **Project 5** — card says "Imaginify – AI photo manipulation app… credits-based system and payment integration", but its repository (`Nodejs-OpenAI-Image-Generator`) and captured video show an OpenAI image generator form. Confirm title/description or link the right repo.
 4. **Experience dates and claims** (CodeChef Aug 2024–Present, iSpace Nov 2024–Present, hackathon ranks, "500+ registrations", Dandiya 500+ attendees) and the prompt's project list (SkillBridge, CryptoChat, Voyageur not shown on the page).
 5. **Live demos** — none of the five projects has a verified live URL; the UI therefore only offers "Source". Add `demo` URLs in `site.js` to show a "Live demo" link.
-6. **Music provenance** — `public/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3` appears to be a commercial recording downloaded from YouTube. It is now strictly opt-in, but publishing it is likely a licensing problem. Recommend replacing with a licensed/original track or removing the control.
+6. **Music provenance** — `public/y2mate.com - Lil Peep  XXXTENTACION  Falling Down (1).mp3` appears to be a commercial recording downloaded from YouTube. **Owner decision (2026-11-26): keep it, opt-in only** (no prompt, loads only on press). The licensing risk remains; revisit in the visual phase.
 7. **Watermarks** — project videos/posters carry clideo.com / flixier watermarks. Recapture clean screens (see the redesign shot list).
 8. **Model attribution** — `public/desktop_pc/license.txt` and `public/planet/license.txt` name authors; keep credits visible if the licences require it.
 

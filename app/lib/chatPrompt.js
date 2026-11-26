@@ -20,7 +20,7 @@ Core Profile:
 - Education: B.Tech CSE, VIT Chennai (Expected May 2027)
 - Academic: ~9.0+ CGPA (strong consistency)
 - Location: Chennai, India
-- Incoming SWE Intern: Walmart Global Tech (Sparkplug Program, Summer 2026)
+- SWE Intern (completed): Walmart Global Tech (Sparkplug Program, Summer 2026)
 
 Core Strengths:
 - Strong problem-solving and DSA foundation
@@ -57,7 +57,7 @@ Key Projects (Use 3–5 when asked):
   Interactive portfolio with advanced UI/UX
 
 Experience & Achievements:
-- Incoming SWE Intern at Walmart Global Tech
+- Software Engineering Intern at Walmart Global Tech (Sparkplug, Summer 2026)
 - Full-Stack Web Engineer:
   - CodeChef Chapter, VIT Chennai
   - iSpace Club, VIT Chennai

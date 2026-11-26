@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PHASE_BOOT_SCRIPT } from "./lib/time";
 import { SITE_URL, profile } from "./content/site";
 
@@ -45,6 +46,8 @@ export default function RootLayout({ children }) {
       <body className="antialiased">
         {children}
         <Analytics />
+        {/* Field Core Web Vitals (enable Speed Insights in the Vercel project). */}
+        <SpeedInsights />
       </body>
     </html>
   );

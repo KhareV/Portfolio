@@ -30,7 +30,7 @@ const ANSWERS = [
     id: "experience",
     match: /\b(experience|intern|internship|job|role|walmart|codechef|ispace|hackathon|lead)\b/,
     answer: () =>
-      `${profile.incomingRole}.\n${list(experience.map((e) => `${e.role}, ${e.org} (${e.dates}) — ${e.summary}`))}`,
+      `${profile.walmartRole}.\n${list(experience.map((e) => `${e.role}, ${e.org} (${e.dates}) — ${e.summary}`))}`,
   },
   {
     id: "about",
