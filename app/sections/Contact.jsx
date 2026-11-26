@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 import useRuntimePerformanceMode from "../hooks/useRuntimePerformanceMode";
+import SceneBoundary from "../components/SceneBoundary";
 
 const Prism = dynamic(() => import("./Prism"), { ssr: false });
 const Beams = dynamic(() => import("./Beams"), { ssr: false });
@@ -135,6 +136,19 @@ const Contact = () => {
     }
   };
 
+  const staticBackground = (
+    <div
+      className="absolute inset-0 z-0"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.08), transparent 50%), radial-gradient(circle at 75% 65%, rgba(255, 255, 255, 0.06), transparent 52%), linear-gradient(180deg, #05060a 0%, #0a0d13 100%)",
+      }}
+      aria-hidden="true"
+    >
+      <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.03)_45%,transparent_100%)]" />
+    </div>
+  );
+
   return (
     <section
       ref={sectionRef}
@@ -143,7 +157,8 @@ const Contact = () => {
     >
       {/* Background - Prism for desktop, Beams for mobile */}
       {shouldRenderLiveBackground ? (
-        !isMobile ? (
+        <SceneBoundary name="ContactBackground" fallback={staticBackground}>
+        {!isMobile ? (
           <div className="absolute inset-0 opacity-100 z-0">
             <Prism
               animationType="3drotate"
@@ -176,18 +191,10 @@ const Contact = () => {
               maxDpr={1.1}
             />
           </div>
-        )
+        )}
+        </SceneBoundary>
       ) : (
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.08), transparent 50%), radial-gradient(circle at 75% 65%, rgba(255, 255, 255, 0.06), transparent 52%), linear-gradient(180deg, #05060a 0%, #0a0d13 100%)",
-          }}
-          aria-hidden="true"
-        >
-          <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.03)_45%,transparent_100%)]" />
-        </div>
+        staticBackground
       )}
 
       {/* Subtle gradient overlay */}

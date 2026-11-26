@@ -14,6 +14,7 @@ import {
   cn,
 } from "../styles/spacing.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
+import SceneBoundary from "../components/SceneBoundary.jsx";
 
 const WorkExperienceScene = dynamic(
   () => import("../components/WorkExperienceScene.jsx"),
@@ -145,10 +146,19 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
 
         <div className="work-container">
           {shouldUseScene && shouldMountScene && (
-            <WorkExperienceScene
-              developerRef={developerRef}
-              isActive={isSceneActive}
-            />
+            <SceneBoundary
+              name="WorkExperienceScene"
+              fallback={
+                <div className="work-canvas grid place-items-center text-slate-500 text-sm font-medium">
+                  3D preview unavailable.
+                </div>
+              }
+            >
+              <WorkExperienceScene
+                developerRef={developerRef}
+                isActive={isSceneActive}
+              />
+            </SceneBoundary>
           )}
 
           {shouldUseScene && !shouldMountScene && (

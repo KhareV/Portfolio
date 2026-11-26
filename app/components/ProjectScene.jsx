@@ -85,7 +85,8 @@ const ProjectScene = ({ texture, isMobile }) => {
       gl={glConfig}
       camera={cameraConfig}
     >
-      <Environment preset="studio" environmentIntensity={0.8} />
+      {/* Same HDR bytes drei's "studio" preset fetched from a CDN, self-hosted (public/hdri/PROVENANCE.md). */}
+      <Environment files="/hdri/studio_small_03_1k.hdr" environmentIntensity={0.8} />
       <ambientLight intensity={0.6} color="#ffffff" />
       <directionalLight
         position={[5, 10, 5]}

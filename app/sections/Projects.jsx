@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import { myProjects } from "../constants/index.jsx";
 import TechIcon from "../components/TechIcon.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
+import SceneBoundary from "../components/SceneBoundary.jsx";
 
 const ProjectScene = dynamic(() => import("../components/ProjectScene.jsx"), {
   ssr: false,
@@ -234,10 +235,30 @@ const Projects = ({ disableHeavyVisuals = false }) => {
                 </div>
               </div>
             ) : (
-              <ProjectScene
-                texture={currentProject.texture}
-                isMobile={isMobile}
-              />
+              <SceneBoundary
+                name="ProjectScene"
+                fallback={({ retry }) => (
+                  <div className="absolute inset-0 z-10 grid place-items-center bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.72),rgba(248,250,252,0.94))]">
+                    <div className="rounded-2xl border border-slate-200 bg-white/95 px-6 py-4 text-center shadow-sm">
+                      <p className="text-sm font-medium text-slate-700">
+                        The 3D preview could not be loaded.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={retry}
+                        className="mt-2 text-sm font-medium text-slate-900 underline underline-offset-4"
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  </div>
+                )}
+              >
+                <ProjectScene
+                  texture={currentProject.texture}
+                  isMobile={isMobile}
+                />
+              </SceneBoundary>
             )}
           </div>
         </div>

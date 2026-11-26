@@ -2,6 +2,7 @@
 
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
+import SceneBoundary from "./SceneBoundary";
 import { LoadingProvider, useLoadingContext } from "../contexts/LoadingContext";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 import usePreloadResources from "../hooks/usePreloadResources";
@@ -38,6 +39,14 @@ const loadSound = () => import("./Sound");
 const LogoAnimation = lazy(loadLogoAnimation);
 const EarthCanvas = lazy(loadEarthCanvas);
 const Sound = lazy(loadSound);
+
+// Each lazily loaded section is isolated: a failed chunk or a render error in
+// one section must not unmount the rest of the portfolio.
+const Guarded = ({ children }) => (
+  <SceneBoundary fallback={null}>
+    <Suspense fallback={null}>{children}</Suspense>
+  </SceneBoundary>
+);
 
 const runWhenIdle = (task, timeout = 2600) => {
   if (typeof window === "undefined") {
@@ -369,58 +378,58 @@ const AppContent = () => {
       <main className="relative z-10 overflow-x-hidden">
         <div className="bg-[#FEFFFC]">
           {shouldRenderPointer && (
-            <Suspense fallback={null}>
+            <Guarded>
               <Pointer />
-            </Suspense>
+            </Guarded>
           )}
-          <Suspense fallback={null}>
+          <Guarded>
             <Navbar />
-          </Suspense>
-          <Suspense fallback={null}>
+          </Guarded>
+          <Guarded>
             <Hero />
-          </Suspense>
-          <Suspense fallback={null}>
+          </Guarded>
+          <Guarded>
             <TimeBands className="-mt-px" />
-          </Suspense>
+          </Guarded>
 
           {shouldRenderStageOne && (
             <>
-              <Suspense fallback={null}>
+              <Guarded>
                 <About disableHeavyVisuals={disableHeavyVisuals} />
-              </Suspense>
-              <Suspense fallback={null}>
+              </Guarded>
+              <Guarded>
                 <Github />
-              </Suspense>
-              <Suspense fallback={null}>
+              </Guarded>
+              <Guarded>
                 <LogoAnimation isLoading={!isFullyLoaded} />
-              </Suspense>
+              </Guarded>
               {shouldRenderSound && (
-                <Suspense fallback={null}>
+                <Guarded>
                   <Sound />
-                </Suspense>
+                </Guarded>
               )}
             </>
           )}
 
           {shouldRenderStageTwo && (
             <>
-              <Suspense fallback={null}>
+              <Guarded>
                 <Projects disableHeavyVisuals={disableHeavyVisuals} />
-              </Suspense>
-              <Suspense fallback={null}>
+              </Guarded>
+              <Guarded>
                 <Contact />
-              </Suspense>
+              </Guarded>
             </>
           )}
 
           {shouldRenderStageThree && (
             <>
-              <Suspense fallback={null}>
+              <Guarded>
                 <WorkExperience disableHeavyVisuals={disableHeavyVisuals} />
-              </Suspense>
+              </Guarded>
 
               {shouldRenderEarthCanvas && (
-                <Suspense fallback={null}>
+                <Guarded>
                   <div className="relative mx-4 my-10 rounded-[2rem] border border-white/15 bg-black p-4 md:p-6 shadow-[0_24px_60px_rgba(2,6,23,0.45)] overflow-hidden">
                     <div
                       className="pointer-events-none absolute inset-0 opacity-70"
@@ -437,12 +446,12 @@ const AppContent = () => {
                       <EarthCanvas />
                     </div>
                   </div>
-                </Suspense>
+                </Guarded>
               )}
 
-              <Suspense fallback={null}>
+              <Guarded>
                 <TimeBands />
-              </Suspense>
+              </Guarded>
             </>
           )}
         </div>
@@ -455,9 +464,9 @@ const AppContent = () => {
             aria-hidden="true"
           />
 
-          <Suspense fallback={null}>
+          <Guarded>
             <Footer />
-          </Suspense>
+          </Guarded>
         </>
       )}
 

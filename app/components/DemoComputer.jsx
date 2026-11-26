@@ -8,13 +8,14 @@ import { memo, useRef, useEffect } from "react";
 import { useGLTF, useVideoTexture } from "@react-three/drei";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { DRACO_DECODER_PATH } from "../lib/assetPaths";
 
 const DemoComputer = (props) => {
   const group = useRef();
-  const { nodes, materials } = useGLTF("/models/computer.glb");
+  const { nodes, materials } = useGLTF("/models/computer.glb", DRACO_DECODER_PATH);
 
   const txt = useVideoTexture(
-    props.texture ? props.texture : "/textures/projects/project1.mp4",
+    props.texture ? props.texture : "/textures/project/project1.mp4",
   );
 
   useEffect(() => {
@@ -1021,6 +1022,6 @@ const DemoComputer = (props) => {
   );
 };
 
-useGLTF.preload("/models/computer.glb");
+useGLTF.preload("/models/computer.glb", DRACO_DECODER_PATH);
 
 export default memo(DemoComputer);
