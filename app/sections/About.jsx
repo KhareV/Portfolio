@@ -46,7 +46,7 @@ export default function About() {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {/* Profile */}
           <article className={CARD}>
-            <Image src="/newimages/vedant-profile.jpg" alt={`Portrait of ${profile.name}`} width={1080} height={720} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[260px] w-full object-cover" />
+            <Image unoptimized src="/media/about/portrait.webp" alt={`Portrait of ${profile.name}`} width={1080} height={720} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[260px] w-full object-cover" />
             <div className="p-6">
               <h3 className="text-3xl font-bold text-[#2c2f2a]">Hi, I&apos;m {profile.name}</h3>
               <p className="mt-4 leading-relaxed text-[#4f544d]">{profile.aboutSummary}</p>
@@ -60,7 +60,7 @@ export default function About() {
 
           {/* Tech stack */}
           <article className={CARD}>
-            <Image src="/newimages/cherry.png" alt="" width={1024} height={1024} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[260px] w-full object-cover opacity-90" />
+            <Image unoptimized src="/media/about/cherry.webp" alt="" width={960} height={960} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[260px] w-full object-cover opacity-90" />
             <div className="p-6">
               <h3 className="text-2xl text-[#2c2f2a]">Tech stack</h3>
               <p className="mt-3 leading-relaxed text-[#4f544d]">
@@ -89,7 +89,7 @@ export default function About() {
 
           {/* Passion */}
           <article className={`${CARD} md:col-span-2`}>
-            <Image src="/newimages/coast.png" alt="" width={1024} height={412} sizes="(max-width: 768px) 100vw, 66vw" className="h-auto w-full object-cover opacity-90" />
+            <Image unoptimized src="/media/about/coast.webp" alt="" width={1024} height={412} sizes="(max-width: 768px) 100vw, 66vw" className="h-auto w-full object-cover opacity-90" />
             <div className="p-6">
               <h3 className="text-2xl text-[#2c2f2a]">My passion for coding</h3>
               <p className="mt-3 leading-relaxed text-[#4f544d]">
@@ -106,7 +106,7 @@ export default function About() {
 
           {/* Contact card */}
           <article className={CARD}>
-            <Image src="/newimages/rooftop.png" alt="" width={1024} height={1024} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[240px] w-full object-cover object-center opacity-90" />
+            <Image unoptimized src="/media/about/rooftop.webp" alt="" width={960} height={960} sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" className="h-[240px] w-full object-cover object-center opacity-90" />
             <div className="p-6">
               <h3 className="mb-4 text-center font-semibold text-[#2c2f2a]">Contact me</h3>
               <CopyEmail email={profile.email} />

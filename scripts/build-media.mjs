@@ -51,6 +51,24 @@ for (const [phase, src] of Object.entries(FOOTER)) {
   await write(base().webp({ quality: 68 }), path.join(OUT, "footer", `${phase}.webp`));
 }
 
+// 2b) About illustrations + experience icons: pre-sized static WebP (served
+//     unoptimized). Sending 1–2 MB PNG sources through the on-demand optimizer
+//     stalled `next start` on a cold cache when many were requested at once.
+fs.mkdirSync(path.join(OUT, "about"), { recursive: true });
+fs.mkdirSync(path.join(OUT, "icons"), { recursive: true });
+const ABOUT = {
+  cherry: ["newimages/cherry.png", 960],
+  coast: ["newimages/coast.png", 1280],
+  rooftop: ["newimages/rooftop.png", 960],
+  portrait: ["newimages/vedant-profile.jpg", 1080],
+};
+for (const [name, [src, width]] of Object.entries(ABOUT)) {
+  await write(sharp(path.join(PUB, src)).resize({ width, withoutEnlargement: true }).webp({ quality: 74 }), path.join(OUT, "about", `${name}.webp`));
+}
+for (const name of ["codechef", "ispace", "hackathons", "dandiya"]) {
+  await write(sharp(path.join(PUB, "assets", `${name}.png`)).resize({ width: 112, height: 112, fit: "contain", background: { r: 255, g: 255, b: 255, alpha: 0 } }).webp({ quality: 82 }), path.join(OUT, "icons", `${name}.webp`));
+}
+
 // 3) Project posters: real frames captured from each project's demo video.
 //    (time offsets picked by eye so the frame shows the product, not a fade.)
 const POSTERS = [

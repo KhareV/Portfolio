@@ -115,7 +115,7 @@ export const experience = [
     dates: "Aug 2024 – Present",
     summary:
       "Engineered MailChef and CIMP platforms, optimizing algorithms and automating club management workflows.",
-    icon: "/assets/codechef.png",
+    icon: "/media/icons/codechef.webp",
     animation: "victory",
   },
   {
@@ -125,7 +125,7 @@ export const experience = [
     dates: "Nov 2024 – Present",
     summary:
       "Built flagship 'CSS Battles' website using React, Node.js, MongoDB, handling 500+ registrations efficiently.",
-    icon: "/assets/ispace.png",
+    icon: "/media/icons/ispace.webp",
     animation: "clapping",
   },
   {
@@ -135,7 +135,7 @@ export const experience = [
     dates: "Apr 2024 – Apr 2025",
     summary:
       "Led teams to build SkillBridge and MedWE, ranking top 3 nationally in Spectrum and achieving SIH Hackathon finalist status.",
-    icon: "/assets/hackathons.png",
+    icon: "/media/icons/hackathons.webp",
     animation: "salute",
   },
   {
@@ -145,7 +145,7 @@ export const experience = [
     dates: "Nov 2022",
     summary:
       "Organized a legendary dandiya night, bringing sticks and spins to 500+ attendees with more energy than my coding marathons!",
-    icon: "/assets/dandiya.png",
+    icon: "/media/icons/dandiya.webp",
     animation: "clapping",
   },
 ];

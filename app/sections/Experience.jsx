@@ -62,7 +62,7 @@ export default function Experience() {
                 className="grid grid-cols-[auto_1fr] items-start gap-4 rounded-xl border border-transparent p-3 transition-colors hover:border-[#d4dcc8] hover:bg-[#eef3e7] sm:gap-5 sm:p-4"
               >
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-[#d7dfcc] bg-white p-2">
-                  <Image src={item.icon} alt="" width={40} height={40} sizes="40px" className="h-full w-full object-contain" />
+                  <Image unoptimized src={item.icon} alt="" width={40} height={40} className="h-full w-full object-contain" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-900">{item.org}</h3>
