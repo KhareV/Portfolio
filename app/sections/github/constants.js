@@ -1,6 +1,7 @@
 export const GITHUB_USERNAME = "KhareV";
 export const GITHUB_CACHE_KEY = "github-stats-cache-v1";
 export const GITHUB_CACHE_TTL_MS = 1000 * 60 * 30;
+export const GITHUB_FETCH_TIMEOUT_MS = 10000;
 
 export const LANG_COLORS = {
   JavaScript: "#F7DF1E",

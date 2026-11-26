@@ -29,6 +29,7 @@ const Github = () => {
     error,
     fromCache,
     isRefreshing,
+    refreshFailed,
   } = useGithubData();
   const skillGroups = useMemo(() => Object.entries(SKILL_GROUPS), []);
   const showAnalytics = repos.length > 1;
@@ -107,7 +108,7 @@ const Github = () => {
                 >
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                Up to date
+                {refreshFailed ? "Cached data" : "Up to date"}
               </span>
             ) : null}
           </div>

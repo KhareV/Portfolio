@@ -28,6 +28,16 @@ const AUTO_QUESTION = "tell me about yourself";
 const AUTO_ANSWER =
   "hi i am vedant khare. i study computer science at VIT Chennai. i have built 40+ projects, won multiple hackathons, and focus on full-stack development, blockchain, and AI integration.";
 
+const CHAT_REQUEST_TIMEOUT_MS = 20000;
+const CONNECTION_ERROR_ANSWER =
+  "Sorry, I am having trouble connecting right now. Please try again in a moment.";
+
+let messageIdCounter = 0;
+const createMessageId = () => {
+  messageIdCounter += 1;
+  return `msg-${Date.now().toString(36)}-${messageIdCounter}`;
+};
+
 const ChatBox = () => {
   const { messages, setMessages } = useMessage();
   const [currMsg, setCurrMsg] = useState("");
@@ -38,6 +48,15 @@ const ChatBox = () => {
   const isAutoIntroTyping = messages.length === 0 && !autoAnswerDone;
 
   const chatboxRef = useRef(null);
+  // Synchronous in-flight guard (state would be stale inside the same task).
+  const inFlightRef = useRef(false);
+  const requestControllerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      requestControllerRef.current?.abort();
+    };
+  }, []);
 
   const scrollToBottom = useCallback((behavior = "smooth") => {
     if (chatboxRef.current) {
@@ -91,55 +110,69 @@ const ChatBox = () => {
   }, []);
 
   const getResponse = useCallback(async (question) => {
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      CHAT_REQUEST_TIMEOUT_MS,
+    );
+
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
+        signal: controller.signal,
       });
 
       if (!response.ok) throw new Error(`Status: ${response.status}`);
       const data = await response.json();
+      if (typeof data?.answer !== "string" || !data.answer) {
+        throw new Error("Invalid chat response");
+      }
       return data.answer;
     } catch (error) {
       console.error("Error fetching response:", error);
-      return "Sorry, I am having trouble connecting right now. Please try again in a moment.";
+      return CONNECTION_ERROR_ANSWER;
+    } finally {
+      window.clearTimeout(timeoutId);
+      if (requestControllerRef.current === controller) {
+        requestControllerRef.current = null;
+      }
     }
   }, []);
 
   const askQuestion = useCallback(
     async (questionText) => {
       const trimmed = questionText.trim();
-      if (!trimmed || isLoading) return;
+      if (!trimmed || inFlightRef.current) return;
+
+      inFlightRef.current = true;
+      const messageId = createMessageId();
+      const setAnswer = (answer) =>
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === messageId ? { ...msg, answer } : msg,
+          ),
+        );
 
       setIsLoading(true);
       setMessages((prev) => [
         ...prev,
-        { question: trimmed, answer: "Thinking..." },
+        { id: messageId, question: trimmed, answer: "Thinking..." },
       ]);
 
       try {
         const answer = await getResponse(trimmed);
-        setMessages((prevMessages) =>
-          prevMessages.map((msg, idx) =>
-            idx === prevMessages.length - 1
-              ? { question: trimmed, answer }
-              : msg,
-          ),
-        );
+        setAnswer(answer);
       } catch (error) {
-        setMessages((prevMessages) =>
-          prevMessages.map((msg, idx) =>
-            idx === prevMessages.length - 1
-              ? { question: trimmed, answer: "Sorry, something went wrong." }
-              : msg,
-          ),
-        );
+        setAnswer("Sorry, something went wrong.");
       } finally {
+        inFlightRef.current = false;
         setIsLoading(false);
       }
     },
-    [getResponse, isLoading, setMessages],
+    [getResponse, setMessages],
   );
 
   const handleSubmit = useCallback(
@@ -208,6 +241,9 @@ const ChatBox = () => {
       <div
         ref={chatboxRef}
         data-lenis-prevent
+        role="log"
+        aria-live="polite"
+        aria-busy={isAutoIntroTyping || isLoading}
         className={cn(
           "flex-1 min-h-0 space-y-6 p-6",
           isAutoIntroTyping ? "overflow-y-hidden" : "overflow-y-auto",
@@ -314,6 +350,7 @@ const ChatBox = () => {
             className="h-12 w-full rounded-full border border-white/10 bg-black/40 pl-5 pr-12 text-sm text-white placeholder:text-slate-500 shadow-inner focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-all"
             type="text"
             placeholder="Ask me anything..."
+            aria-label="Ask me anything..."
             onChange={(e) => setCurrMsg(e.target.value)}
           />
           <button
