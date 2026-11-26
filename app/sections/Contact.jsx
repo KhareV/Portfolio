@@ -14,12 +14,14 @@ import {
 } from "lucide-react";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 import useRuntimePerformanceMode from "../hooks/useRuntimePerformanceMode";
+import { withTimeout } from "../lib/withTimeout.js";
 
 const Prism = dynamic(() => import("./Prism"), { ssr: false });
 const Beams = dynamic(() => import("./Beams"), { ssr: false });
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ALERT_RESET_DELAY_MS = 3200;
+const EMAIL_SEND_TIMEOUT_MS = 15000;
 const CONTACT_RECEIVER_NAME = "Vedant Khare";
 const CONTACT_RECEIVER_EMAIL = "kharevedant05@gmail.com";
 
@@ -44,6 +46,8 @@ const Contact = () => {
     margin: "220px 0px",
   });
   const alertTimeoutRef = useRef(null);
+  // Synchronous double-submit guard (the `loading` state can be stale).
+  const sendingRef = useRef(false);
   const [alert, setAlert] = useState({ show: false, text: "", type: "" });
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -85,7 +89,7 @@ const Contact = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (loading) {
+    if (loading || sendingRef.current) {
       return;
     }
 
@@ -109,20 +113,26 @@ const Contact = () => {
       return;
     }
 
+    sendingRef.current = true;
     setLoading(true);
 
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
-          from_name: normalized.name,
-          to_name: CONTACT_RECEIVER_NAME,
-          from_email: normalized.email,
-          to_email: CONTACT_RECEIVER_EMAIL,
-          message: normalized.message,
-        },
-        EMAILJS_PUBLIC_KEY,
+      // The SDK has no request timeout; stop waiting after 15 s so the
+      // visitor gets the error state and can retry (draft is kept).
+      await withTimeout(
+        emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          {
+            from_name: normalized.name,
+            to_name: CONTACT_RECEIVER_NAME,
+            from_email: normalized.email,
+            to_email: CONTACT_RECEIVER_EMAIL,
+            message: normalized.message,
+          },
+          EMAILJS_PUBLIC_KEY,
+        ),
+        EMAIL_SEND_TIMEOUT_MS,
       );
 
       setForm({ name: "", email: "", message: "" });
@@ -131,6 +141,7 @@ const Contact = () => {
       console.error("EmailJS send failed", error);
       showAlert("Failed to send message. Please try again.", "error");
     } finally {
+      sendingRef.current = false;
       setLoading(false);
     }
   };
