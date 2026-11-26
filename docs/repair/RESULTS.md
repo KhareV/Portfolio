@@ -29,20 +29,20 @@ not claimed; the lab results are diagnostics.
 
 | Metric | Desktop before | Desktop after | Phone before | Phone after |
 |---|---|---|---|---|
-| LCP (lab) | 1,100 ms (1,100–1,104) | **172 ms** (172–200) | 3,832 ms (3,824–6,536) | **584 ms** (576–600) |
+| LCP (lab) | 1,100 ms (1,100–1,104) | **180 ms** (172–200) | 3,832 ms (3,824–6,536) | **588 ms** (584–616) |
 | LCP element | H2 "Articulate, Poised…" | H1 "I'm Vedant Khare." | typed H1 (empty in HTML) | hero summary paragraph |
 | CLS (per run) | 0.043 ×3 | 0.0001 ×3 | 0.122 / 0.122 / 0.120 | 0.0004 ×3 |
-| Long tasks / ≈TBT | 1 / 16 ms | 2 / 76 ms¹ | 0 / 0 | 0 / 0 |
+| Long tasks / ≈TBT | 1 / 16 ms | 2 / 74 ms¹ | 0 / 0 | 0 / 0 |
 | JS transferred before interaction | 817 KB | **168 KB** | 292 KB | **168 KB** |
 | All bytes before interaction | 6.68 MB | **0.73 MB** | 3.79 MB | **0.61 MB** |
-| All bytes, full journey | 12.15 MB | 8.68 MB² | 4.37 MB | **1.19 MB** |
-| Warm revisit LCP / bytes | 808 ms / 256 KB | 140 ms / 1.2 KB | 3,900 ms / 2.68 MB | 376 ms / 1.2 KB |
+| All bytes, full journey | 12.15 MB | 8.84 MB² | 4.37 MB | **1.18 MB** |
+| Warm revisit LCP / bytes | 808 ms / 256 KB | 144 ms / 1.2 KB | 3,900 ms / 2.68 MB | 372 ms / 1.2 KB |
 | Scroll frames p50 / p95 | 16.7 / 16.8 ms | 16.7 / 16.7 ms | 16.7 / 16.8 ms | 16.7 / 16.8 ms |
 | Frames > 33 ms / > 50 ms | 1 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
-| Next-project click → next frame | 48.9 ms | 54.3 ms | 47 ms | 29.6 ms |
+| Next-project click → next frame | 48.9 ms | 57.8 ms | 47 ms | 28.6 ms |
 | rAF callbacks/s at hero idle | 197 | **0** | 77 | **0** |
 | … at Projects | 455 | 54 | 93 | 0.3 |
-| … at Contact | 516 | 106 | 73 | 0 |
+| … at Contact | 516 | 106 (Prism + Earth both visible) | 73 | 0 |
 | … back at top, idle | **431** | **0** | 76 | **0** |
 | Page errors | 0 (desktop) / React #418 on every phone run | 0 | 1 per run | 0 |
 | Music prompt covering the page | yes (blocked clicks) | removed | — | — |
