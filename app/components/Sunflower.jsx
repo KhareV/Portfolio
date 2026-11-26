@@ -26,6 +26,9 @@ export default function Sunflower() {
         element: rect,
         centerX: x + width / 2,
         centerY: y + height / 2,
+        // last written values: identical frames skip the DOM write
+        lastOpacity: "",
+        lastTransform: "",
       };
     });
 
@@ -40,14 +43,32 @@ export default function Sunflower() {
       return Math.sqrt(dx * dx + dy * dy);
     };
 
+    // The loop runs only while something can change on screen: during hover,
+    // the hover fade-out, and until the eased pointer has caught up. In the
+    // settled state every rect is exactly opacity 1 / scale(1) (isMouseOver is
+    // false once hoverBlend <= 0.01), so stopping there changes no pixels.
+    const isSettled = () =>
+      !targetIsMouseOver &&
+      hoverBlend <= 0.01 &&
+      Math.abs(cursor.x - mouse.x) < 0.5 &&
+      Math.abs(cursor.y - mouse.y) < 0.5;
+
+    const ensureRunning = () => {
+      if (rafId === null) {
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+
     const handleMouseMove = (e) => {
       cursor.x = e.clientX;
       cursor.y = e.clientY;
       targetIsMouseOver = true;
+      ensureRunning();
     };
 
     const handleMouseLeave = () => {
       targetIsMouseOver = false;
+      ensureRunning();
     };
 
     const handleTouchMove = (e) => {
@@ -55,11 +76,13 @@ export default function Sunflower() {
         cursor.x = e.touches[0].clientX;
         cursor.y = e.touches[0].clientY;
         targetIsMouseOver = true;
+        ensureRunning();
       }
     };
 
     const handleTouchEnd = () => {
       targetIsMouseOver = false;
+      ensureRunning();
     };
 
     flowerSvg.addEventListener("mousemove", handleMouseMove);
@@ -77,7 +100,7 @@ export default function Sunflower() {
     mouse.x = cursor.x;
     mouse.y = cursor.y;
 
-    const animate = () => {
+    function animate() {
       // Smooth easing like TextPressure (divide by 15)
       mouse.x += (cursor.x - mouse.x) / 15;
       mouse.y += (cursor.y - mouse.y) / 15;
@@ -115,18 +138,27 @@ export default function Sunflower() {
         const finalScale = 1.0 + (scaleVal - 1.0) * hoverBlend;
 
         // Direct style updates like TextPressure (no throttling needed with /15 easing)
-        data.element.style.opacity = finalOpacity.toFixed(3);
-        data.element.style.transform = `scale(${finalScale.toFixed(3)})`;
+        const nextOpacity = finalOpacity.toFixed(3);
+        const nextTransform = `scale(${finalScale.toFixed(3)})`;
+        if (data.lastOpacity !== nextOpacity) {
+          data.element.style.opacity = nextOpacity;
+          data.lastOpacity = nextOpacity;
+        }
+        if (data.lastTransform !== nextTransform) {
+          data.element.style.transform = nextTransform;
+          data.lastTransform = nextTransform;
+        }
       });
 
-      rafId = requestAnimationFrame(animate);
-    };
+      rafId = isSettled() ? null : requestAnimationFrame(animate);
+    }
 
-    animate();
+    // first frame writes the initial (resting) styles, then the loop settles
+    rafId = requestAnimationFrame(animate);
 
     // Cleanup function
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
+      if (rafId !== null) cancelAnimationFrame(rafId);
       flowerSvg.removeEventListener("mousemove", handleMouseMove);
       flowerSvg.removeEventListener("mouseleave", handleMouseLeave);
       flowerSvg.removeEventListener("touchmove", handleTouchMove);
@@ -182,7 +214,8 @@ export default function Sunflower() {
         }
       `}</style>
 
-      <main className="sunflower-page">
+      {/* div, not a second <main> landmark (the shell already renders <main>) */}
+      <div className="sunflower-page">
         <div className="flex justify-center">
           <svg
             ref={svgRef}
@@ -6957,7 +6990,7 @@ export default function Sunflower() {
             />
           </svg>
         </div>
-      </main>
+      </div>
     </>
   );
 }

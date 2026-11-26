@@ -11,6 +11,8 @@ import { useGSAP } from "@gsap/react";
 import { DRACO_DECODER_PATH } from "../lib/assetPaths";
 
 const DemoComputer = (props) => {
+  // eslint-disable-next-line no-unused-vars
+  const { texture: _texture, isActive: _isActive, ...groupProps } = props;
   const group = useRef();
   const { nodes, materials } = useGLTF("/models/computer.glb", DRACO_DECODER_PATH);
 
@@ -24,6 +26,22 @@ const DemoComputer = (props) => {
     }
   }, [txt]);
 
+  // Only the selected project's video plays, and only while the scene is
+  // visible. useVideoTexture caches one <video> per URL and never pauses it,
+  // so previously every visited project kept decoding offscreen.
+  const isActive = props.isActive !== false;
+  useEffect(() => {
+    const video = txt?.image;
+    if (!video || typeof video.play !== "function") return undefined;
+    if (isActive) {
+      const playing = video.play();
+      if (playing && typeof playing.catch === "function") playing.catch(() => {});
+    } else {
+      video.pause();
+    }
+    return () => video.pause();
+  }, [txt, isActive]);
+
   useGSAP(() => {
     gsap.from(group.current.rotation, {
       y: Math.PI / 2,
@@ -33,7 +51,7 @@ const DemoComputer = (props) => {
   }, [txt]);
 
   return (
-    <group ref={group} {...props} dispose={null}>
+    <group ref={group} {...groupProps} dispose={null}>
       <group name="Scene">
         <mesh
           name="monitor-screen"

@@ -18,7 +18,9 @@ import {
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
 import SceneBoundary from "../components/SceneBoundary.jsx";
 
-const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
+const Globe = dynamic(() => import("../components/GlobeView.jsx"), {
+  ssr: false,
+});
 
 const EMAIL_ADDRESS = "kharevedant05@gmail.com";
 const PROFILE_NAME = "Vedant Khare";

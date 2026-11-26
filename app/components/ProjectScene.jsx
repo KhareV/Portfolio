@@ -22,7 +22,7 @@ import DemoComputer from "./DemoComputer.jsx";
 
 const AUTO_ROTATE_RESUME_DELAY_MS = 1800;
 
-const ProjectScene = ({ texture, isMobile }) => {
+const ProjectScene = ({ texture, isMobile, isActive = true }) => {
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const resumeTimerRef = useRef(null);
 
@@ -82,6 +82,8 @@ const ProjectScene = ({ texture, isMobile }) => {
     <Canvas
       className="relative z-10 w-full h-full cursor-grab active:cursor-grabbing"
       dpr={isMobile ? [1, 1.25] : [1, 1.5]}
+      // no frames while the section is offscreen (was 60 fps at all times)
+      frameloop={isActive ? "always" : "never"}
       gl={glConfig}
       camera={cameraConfig}
     >
@@ -107,7 +109,7 @@ const ProjectScene = ({ texture, isMobile }) => {
             position={modelTransform.position}
             rotation={modelTransform.rotation}
           >
-            <DemoComputer texture={texture} />
+            <DemoComputer texture={texture} isActive={isActive} />
           </group>
 
           <ContactShadows
@@ -126,7 +128,7 @@ const ProjectScene = ({ texture, isMobile }) => {
         minPolarAngle={Math.PI / 3}
         enableZoom={false}
         enablePan={false}
-        autoRotate={!isUserInteracting}
+        autoRotate={isActive && !isUserInteracting}
         autoRotateSpeed={0.8}
         rotateSpeed={0.5}
         onStart={handleControlsStart}

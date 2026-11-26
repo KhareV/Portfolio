@@ -14,7 +14,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  reporter: [["list"], ["json", { outputFile: "test-results/e2e-results.json" }]],
+  reporter: [["list"], ["json", { outputFile: "playwright-report/e2e-results.json" }]],
   use: {
     baseURL: EXTERNAL || `http://localhost:${PORT}`,
     headless: process.env.PW_HEADLESS === "1",
