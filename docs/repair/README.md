@@ -14,7 +14,7 @@ Nothing was deployed, pushed or merged.
   byte-identical to `KhareV/Portfolio@ad7d86a` after stripping CR (Windows line endings);
   `.gitignore` and `.env.example` were missing; `node_modules` was a Windows install
   (`@next/swc-win32-x64-msvc`) that cannot run on macOS. No local edits existed to preserve.
-- The repair was developed in a clean clone on branch `repair/reliability` (3 commits on
+- The repair was developed in a clean clone on branch `repair/reliability` (4 commits on
   top of `ad7d86a`). `repair.bundle` in this folder holds those commits; to get them into
   a clone of the GitHub repo: `git fetch /path/to/repair.bundle repair/reliability:repair/reliability`.
   The files were also copied into this checkout (CRLF line endings, to match it).
