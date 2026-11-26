@@ -1,13 +1,11 @@
-// POST /api/chat
+// Handler for POST /api/chat (wired in app/api/chat/route.jsx).
 // Request:  { "question": string (1–500 chars) }
 // Response: 200 { answer: string, source: "model" | "offline", notice?: string }
 //           400 { error: string }      invalid payload
 // The answer is plain text; the client renders it as text (never as HTML).
 // Provider secrets are read server-side only (GROQ_API_KEY / MY_SECRET_API_KEY).
-import getSystemPrompt from "./prompt.js";
-import { offlineAnswer, validateQuestion } from "../../lib/chatAnswers.js";
-
-export const dynamic = "force-dynamic";
+import getSystemPrompt from "./chatPrompt.js";
+import { offlineAnswer, validateQuestion } from "./chatAnswers.js";
 
 const PROVIDER_TIMEOUT_MS = Number(process.env.CHAT_TIMEOUT_MS) || 8000;
 const GROQ_BASE = process.env.GROQ_API_BASE || "https://api.groq.com/openai/v1";

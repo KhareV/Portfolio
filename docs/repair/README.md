@@ -18,6 +18,10 @@ Nothing was deployed, pushed or merged.
   top of `ad7d86a`). `repair.bundle` in this folder holds those commits; to get them into
   a clone of the GitHub repo: `git fetch /path/to/repair.bundle repair/reliability:repair/reliability`.
   The files were also copied into this checkout (CRLF line endings, to match it).
+- This checkout's folders are owned by root with the sticky bit (`drwxrwxrwt`), so the
+  repair could edit and add files but **not delete** them. Files the repair removed are
+  left here as one-line tombstones ("Removed in the repair pass") that nothing imports.
+  Delete them when convenient: `bash docs/repair/remove-tombstones.sh` (lists them first).
 
 ## Run it
 

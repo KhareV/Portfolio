@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 
 process.env.CHAT_TIMEOUT_MS = "150";
 const realFetch = globalThis.fetch;
-const { POST } = await import("../../app/api/chat/route.js");
+const { POST } = await import("../../app/lib/chatHandler.js");
 const call = (body) => POST(new Request("http://local/api/chat", { method: "POST", body: typeof body === "string" ? body : JSON.stringify(body) }));
 
 beforeEach(() => {
