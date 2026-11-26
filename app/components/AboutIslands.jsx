@@ -65,55 +65,22 @@ export function PauseOffscreen({ children, className = "" }) {
 }
 
 // ---- Globe -------------------------------------------------------------------
-const Globe = dynamic(() => import("react-globe.gl"), { ssr: false, loading: () => null });
+const GlobeScene = dynamic(() => import("./GlobeScene"), { ssr: false, loading: () => null });
 
 // Same points as before the repair: ten capitals plus Chennai (labelled).
 const LOCATIONS = [
   [55.7558, 37.6173], [45.4215, -75.6972], [39.9042, 116.4074], [38.8977, -77.0365], [-15.7975, -47.8919],
   [-35.2809, 149.13], [28.6139, 77.209], [-34.6037, -58.3816], [51.1694, 71.4491], [36.7538, 3.0588],
-].map(([lat, lng]) => ({ lat, lng, size: 8, color: "#c17a57" }))
-  .concat({ lat: 13.0827, lng: 80.2707, size: 10, color: "#5a4a3d", label: "Chennai, India" });
-
-const marker = (d) => {
-  const el = document.createElement("div");
-  el.style.cssText = "transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;pointer-events:none";
-  el.innerHTML = `<svg width="${d.size * 2}" height="${d.size * 2}" viewBox="0 0 24 24" fill="${d.color}" aria-hidden="true"><path d="M12 0C7.8 0 4 3.4 4 7.6 4 11.8 7.5 16.8 12 24c4.5-7.2 8-12.2 8-16.4C20 3.4 16.2 0 12 0Zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg>`;
-  if (d.label) {
-    const t = document.createElement("span");
-    t.textContent = d.label;
-    t.style.cssText = "color:#fde68a;font-size:11px;white-space:nowrap;text-shadow:0 1px 3px #000";
-    el.appendChild(t);
-  }
-  return el;
-};
+].map(([lat, lng]) => ({ lat, lng, color: "#c17a57" }))
+  .concat({ lat: 13.0827, lng: 80.2707, color: "#fbbf24", label: "Chennai, India" });
 
 export function AboutGlobe() {
   const tier = useVisualTier();
   const [ref, near, active] = useViewport({ nearMargin: "200px 0px" });
   const [failed, setFailed] = useState(false);
-  const holder = useRef(null);
-  const globeRef = useRef(null);
-  const [size, setSize] = useState(300);
-
-  // react-globe.gl renders continuously; pause it whenever it is not visible.
-  useEffect(() => {
-    const g = globeRef.current;
-    if (!g) return;
-    if (active) g.resumeAnimation?.();
-    else g.pauseAnimation?.();
-  }, [active, size]);
-
-  useEffect(() => {
-    const el = holder.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([e]) => setSize(Math.round(Math.min(e.contentRect.width, e.contentRect.height))));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
   const show = tier === "full" && near && !failed;
   return (
-    <div ref={(node) => { ref(node); holder.current = node; }} className="relative grid h-[260px] w-full place-items-center overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_30%_30%,#1e3a5f_0%,#0f172a_50%,#020617_100%)] sm:h-[326px]">
+    <div ref={ref} className="relative grid h-[260px] w-full place-items-center overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_30%_30%,#1e3a5f_0%,#0f172a_50%,#020617_100%)] sm:h-[326px]">
       {/* Static fallback is always underneath. */}
       <div className="absolute inset-0 grid place-items-center px-6 text-center">
         <p className="text-sm leading-relaxed text-slate-100/90 sm:text-base">
@@ -123,26 +90,9 @@ export function AboutGlobe() {
         </p>
       </div>
       {show ? (
-        <div className="absolute inset-0 grid place-items-center bg-[#020617]" aria-hidden="true">
+        <div className="absolute inset-0 bg-[#020617]" aria-hidden="true">
           <SceneBoundary name="globe" onFail={() => setFailed(true)} fallback={null}>
-            <Globe
-              ref={globeRef}
-              width={size}
-              height={size}
-              backgroundColor="rgba(0,0,0,0)"
-              showAtmosphere
-              showGraticules
-              animateIn={false}
-              htmlElementsData={LOCATIONS}
-              htmlElement={marker}
-              htmlAltitude={0.02}
-              enablePointerInteraction={active}
-              rendererConfig={{ antialias: true, powerPreference: "low-power" }}
-              onGlobeReady={() => {
-                globeRef.current?.pointOfView({ lat: 20, lng: 78, altitude: 1.9 });
-                if (!active) globeRef.current?.pauseAnimation?.();
-              }}
-            />
+            <GlobeScene locations={LOCATIONS} active={active} onFail={() => setFailed(true)} />
           </SceneBoundary>
         </div>
       ) : null}
