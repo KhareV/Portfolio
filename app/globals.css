@@ -446,16 +446,6 @@ body {
     @apply bg-background/20 border border-accent/30 border-solid backdrop-blur-[6px] shadow-glass-inset hover:shadow-glass-sm;
   }
 }
-@theme inline {
-  --color-hubspot: var(--hubspot);
-  --color-dark: var(--dark);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-serif: var(--font-neuton);
-  --font-sans: var(--font-noto-sans);
-}
 @media (prefers-color-scheme: light) {
   :root {
     --hubspot: #ff5c34;
