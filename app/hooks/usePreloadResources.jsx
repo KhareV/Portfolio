@@ -29,6 +29,7 @@ const PROJECT_SPOTLIGHT_SOURCES = [
   "/assets/spotlight5.png",
 ];
 const WORK_ICON_SOURCES = [
+  "/assets/walmart.png",
   "/assets/codechef.png",
   "/assets/ispace.png",
   "/assets/hackathons.png",

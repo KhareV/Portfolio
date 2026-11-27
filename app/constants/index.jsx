@@ -238,6 +238,16 @@ export const calculateSizes = (isSmall, isMobile, isTablet) => {
 
 export const workExperiences = [
   {
+    id: 5,
+    name: "Walmart Global Tech",
+    pos: "Software Engineer Intern",
+    duration: "May 2026 - Jul 2026",
+    title:
+      "Summer internship at Walmart Global Tech, building software for one of the world's largest retail platforms.",
+    icon: "/assets/walmart.png",
+    animation: "dance",
+  },
+  {
     id: 1,
     name: "CodeChef College Chapter, VIT Chennai",
     pos: "Full-Stack Web Engineer",

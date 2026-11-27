@@ -31,7 +31,13 @@ const WorkExperienceScene = dynamic(
 
 const IDLE_ANIMATION_DELAY_MS = 180;
 const FALLBACK_ANIMATION = "idle";
-const SUPPORTED_ANIMATIONS = new Set(["idle", "salute", "clapping", "victory"]);
+const SUPPORTED_ANIMATIONS = new Set([
+  "idle",
+  "salute",
+  "clapping",
+  "victory",
+  "dance",
+]);
 
 const normalizeAnimationName = (animationName) => {
   const normalizedName = String(

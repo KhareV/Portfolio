@@ -2,16 +2,21 @@
 
 import React, { useEffect, useRef } from "react";
 import { useGraph } from "@react-three/fiber";
-import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
+import { useAnimations, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
 import { DRACO_DECODER_PATH } from "../lib/assetPaths.js";
 
 const DEVELOPER_MODEL_PATH = "/models/human/developer.glb";
+// Animation-only GLBs (one node per bone, LINEAR keyframes). idle/salute/clapping/
+// victory are converted 1:1 from the original Mixamo FBX files (bit-identical
+// keyframes, ~90 % smaller, no FBXLoader in the bundle); dance is M_Dances_004
+// from the Ready Player Me animation library (see public/models/animations/PROVENANCE.md).
 const ANIMATION_PATHS = {
-  idle: "/models/animations/idle.fbx",
-  salute: "/models/animations/salute.fbx",
-  clapping: "/models/animations/clapping.fbx",
-  victory: "/models/animations/victory.fbx",
+  idle: "/models/animations/idle.glb",
+  salute: "/models/animations/salute.glb",
+  clapping: "/models/animations/clapping.glb",
+  victory: "/models/animations/victory.glb",
+  dance: "/models/animations/dance.glb",
 };
 
 const FALLBACK_ANIMATION = "idle";
@@ -33,10 +38,11 @@ const Developer = React.forwardRef(
     const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
     const { nodes, materials } = useGraph(clone);
 
-    const { animations: idleAnimation } = useFBX(ANIMATION_PATHS.idle);
-    const { animations: saluteAnimation } = useFBX(ANIMATION_PATHS.salute);
-    const { animations: clappingAnimation } = useFBX(ANIMATION_PATHS.clapping);
-    const { animations: victoryAnimation } = useFBX(ANIMATION_PATHS.victory);
+    const { animations: idleAnimation } = useGLTF(ANIMATION_PATHS.idle, DRACO_DECODER_PATH);
+    const { animations: saluteAnimation } = useGLTF(ANIMATION_PATHS.salute, DRACO_DECODER_PATH);
+    const { animations: clappingAnimation } = useGLTF(ANIMATION_PATHS.clapping, DRACO_DECODER_PATH);
+    const { animations: victoryAnimation } = useGLTF(ANIMATION_PATHS.victory, DRACO_DECODER_PATH);
+    const { animations: danceAnimation } = useGLTF(ANIMATION_PATHS.dance, DRACO_DECODER_PATH);
 
     const animationClips = React.useMemo(() => {
       const toNamedClip = (clips, name) => {
@@ -55,8 +61,15 @@ const Developer = React.forwardRef(
         toNamedClip(saluteAnimation, "salute"),
         toNamedClip(clappingAnimation, "clapping"),
         toNamedClip(victoryAnimation, "victory"),
+        toNamedClip(danceAnimation, "dance"),
       ].filter(Boolean);
-    }, [idleAnimation, saluteAnimation, clappingAnimation, victoryAnimation]);
+    }, [
+      idleAnimation,
+      saluteAnimation,
+      clappingAnimation,
+      victoryAnimation,
+      danceAnimation,
+    ]);
 
     const { actions } = useAnimations(animationClips, group);
 
@@ -200,8 +213,7 @@ const Developer = React.forwardRef(
 Developer.displayName = "Developer";
 
 useGLTF.preload(DEVELOPER_MODEL_PATH, DRACO_DECODER_PATH);
-useFBX.preload(ANIMATION_PATHS.idle);
-useFBX.preload(ANIMATION_PATHS.salute);
-useFBX.preload(ANIMATION_PATHS.clapping);
-useFBX.preload(ANIMATION_PATHS.victory);
+Object.values(ANIMATION_PATHS).forEach((path) =>
+  useGLTF.preload(path, DRACO_DECODER_PATH),
+);
 export default Developer;

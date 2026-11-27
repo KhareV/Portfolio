@@ -125,10 +125,19 @@ const Footer = () => {
 
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
+    // Sections above the footer mount in later stages: the page grows without
+    // any scroll/resize event, which used to leave a now-covered footer
+    // visible and keyboard-focusable until the first scroll.
+    const pageResizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(requestUpdate);
+    pageResizeObserver?.observe(document.body);
 
     return () => {
       window.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", requestUpdate);
+      pageResizeObserver?.disconnect();
 
       if (rafId != null) {
         window.cancelAnimationFrame(rafId);

@@ -18,7 +18,7 @@ const faults = [
   ["computer.glb 404", /computer\.glb/],
   ["planet glb 404", /scene\.opt\.glb/],
   ["developer.glb 404", /developer\.glb/],
-  ["avatar fbx 404", /\.fbx(\?|$)/],
+  ["avatar animation 404", /\/models\/animations\//],
   ["draco decoder 404", /draco_(decoder|wasm_wrapper)/],
   ["project video 404", /\.mp4(\?|$)/],
 ];

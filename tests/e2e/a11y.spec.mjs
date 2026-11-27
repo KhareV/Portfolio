@@ -75,6 +75,28 @@ test("covered footer links are not focusable until the footer is revealed", asyn
   expect(focusableAtBottom).toBe(true);
 });
 
+test("footer becomes unfocusable again when the page grows without scrolling", async ({ page, context }) => {
+  // Staged sections can mount after the footer: the page grows with no scroll event.
+  await mockGithub(context);
+  await page.goto("/");
+  await page.waitForTimeout(6000);
+  await dismissConsentIfShown(page, 6000);
+  await page.waitForSelector("#footer", { state: "attached" });
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => document.querySelector("#footer").inert)).toBe(false);
+  // grow the page above the current position without scrolling
+  await page.evaluate(() => {
+    // no scroll anchoring: keep scrollY fixed, as when content mounts off-screen
+    document.documentElement.style.overflowAnchor = "none";
+    document.body.style.overflowAnchor = "none";
+    const spacer = document.createElement("div");
+    spacer.style.height = "6000px";
+    document.querySelector("main")?.prepend(spacer);
+  });
+  await expect.poll(() => page.evaluate(() => document.querySelector("#footer").inert), { timeout: 3000 }).toBe(true);
+});
+
 test("footer is already visible in the very frame the reveal can first show it", async ({ page, context }) => {
   await mockGithub(context);
   await page.goto("/");
