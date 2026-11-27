@@ -47,7 +47,18 @@ function glbFingerprint(publicPath) {
       const offset = binStart + (view.byteOffset || 0) + (acc.byteOffset || 0);
       const n = acc.count * width[acc.type];
       const out = new Float32Array(n);
-      for (let i = 0; i < n; i++) out[i] = b.readFloatLE(offset + i * 4);
+      // float32, or normalized int16/int8 rotations (dequantised exactly as GLTFLoader does)
+      const comp = {
+        5126: [4, (o) => b.readFloatLE(o), 1],
+        5122: [2, (o) => b.readInt16LE(o), 1 / 32767],
+        5120: [1, (o) => b.readInt8(o), 1 / 127],
+      }[acc.componentType];
+      const stride = view.byteStride || comp[0] * width[acc.type];
+      const per = width[acc.type];
+      for (let i = 0; i < n; i++) {
+        const raw = comp[1](offset + Math.floor(i / per) * stride + (i % per) * comp[0]);
+        out[i] = acc.normalized ? raw * comp[2] : raw;
+      }
       return out;
     };
     for (const v of read(sampler.output)) sum += v;
