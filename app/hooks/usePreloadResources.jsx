@@ -1,18 +1,45 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getImageProps } from "next/image";
+
+import {
+  PROJECT_SPOTLIGHT_IMAGE,
+  WORK_ICON_IMAGE,
+} from "../lib/imagePresets.js";
 
 const CRITICAL_IMAGE_ASSETS = ["/assets/close.svg", "/assets/menu.svg"];
-const SUPPORTING_IMAGE_ASSETS = [
+
+// Warm the exact next/image variants the Projects card and the work timeline
+// render (same srcset + sizes, so the browser picks the same candidate and the
+// later <img> is a cache hit). Previously the raw source PNGs were fetched
+// here (~2.3 MB) although the page only ever displays the optimised versions.
+const toImageCandidate = (src, preset) => {
+  const { props } = getImageProps({ src, alt: "", ...preset });
+  return { src: props.src, srcSet: props.srcSet, sizes: props.sizes };
+};
+
+// Kept as explicit lists (as before) so the startup bundle does not pull in
+// the full constants module.
+const PROJECT_SPOTLIGHT_SOURCES = [
   "/assets/spotlight1.png",
   "/assets/spotlight2.png",
   "/assets/spotlight3.png",
   "/assets/spotlight4.png",
   "/assets/spotlight5.png",
+];
+const WORK_ICON_SOURCES = [
   "/assets/codechef.png",
   "/assets/ispace.png",
   "/assets/hackathons.png",
   "/assets/dandiya.png",
+];
+
+const getSupportingImageAssets = () => [
+  ...PROJECT_SPOTLIGHT_SOURCES.map((src) =>
+    toImageCandidate(src, PROJECT_SPOTLIGHT_IMAGE),
+  ),
+  ...WORK_ICON_SOURCES.map((src) => toImageCandidate(src, WORK_ICON_IMAGE)),
 ];
 
 const OPTIONAL_HEAVY_ASSETS = [
@@ -79,7 +106,10 @@ const cancelIdleTask = (id) => {
   clearTimeout(id);
 };
 
-const preloadImage = (src) => {
+const preloadImage = (asset) => {
+  const { src, srcSet, sizes } =
+    typeof asset === "string" ? { src: asset } : asset;
+
   return new Promise((resolve) => {
     const img = new Image();
     let settled = false;
@@ -95,6 +125,9 @@ const preloadImage = (src) => {
 
     img.onload = done;
     img.onerror = done;
+    // sizes/srcset before src so only the selected candidate is fetched
+    if (sizes) img.sizes = sizes;
+    if (srcSet) img.srcset = srcSet;
     img.src = src;
 
     if (typeof img.decode === "function") {
@@ -222,8 +255,8 @@ const usePreloadResources = () => {
           }
 
           await preloadBatch(
-            SUPPORTING_IMAGE_ASSETS,
-            async (src) => preloadImage(src),
+            getSupportingImageAssets(),
+            async (asset) => preloadImage(asset),
             {
               concurrency: 2,
               signal: abortController.signal,

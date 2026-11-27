@@ -10,6 +10,7 @@ import { myProjects } from "../constants/index.jsx";
 import TechIcon from "../components/TechIcon.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
 import SceneBoundary from "../components/SceneBoundary.jsx";
+import { PROJECT_SPOTLIGHT_IMAGE } from "../lib/imagePresets.js";
 
 const ProjectScene = dynamic(() => import("../components/ProjectScene.jsx"), {
   ssr: false,
@@ -110,9 +111,7 @@ const Projects = ({ disableHeavyVisuals = false }) => {
                 src={currentProject.spotlight}
                 alt=""
                 aria-hidden="true"
-                fill
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                quality={52}
+                {...PROJECT_SPOTLIGHT_IMAGE}
                 className="w-full h-full object-cover"
               />
             </div>

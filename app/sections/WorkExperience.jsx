@@ -15,6 +15,7 @@ import {
 } from "../styles/spacing.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
 import SceneBoundary from "../components/SceneBoundary.jsx";
+import { WORK_ICON_IMAGE } from "../lib/imagePresets.js";
 
 const WorkExperienceScene = dynamic(
   () => import("../components/WorkExperienceScene.jsx"),
@@ -212,9 +213,7 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
                         className="w-full h-full object-contain"
                         src={item.icon}
                         alt={item.name}
-                        width={40}
-                        height={40}
-                        sizes="40px"
+                        {...WORK_ICON_IMAGE}
                       />
                     </div>
 

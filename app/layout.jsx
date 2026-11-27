@@ -47,7 +47,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="icon" type="image/png" href="/snoopy.png" />
+        {/* 96px copy of snoopy.png for the tab icon; the 1000px original stays the social preview */}
+        <link rel="icon" type="image/png" sizes="96x96" href="/snoopy-icon.png" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <div className="app-scale">{children}</div>

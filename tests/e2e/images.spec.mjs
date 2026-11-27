@@ -34,3 +34,23 @@ for (const tz of ["Asia/Kolkata", "America/New_York"]) {
     });
   }
 }
+
+// Image weight: the idle preloader must warm the optimised next/image variants the page
+// displays, never the multi-megabyte source PNGs (previously ~2.3 MB before first input).
+test("idle preload fetches optimised spotlight/logo variants, not raw source PNGs", async ({ browser }) => {
+  const context = await browser.newContext();
+  await mockGithub(context);
+  const page = await context.newPage();
+  const raw = [];
+  const optimised = [];
+  page.on("request", (r) => {
+    const u = decodeURIComponent(r.url());
+    if (/\/assets\/(spotlight\d|codechef|ispace|hackathons|dandiya)\.png$/.test(new URL(r.url()).pathname)) raw.push(u);
+    if (/_next\/image\?url=\/assets\/spotlight\d\.png/.test(u)) optimised.push(u);
+  });
+  await page.goto("/");
+  await page.waitForTimeout(6000);
+  expect(raw, raw.join("\n")).toEqual([]);
+  expect(new Set(optimised.map((u) => u.match(/spotlight\d/)[0])).size).toBe(5);
+  await context.close();
+});

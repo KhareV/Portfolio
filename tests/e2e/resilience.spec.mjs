@@ -53,6 +53,11 @@ test("fault isolation: all third-party hosts blocked (offline CDN)", async ({ pa
   await expectPageIntact(page);
   // healthy path needs no CDN: the project canvas must exist
   await expect(page.locator("#projects canvas")).toHaveCount(1);
+  // the Draco-compressed developer model must decode with the self-hosted decoder
+  await scrollToId(page, "work");
+  await page.waitForTimeout(5000);
+  await expect(page.locator("#work canvas")).toHaveCount(1);
+  await expect(page.getByText(/preview unavailable/i)).toHaveCount(0);
 });
 
 test("GitHub: corrupted localStorage cache does not crash the page", async ({ page, context }) => {

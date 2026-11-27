@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { useGraph } from "@react-three/fiber";
 import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
+import { DRACO_DECODER_PATH } from "../lib/assetPaths.js";
 
 const DEVELOPER_MODEL_PATH = "/models/human/developer.glb";
 const ANIMATION_PATHS = {
@@ -27,7 +28,8 @@ const Developer = React.forwardRef(
     const activeAnimationRef = useRef(FALLBACK_ANIMATION);
     const pendingAnimationRef = useRef(normalizeAnimationName(animationName));
 
-    const { scene } = useGLTF(DEVELOPER_MODEL_PATH);
+    // Draco-compressed geometry: decode with the self-hosted decoder (never the gstatic CDN).
+    const { scene } = useGLTF(DEVELOPER_MODEL_PATH, DRACO_DECODER_PATH);
     const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
     const { nodes, materials } = useGraph(clone);
 
@@ -197,7 +199,7 @@ const Developer = React.forwardRef(
 
 Developer.displayName = "Developer";
 
-useGLTF.preload(DEVELOPER_MODEL_PATH);
+useGLTF.preload(DEVELOPER_MODEL_PATH, DRACO_DECODER_PATH);
 useFBX.preload(ANIMATION_PATHS.idle);
 useFBX.preload(ANIMATION_PATHS.salute);
 useFBX.preload(ANIMATION_PATHS.clapping);
