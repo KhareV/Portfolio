@@ -9,14 +9,15 @@ import { DRACO_DECODER_PATH } from "../lib/assetPaths.js";
 const DEVELOPER_MODEL_PATH = "/models/human/developer.glb";
 // Animation-only GLBs (one node per bone, LINEAR keyframes). idle/salute/clapping/
 // victory are converted 1:1 from the original Mixamo FBX files (bit-identical
-// keyframes, ~90 % smaller, no FBXLoader in the bundle); dance is M_Dances_004
-// from the Ready Player Me animation library (see public/models/animations/PROVENANCE.md).
+// keyframes, ~90 % smaller, no FBXLoader in the bundle); dance (M_Dances_004) and
+// kick (M_Dances_005) are from the Ready Player Me animation library (see public/models/animations/PROVENANCE.md).
 const ANIMATION_PATHS = {
   idle: "/models/animations/idle.glb",
   salute: "/models/animations/salute.glb",
   clapping: "/models/animations/clapping.glb",
   victory: "/models/animations/victory.glb",
   dance: "/models/animations/dance.glb",
+  kick: "/models/animations/kick.glb",
 };
 
 const FALLBACK_ANIMATION = "idle";
@@ -43,6 +44,7 @@ const Developer = React.forwardRef(
     const { animations: clappingAnimation } = useGLTF(ANIMATION_PATHS.clapping, DRACO_DECODER_PATH);
     const { animations: victoryAnimation } = useGLTF(ANIMATION_PATHS.victory, DRACO_DECODER_PATH);
     const { animations: danceAnimation } = useGLTF(ANIMATION_PATHS.dance, DRACO_DECODER_PATH);
+    const { animations: kickAnimation } = useGLTF(ANIMATION_PATHS.kick, DRACO_DECODER_PATH);
 
     const animationClips = React.useMemo(() => {
       const toNamedClip = (clips, name) => {
@@ -62,6 +64,7 @@ const Developer = React.forwardRef(
         toNamedClip(clappingAnimation, "clapping"),
         toNamedClip(victoryAnimation, "victory"),
         toNamedClip(danceAnimation, "dance"),
+        toNamedClip(kickAnimation, "kick"),
       ].filter(Boolean);
     }, [
       idleAnimation,
@@ -69,6 +72,7 @@ const Developer = React.forwardRef(
       clappingAnimation,
       victoryAnimation,
       danceAnimation,
+      kickAnimation,
     ]);
 
     const { actions } = useAnimations(animationClips, group);

@@ -7,6 +7,7 @@ Ready Player Me avatar in `public/models/human/developer.glb`.
 |---|---|---|
 | idle.glb, salute.glb, clapping.glb, victory.glb | The site's previous Mixamo FBX clips (`idle.fbx`, `salute.fbx`, `clapping.fbx`, `victory.fbx`) | Converted 1:1. The keyframe times and values are bit-identical to what three.js `FBXLoader` produced from the FBX. The `Armature` root track was dropped because it had no target in the avatar and only logged a warning. |
 | dance.glb | Ready Player Me Animation Library, `masculine/glb/dance/M_Dances_004.glb` (https://github.com/readyplayerme/animation-library) | Re-packed with identical keyframes. |
+| kick.glb | Ready Player Me Animation Library, `masculine/glb/dance/M_Dances_005.glb` | Re-packed with identical keyframes. |
 
 ## Licence of dance.glb
 

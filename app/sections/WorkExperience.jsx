@@ -37,6 +37,7 @@ const SUPPORTED_ANIMATIONS = new Set([
   "clapping",
   "victory",
   "dance",
+  "kick",
 ]);
 
 const normalizeAnimationName = (animationName) => {
