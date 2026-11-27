@@ -29,6 +29,10 @@ const normalizeAnimationName = (animationName) => {
   return SUPPORTED_ANIMATIONS.has(normalized) ? normalized : FALLBACK_ANIMATION;
 };
 
+// `animationName` is only the clip to start with. Later changes go through the
+// imperative `playAnimation` handle; the parent re-sends its current choice when
+// the handle attaches, so a selection made while the assets load is not lost
+// (previously a mount-time effect forced the prop's "idle" over it).
 const Developer = React.forwardRef(
   ({ animationName = FALLBACK_ANIMATION, ...props }, ref) => {
     const group = useRef();
@@ -100,6 +104,13 @@ const Developer = React.forwardRef(
 
         actions[activeAnimationRef.current]?.fadeOut(0.32);
         nextAction.reset().fadeIn(0.32).play();
+        if (typeof window !== "undefined" && window.__PORTFOLIO_ANIMATION_PROBE__ === true) {
+          (window.__workAnimationLog ||= []).push({
+            at: Math.round(performance.now()),
+            from: activeAnimationRef.current,
+            to: safeAnimationName,
+          });
+        }
         activeAnimationRef.current = safeAnimationName;
         return true;
       },
@@ -144,9 +155,47 @@ const Developer = React.forwardRef(
       };
     }, [actions, applyAnimation]);
 
+    // Test/diagnostic probe, off unless a test sets window.__PORTFOLIO_ANIMATION_PROBE__
+    // before load. It only reads mixer state; nothing visible or timed depends on it.
     useEffect(() => {
-      playAnimation(animationName);
-    }, [animationName, playAnimation]);
+      if (typeof window === "undefined" || window.__PORTFOLIO_ANIMATION_PROBE__ !== true || !actions) {
+        return undefined;
+      }
+
+      const fingerprint = (clip) =>
+        clip.tracks.reduce(
+          (sum, track) => sum + track.values.reduce((acc, value) => acc + value, 0),
+          0,
+        );
+      const probe = {
+        sources: ANIMATION_PATHS,
+        snapshot: () => ({
+          requested: pendingAnimationRef.current,
+          active: activeAnimationRef.current,
+          actions: Object.keys(ANIMATION_PATHS).map((name) => {
+            const action = actions[name];
+            const clip = action?.getClip();
+            return {
+              name,
+              source: ANIMATION_PATHS[name],
+              running: Boolean(action?.isRunning()),
+              enabled: Boolean(action?.enabled),
+              weight: action ? action.getEffectiveWeight() : 0,
+              time: action ? action.time : 0,
+              duration: clip ? clip.duration : 0,
+              tracks: clip ? clip.tracks.length : 0,
+              fingerprint: clip ? fingerprint(clip) : null,
+            };
+          }),
+        }),
+      };
+      window.__workAnimation = probe;
+      return () => {
+        if (window.__workAnimation === probe) {
+          delete window.__workAnimation;
+        }
+      };
+    }, [actions]);
 
     return (
       <group {...props} dispose={null} ref={group}>
