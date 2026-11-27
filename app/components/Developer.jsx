@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { useGraph } from "@react-three/fiber";
+import { useFrame, useGraph, useThree } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
+import { Vector3 } from "three";
 import { DRACO_DECODER_PATH } from "../lib/assetPaths.js";
 
 const DEVELOPER_MODEL_PATH = "/models/human/developer.glb";
@@ -22,6 +23,28 @@ const ANIMATION_PATHS = {
 };
 
 const FALLBACK_ANIMATION = "idle";
+
+// Per-clip framing. The work canvas is tall and narrow (e.g. 530x1164 px at 1440 px),
+// and auto-rotate swings limbs that reach towards the viewer out to the sides, so wide
+// clips (kicks, raised arms) left the canvas. Measured with harness/anim-envelope.mjs on
+// the real skinned vertices over each whole clip and every orbit angle:
+//   radius   - farthest vertex from the vertical axis, in avatar units (x scale)
+//   vertical - camera-distance factor that keeps raised hands/feet inside top/bottom
+// The camera only pulls back as far as the playing clips need for the current canvas
+// aspect (idle and clapping keep today's framing at every measured size) and eases
+// back in once a wide clip has faded out.
+const CLIP_FRAMING = {
+  idle: { radius: 0.3859, vertical: 1 },
+  salute: { radius: 0.6278, vertical: 1 },
+  clapping: { radius: 0.4805, vertical: 1 },
+  victory: { radius: 0.7063, vertical: 1.031 },
+  dance: { radius: 0.8556, vertical: 1 },
+  kick: { radius: 1.0361, vertical: 1 },
+  swing: { radius: 0.8898, vertical: 1.001 },
+};
+const FRAMING_MARGIN = 0.94; // widest point stays within 94 % of the half-width
+const FRAMING_OUT_SECONDS = 0.12; // pull back quickly (before the wide poses)
+const FRAMING_IN_SECONDS = 0.35; // return gently
 const SUPPORTED_ANIMATIONS = new Set(Object.keys(ANIMATION_PATHS));
 
 const normalizeAnimationName = (animationName) => {
@@ -84,6 +107,56 @@ const Developer = React.forwardRef(
     ]);
 
     const { actions } = useAnimations(animationClips, group);
+
+    const getThree = useThree((state) => state.get);
+    const avatarScale = typeof props.scale === "number" ? props.scale : 1;
+    const framingRef = useRef({ base: 0, target: 0, current: 0 });
+    const framingOffset = React.useMemo(() => new Vector3(), []);
+    useFrame((state, delta) => {
+      if (!actions) {
+        return;
+      }
+      const { camera, size, controls } = state;
+      const pivot = controls?.target;
+      const offset = framingOffset.copy(camera.position);
+      if (pivot) {
+        offset.sub(pivot);
+      }
+      const distance = offset.length();
+      const framing = framingRef.current;
+      if (!framing.base) {
+        framing.base = distance; // the Canvas camera's own distance = today's framing
+        framing.current = distance;
+      }
+
+      const halfFov = (camera.fov * Math.PI) / 360;
+      const horizontalTan = Math.tan(halfFov) * (size.width / Math.max(1, size.height));
+      const fitAngle = Math.sin(Math.atan(FRAMING_MARGIN * horizontalTan));
+      let needed = framing.base;
+      // every clip still visible (including one fading out) must fit
+      for (const name of Object.keys(CLIP_FRAMING)) {
+        const action = actions[name];
+        if (!action || !action.isRunning() || action.getEffectiveWeight() <= 0.001) {
+          continue;
+        }
+        const clipFraming = CLIP_FRAMING[name];
+        needed = Math.max(
+          needed,
+          framing.base * clipFraming.vertical,
+          (clipFraming.radius * avatarScale) / fitAngle,
+        );
+      }
+      framing.target = needed;
+
+      const tau = needed > framing.current ? FRAMING_OUT_SECONDS : FRAMING_IN_SECONDS;
+      const next =
+        framing.current + (needed - framing.current) * (1 - Math.exp(-delta / tau));
+      framing.current = Math.abs(next - needed) < 1e-4 ? needed : next;
+      if (Math.abs(framing.current - distance) > 1e-4) {
+        offset.setLength(framing.current);
+        camera.position.copy(pivot ? offset.add(pivot) : offset);
+      }
+    });
 
     const applyAnimation = React.useCallback(
       (animationToPlay, { force = false } = {}) => {
@@ -169,9 +242,32 @@ const Developer = React.forwardRef(
         );
       const probe = {
         sources: ANIMATION_PATHS,
+        // Projected extents (NDC, -1..1 = canvas edges) of every skinned vertex in the
+        // pose last rendered, through the live camera.
+        bounds: () => {
+          const { camera } = getThree();
+          const point = new Vector3();
+          let maxAbsX = 0;
+          let minY = Infinity;
+          let maxY = -Infinity;
+          group.current?.updateMatrixWorld(true);
+          group.current?.traverse((object) => {
+            if (!object.isSkinnedMesh) return;
+            const count = object.geometry.attributes.position.count;
+            for (let i = 0; i < count; i += 1) {
+              object.getVertexPosition(i, point);
+              point.applyMatrix4(object.matrixWorld).project(camera);
+              maxAbsX = Math.max(maxAbsX, Math.abs(point.x));
+              minY = Math.min(minY, point.y);
+              maxY = Math.max(maxY, point.y);
+            }
+          });
+          return { maxAbsX, minY, maxY };
+        },
         snapshot: () => ({
           requested: pendingAnimationRef.current,
           active: activeAnimationRef.current,
+          framing: { ...framingRef.current },
           actions: Object.keys(ANIMATION_PATHS).map((name) => {
             const action = actions[name];
             const clip = action?.getClip();
@@ -195,7 +291,7 @@ const Developer = React.forwardRef(
           delete window.__workAnimation;
         }
       };
-    }, [actions]);
+    }, [actions, getThree]);
 
     return (
       <group {...props} dispose={null} ref={group}>

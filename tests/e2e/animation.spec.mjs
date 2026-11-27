@@ -152,6 +152,11 @@ async function waitForAvatar(page) {
   await expect.poll(() => page.evaluate(() => Boolean(window.__workAnimation)), { timeout: 30_000 }).toBe(true);
 }
 
+// Headless on purpose: in a headed window the real OS cursor, if it rests over the
+// browser, hovers timeline rows and changes the clip under test. Mixer state and the
+// CPU-skinned bounds do not depend on GPU fidelity.
+test.use({ headless: true });
+
 test.describe("work avatar animation identity", () => {
   test("each timeline entry plays its own distinct clip from its own file, then returns to idle", async ({ page, context }) => {
     await openWork(page, context);
@@ -301,4 +306,36 @@ test.describe("work avatar animation identity", () => {
     await page.waitForTimeout(1500);
     expect(await page.evaluate(() => window.__workAnimationLog.length)).toBe(logBefore);
   });
+
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }]) {
+    test.describe(`framing ${viewport.width}x${viewport.height}`, () => {
+      test.use({ viewport });
+      test("the widest clips (kick, swing, dance) and idle stay entirely inside the canvas", async ({ page, context }) => {
+        test.setTimeout(150_000);
+        await openWork(page, context);
+        await waitForAvatar(page);
+        const bounds = () => page.evaluate(() => window.__workAnimation.bounds());
+        for (const name of ["kick", "swing", "dance"]) {
+          const r = ROWS.find((x) => x.animation === name);
+          await row(page, r.label).evaluate((el) => el.focus({ preventScroll: true }));
+          await page.keyboard.press("Enter");
+          const duration = (await snapshot(page)).actions.find((a) => a.name === name).duration;
+          const end = Date.now() + (duration + 0.5) * 1000;
+          let worst = { maxAbsX: 0, minY: 0, maxY: 0 };
+          while (Date.now() < end) {
+            const b = await bounds();
+            worst = { maxAbsX: Math.max(worst.maxAbsX, b.maxAbsX), minY: Math.min(worst.minY, b.minY), maxY: Math.max(worst.maxY, b.maxY) };
+            await page.waitForTimeout(60);
+          }
+          expect(worst.maxAbsX, `${name} widest point (NDC)`).toBeLessThanOrEqual(1);
+          expect(worst.minY, `${name} lowest point (NDC)`).toBeGreaterThanOrEqual(-1);
+          expect(worst.maxY, `${name} highest point (NDC)`).toBeLessThanOrEqual(1);
+          await page.evaluate(() => document.activeElement.blur());
+        }
+        // idle returns to the original framing (camera distance of the Canvas, sqrt(8^2+0.2^2))
+        await expectOnly(page, "idle");
+        await expect.poll(async () => +(await snapshot(page)).framing.current.toFixed(3), { timeout: 5000 }).toBe(8.002);
+      });
+    });
+  }
 });
