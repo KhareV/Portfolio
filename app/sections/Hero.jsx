@@ -363,11 +363,9 @@ const Hero = () => {
             quality={75}
             priority={dayPhase === phase}
             fetchPriority={dayPhase === phase ? "high" : "auto"}
-            onLoad={() => {
-              if (phase === dayPhase && previousPhase === null) {
-                setIsInitialBackgroundReady(true);
-              }
-            }}
+            // visibility of the first plate is flipped by markReady two frames
+            // after mount (never before its opacity-0 frame is painted), so the
+            // 1.4 s fade-in also runs on a warm-cache load
             className={cn(
               "absolute inset-0 h-full w-full object-cover object-center transition-opacity ease-out",
               phase === previousPhase
