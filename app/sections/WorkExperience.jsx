@@ -176,7 +176,7 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
           )}
 
           <motion.div
-            className={cn("work-content", !shouldUseScene && "lg:col-span-3")}
+            className={cn("work-content", !shouldUseScene && "lg:col-span-5")}
             initial={{ x: 50, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
