@@ -174,7 +174,10 @@ async function waitForAvatar(page) {
 // Headless on purpose: in a headed window the real OS cursor, if it rests over the
 // browser, hovers timeline rows and changes the clip under test. Mixer state and the
 // CPU-skinned bounds do not depend on GPU fidelity.
-test.use({ headless: true });
+test.use({
+  headless: true,
+  ...(process.platform === "darwin" ? { launchOptions: { args: ["--use-angle=metal", "--ignore-gpu-blocklist"] } } : {}),
+});
 
 test.describe("work avatar animation identity", () => {
   test("each timeline entry plays its own distinct clip from its own file, then returns to idle", async ({ page, context }) => {
@@ -207,7 +210,7 @@ test.describe("work avatar animation identity", () => {
     }
   });
 
-  test("a fast sweep across rows settles on the last row hovered; a pending idle timer cannot override it", async ({ page, context }) => {
+  test("a fast sweep across rows settles on the last row hovered; leaving and re-entering within the idle delay never flashes idle", async ({ page, context }) => {
     await openWork(page, context);
     await waitForAvatar(page);
     await expectOnly(page, "idle");
@@ -223,15 +226,17 @@ test.describe("work avatar animation identity", () => {
     await page.mouse.move(ispace.x, ispace.y, { steps: 3 }); // back up across Hackathon
     await expectOnly(page, "swing");
 
-    // leave (arms the 180 ms idle timer) and re-enter a row before it fires
-    await page.mouse.move(neutral.x, neutral.y);
-    await page.mouse.move(dandiya.x, dandiya.y);
-    await page.waitForTimeout(600);
-    await expectOnly(page, "clapping");
-    await page.mouse.move(neutral.x, neutral.y);
-    await page.mouse.move(dandiya.x, dandiya.y);
-    await page.waitForTimeout(600);
-    await expectOnly(page, "clapping");
+    // leave (arms the 180 ms idle timer) and re-enter a row before it fires: the avatar
+    // must never switch to idle in between (no transition at all)
+    for (const target of [dandiya, dandiya]) {
+      const before = await page.evaluate(() => window.__workAnimationLog.length);
+      await page.mouse.move(neutral.x, neutral.y);
+      await page.mouse.move(target.x, target.y);
+      await page.waitForTimeout(600);
+      await expectOnly(page, "clapping");
+      const after = await page.evaluate((n) => window.__workAnimationLog.slice(n), before);
+      expect(after.filter((t) => t.to === "idle"), "no idle flash while re-entering").toEqual([]);
+    }
   });
 
   test("a row hovered while the avatar is still loading is played once it loads", async ({ page, context }) => {
@@ -331,31 +336,71 @@ test.describe("work avatar animation identity", () => {
   for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }]) {
     test.describe(`framing ${viewport.width}x${viewport.height}`, () => {
       test.use({ viewport });
-      test("the widest clips (kick, swing, dance) and idle stay entirely inside the canvas", async ({ page, context }) => {
-        test.setTimeout(150_000);
+      test("every clip, from settled idle, through its cross-fades and back to idle, stays inside the canvas on every frame", async ({ page, context }) => {
+        test.setTimeout(480_000);
         await openWork(page, context);
         await waitForAvatar(page);
-        const bounds = () => page.evaluate(() => window.__workAnimation.bounds());
-        for (const name of ["kick", "swing", "dance"]) {
-          const r = ROWS.find((x) => x.animation === name);
+        // in-page sampler: projected bounds of every skinned vertex on every rendered frame
+        const startSampler = () =>
+          page.evaluate(() => {
+            const w = (window.__frameSampler = { on: true, frames: 0, maxAbsX: 0, minY: 0, maxY: 0, worst: null });
+            const tick = () => {
+              if (!w.on) return;
+              const b = window.__workAnimation.bounds();
+              w.frames += 1;
+              if (b.maxAbsX > w.maxAbsX) {
+                w.maxAbsX = b.maxAbsX;
+                w.worst = window.__workAnimation.snapshot().actions.filter((a) => a.running && a.weight > 0.001).map((a) => `${a.name}:${a.weight.toFixed(2)}`).join(" ");
+              }
+              w.minY = Math.min(w.minY, b.minY);
+              w.maxY = Math.max(w.maxY, b.maxY);
+              requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+          });
+        const stopSampler = () => page.evaluate(() => { const w = window.__frameSampler; w.on = false; return w; });
+        const settledIdle = async () => {
+          await expectOnly(page, "idle");
+          await expect.poll(async () => +(await snapshot(page)).framing.current.toFixed(3), { timeout: 8000 }).toBe(8.002);
+        };
+        for (const r of ROWS) {
+          await settledIdle();
+          const duration = (await snapshot(page)).actions.find((a) => a.name === r.animation).duration;
+          await startSampler();
           await row(page, r.label).evaluate((el) => el.focus({ preventScroll: true }));
-          await page.keyboard.press("Enter");
-          const duration = (await snapshot(page)).actions.find((a) => a.name === name).duration;
-          const end = Date.now() + (duration + 0.5) * 1000;
-          let worst = { maxAbsX: 0, minY: 0, maxY: 0 };
-          while (Date.now() < end) {
-            const b = await bounds();
-            worst = { maxAbsX: Math.max(worst.maxAbsX, b.maxAbsX), minY: Math.min(worst.minY, b.minY), maxY: Math.max(worst.maxY, b.maxY) };
-            await page.waitForTimeout(60);
-          }
-          expect(worst.maxAbsX, `${name} widest point (NDC)`).toBeLessThanOrEqual(1);
-          expect(worst.minY, `${name} lowest point (NDC)`).toBeGreaterThanOrEqual(-1);
-          expect(worst.maxY, `${name} highest point (NDC)`).toBeLessThanOrEqual(1);
-          await page.evaluate(() => document.activeElement.blur());
+          await page.keyboard.press("Enter"); // idle -> clip
+          await page.waitForTimeout((duration + 0.5) * 1000);
+          await page.evaluate(() => document.activeElement.blur()); // clip -> idle
+          await page.waitForTimeout(1500);
+          const w = await stopSampler();
+          expect(w.frames, `${r.animation}: frames sampled`).toBeGreaterThan(20);
+          expect(w.maxAbsX, `${r.animation} widest point (NDC), worst blend ${w.worst}`).toBeLessThanOrEqual(1);
+          expect(w.minY, `${r.animation} lowest point (NDC)`).toBeGreaterThanOrEqual(-1);
+          expect(w.maxY, `${r.animation} highest point (NDC)`).toBeLessThanOrEqual(1);
         }
-        // idle returns to the original framing (camera distance of the Canvas, sqrt(8^2+0.2^2))
-        await expectOnly(page, "idle");
-        await expect.poll(async () => +(await snapshot(page)).framing.current.toFixed(3), { timeout: 5000 }).toBe(8.002);
+        await settledIdle(); // and the camera is back at the original distance
+
+        // Cross-fades at every orbit angle: blended poses can be wider than either clip,
+        // and only some angles turn that width sideways. idle -> clip and clip -> idle,
+        // 8 azimuths, sampled on every frame.
+        const worst = {};
+        for (let k = 0; k < 8; k++) {
+          for (const r of ROWS) {
+            await settledIdle();
+            await page.evaluate((az) => window.__workAnimation.orbitTo(az), (k * Math.PI) / 4);
+            await startSampler();
+            await row(page, r.label).evaluate((el) => el.focus({ preventScroll: true }));
+            await page.keyboard.press("Enter");
+            await page.waitForTimeout(700);
+            await page.evaluate(() => document.activeElement.blur());
+            await page.waitForTimeout(900);
+            const w = await stopSampler();
+            const key = `${r.animation}@${k * 45}deg`;
+            worst[key] = { maxAbsX: +w.maxAbsX.toFixed(3), blend: w.worst, frames: w.frames };
+          }
+        }
+        const outside = Object.entries(worst).filter(([, v]) => v.maxAbsX > 1);
+        expect(outside, `cross-fade frames outside the canvas: ${JSON.stringify(outside)}`).toEqual([]);
       });
     });
   }

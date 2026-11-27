@@ -8,10 +8,11 @@ import { Vector3 } from "three";
 import { DRACO_DECODER_PATH } from "../lib/assetPaths.js";
 
 const DEVELOPER_MODEL_PATH = "/models/human/developer.glb";
-// Animation-only GLBs (one node per bone, LINEAR keyframes). idle/salute/clapping/
-// victory are converted 1:1 from the original Mixamo FBX files (bit-identical
-// keyframes, ~90 % smaller, no FBXLoader in the bundle); dance (M_Dances_004),
-// kick (M_Dances_005) and swing (M_Dances_006) are from the Ready Player Me animation library (see public/models/animations/PROVENANCE.md).
+// Animation-only GLBs (one node per bone, LINEAR keyframes, rotations stored as
+// normalized int16). idle/salute/clapping/victory come from the original Mixamo FBX
+// files (same keyframe times; rotations within 0.02 deg; no FBXLoader in the bundle);
+// dance (M_Dances_004), kick (M_Dances_005) and swing (M_Dances_006) are from the
+// Ready Player Me animation library (see public/models/animations/PROVENANCE.md).
 const ANIMATION_PATHS = {
   idle: "/models/animations/idle.glb",
   salute: "/models/animations/salute.glb",
@@ -26,21 +27,25 @@ const FALLBACK_ANIMATION = "idle";
 
 // Per-clip framing. The work canvas is tall and narrow (e.g. 530x1164 px at 1440 px),
 // and auto-rotate swings limbs that reach towards the viewer out to the sides, so wide
-// clips (kicks, raised arms) left the canvas. Measured with harness/anim-envelope.mjs on
-// the real skinned vertices over each whole clip and every orbit angle:
-//   radius   - farthest vertex from the vertical axis, in avatar units (x scale)
+// clips (kicks, raised arms) left the canvas. Measured on the real skinned vertices
+// (harness/anim-radius-blend.mjs, every vertex at 60 samples/s, plus cross-fade blends
+// with idle at weights 0.1-0.9, which can be wider than either clip: clapping +13 %,
+// victory +17 %), in avatar units (x scale):
+//   radius   - farthest vertex from the vertical axis over the clip and its cross-fades
+//   top      - highest vertex above the feet (used when the orbit is tilted downwards)
 //   vertical - camera-distance factor that keeps raised hands/feet inside top/bottom
-// The camera only pulls back as far as the playing clips need for the current canvas
-// aspect (idle and clapping keep today's framing at every measured size) and eases
-// back in once a wide clip has faded out.
+// The camera only pulls back as far as the clips on screen need for the current canvas
+// aspect and tilt, and eases back in once a wide clip has faded out. Idle keeps the
+// original framing on canvases at least as wide as at 1180 px viewports; narrower
+// desktop canvases (1024-1180 px viewports), which clipped idle before, pull back.
 const CLIP_FRAMING = {
-  idle: { radius: 0.3859, vertical: 1 },
-  salute: { radius: 0.6278, vertical: 1 },
-  clapping: { radius: 0.4805, vertical: 1 },
-  victory: { radius: 0.7063, vertical: 1.031 },
-  dance: { radius: 0.8556, vertical: 1 },
-  kick: { radius: 1.0361, vertical: 1 },
-  swing: { radius: 0.8898, vertical: 1.001 },
+  idle: { radius: 0.3871, top: 1.871, vertical: 1 },
+  salute: { radius: 0.6282, top: 1.859, vertical: 1 },
+  clapping: { radius: 0.5442, top: 1.843, vertical: 1 },
+  victory: { radius: 0.8256, top: 2.189, vertical: 1.031 },
+  dance: { radius: 0.8606, top: 2.113, vertical: 1 },
+  kick: { radius: 1.039, top: 1.862, vertical: 1 },
+  swing: { radius: 0.8938, top: 1.858, vertical: 1.001 },
 };
 const FRAMING_MARGIN = 0.94; // widest point stays within 94 % of the half-width
 const FRAMING_OUT_SECONDS = 0.08; // pull back quickly (clapping is widest 0.17 s in)
@@ -129,6 +134,10 @@ const Developer = React.forwardRef(
         framing.current = distance;
       }
 
+      // a downward-tilted orbit brings the upper body closer to the camera
+      const sinTilt = Math.max(0, offset.y / Math.max(distance, 1e-6));
+      const feetY = group.current ? group.current.position.y : 0;
+      const pivotY = pivot ? pivot.y : 0;
       const halfFov = (camera.fov * Math.PI) / 360;
       const horizontalTan = Math.tan(halfFov) * (size.width / Math.max(1, size.height));
       const fitAngle = Math.sin(Math.atan(FRAMING_MARGIN * horizontalTan));
@@ -137,16 +146,17 @@ const Developer = React.forwardRef(
       // clip still visible (including one fading out) must fit
       for (const name of Object.keys(CLIP_FRAMING)) {
         const action = actions[name];
-        const visible =
+        const isOnScreen =
           action && action.isRunning() && action.getEffectiveWeight() > 0.001;
-        if (name !== activeAnimationRef.current && !visible) {
+        if (name !== activeAnimationRef.current && !isOnScreen) {
           continue;
         }
         const clipFraming = CLIP_FRAMING[name];
         needed = Math.max(
           needed,
           framing.base * clipFraming.vertical,
-          (clipFraming.radius * avatarScale) / fitAngle,
+          (clipFraming.radius * avatarScale) / fitAngle +
+            Math.max(0, feetY + clipFraming.top * avatarScale - pivotY) * sinTilt,
         );
       }
       framing.target = needed;
@@ -245,6 +255,20 @@ const Developer = React.forwardRef(
         );
       const probe = {
         sources: ANIMATION_PATHS,
+        // Test hook: put the auto-rotating orbit at a given azimuth (radians), keeping
+        // distance and tilt, so framing tests can cover every viewing angle on purpose.
+        orbitTo: (azimuth) => {
+          const { camera, controls } = getThree();
+          const pivot = controls?.target ?? new Vector3();
+          const offset = camera.position.clone().sub(pivot);
+          const horizontal = Math.hypot(offset.x, offset.z);
+          camera.position.set(
+            pivot.x + horizontal * Math.sin(azimuth),
+            camera.position.y,
+            pivot.z + horizontal * Math.cos(azimuth),
+          );
+          camera.lookAt(pivot);
+        },
         // Projected extents (NDC, -1..1 = canvas edges) of every skinned vertex in the
         // pose last rendered, through the live camera.
         bounds: () => {
