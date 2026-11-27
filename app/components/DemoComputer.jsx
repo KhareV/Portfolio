@@ -47,7 +47,8 @@ const DemoComputer = (props) => {
     }
     return () => {
       video.pause();
-      video.dataset.pausedAt = String(performance.now());
+      // only a run that was playing records when playback stopped
+      if (isActive) video.dataset.pausedAt = String(performance.now());
     };
   }, [txt, isActive]);
 

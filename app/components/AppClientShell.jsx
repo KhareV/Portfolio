@@ -4,17 +4,19 @@ import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 
 import useHashNavigation from "../hooks/useHashNavigation";
 import LoadingSpinner from "./LoadingSpinner";
 import SceneBoundary from "./SceneBoundary";
+// Above-the-fold sections are imported directly (they were lazy chunks fetched
+// immediately anyway). Inside a Suspense boundary their streamed HTML was only
+// revealed/hydrated after React's batched-reveal throttle (~300 ms).
+import Navbar from "../sections/Navbar";
+import Hero from "../sections/Hero";
+import TimeBands from "./TimeBands";
 import { LoadingProvider, useLoadingContext } from "../contexts/LoadingContext";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 import usePreloadResources from "../hooks/usePreloadResources";
 import useRuntimePerformanceMode from "../hooks/useRuntimePerformanceMode";
 
-const loadNavbar = () => import("../sections/Navbar");
-const loadHero = () => import("../sections/Hero");
 const loadPointer = () => import("./Pointer");
 
-const Navbar = lazy(loadNavbar);
-const Hero = lazy(loadHero);
 const Pointer = lazy(loadPointer);
 
 const loadAbout = () => import("../sections/About");
@@ -23,7 +25,6 @@ const loadContact = () => import("../sections/Contact");
 const loadFooter = () => import("../sections/Footer");
 const loadWorkExperience = () => import("../sections/WorkExperience");
 const loadGithub = () => import("../sections/Github");
-const loadTimeBands = () => import("./TimeBands");
 
 const About = lazy(loadAbout);
 const Projects = lazy(loadProjects);
@@ -31,7 +32,6 @@ const Contact = lazy(loadContact);
 const Footer = lazy(loadFooter);
 const WorkExperience = lazy(loadWorkExperience);
 const Github = lazy(loadGithub);
-const TimeBands = lazy(loadTimeBands);
 
 const loadLogoAnimation = () => import("./LogoAnimation");
 const loadEarthCanvas = () => import("./Earth");
@@ -79,11 +79,9 @@ const cancelIdleTask = (id) => {
 // stages) cannot force React to discard and client-render their SSR markup.
 const CriticalSections = React.memo(function CriticalSections() {
   return (
-    // One Suspense boundary so the streamed HTML reveals navbar, hero and the
-    // first time band together (a band revealed before the hero would paint at
-    // the top of the page and then shift down). Each keeps its own error
-    // boundary.
-    <Suspense fallback={null}>
+    // Rendered in the static shell (no Suspense): painted with the first HTML
+    // and hydrated immediately. Each keeps its own error boundary.
+    <>
       <SceneBoundary fallback={null}>
         <Navbar />
       </SceneBoundary>
@@ -93,7 +91,7 @@ const CriticalSections = React.memo(function CriticalSections() {
       <SceneBoundary fallback={null}>
         <TimeBands className="-mt-px" />
       </SceneBoundary>
-    </Suspense>
+    </>
   );
 });
 

@@ -117,7 +117,6 @@ const Hero = () => {
       }
 
       settled = true;
-      setIsInitialBackgroundReady(true);
 
       requestAnimationFrame(() => {
         if (!mounted) {
@@ -126,6 +125,9 @@ const Hero = () => {
 
         requestAnimationFrame(() => {
           if (mounted) {
+            // The plate (client-only) has been painted at opacity 0 by now, so
+            // flipping it here runs the original 1.4 s fade-in.
+            setIsInitialBackgroundReady(true);
             setHeroReady(true);
           }
         });
