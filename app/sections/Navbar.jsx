@@ -83,7 +83,7 @@ const Navbar = () => {
 
           {/* DESKTOP CTA */}
           <a
-            href="https://github.com/kharev"
+            href="https://github.com/KhareV"
             target="_blank"
             rel="noopener noreferrer"
             className="group hidden sm:flex items-center gap-2 pl-4 pr-1.5 py-1.5 rounded-full bg-white text-slate-950 text-[0.9rem] font-medium transition-all duration-300 hover:bg-neutral-200 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
@@ -136,7 +136,7 @@ const Navbar = () => {
             <div className="my-2 h-px w-full bg-white/10" />
 
             <a
-              href="https://github.com/kharev"
+              href="https://github.com/KhareV"
               target="_blank"
               rel="noopener noreferrer"
               onClick={closeMenu}

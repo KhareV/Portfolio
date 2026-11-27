@@ -41,6 +41,8 @@ export function getFallbackResponse(question) {
       "I am Vedant's portfolio assistant. Ask me anything about his work and achievements.",
     contact:
       "You can reach Vedant at kharevedant05@gmail.com and connect on LinkedIn: https://www.linkedin.com/in/vedantkhare",
+    walmart:
+      "Vedant was a Software Engineer Intern at Walmart Global Tech (May 2026 - Jul 2026) and joins full-time as a Software Development Engineer starting Jan 2027.",
     default:
       "I can help with Vedant's profile, projects, skills, hackathons, and contact details. Ask any question.",
   };

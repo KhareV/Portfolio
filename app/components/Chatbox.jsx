@@ -8,7 +8,7 @@ import { cn } from "../styles/spacing.jsx";
 
 const funFacts = [
   "Started out aiming for civil engineering, explored optometry, and eventually found my edge in full-stack development.",
-  "Incoming Software Engineering Intern at Walmart Global Tech (Sparkplug 2026).",
+  "Software Engineer Intern at Walmart Global Tech (Sparkplug, May - Jul 2026); joining full-time as a Software Development Engineer in Jan 2027.",
   "Secured 3rd place at the Spectrum National Level Hackathon.",
   "Smart India Hackathon Finalist with MedWE (healthcare + blockchain platform).",
   "Ranked 19th out of 2000+ teams in the Devshouse Hackathon.",
