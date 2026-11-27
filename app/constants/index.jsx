@@ -275,7 +275,7 @@ export const workExperiences = [
     title:
       "Built flagship 'CSS Battles' website using React, Node.js, MongoDB, handling 500+ registrations efficiently.",
     icon: "/assets/ispace.png",
-    animation: "clapping",
+    animation: "groove",
   },
   {
     id: 3,
