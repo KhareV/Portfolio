@@ -386,13 +386,15 @@ const Hero = () => {
       <div className="relative z-10 mx-auto flex min-h-[180vh] md:min-h-[200vh] w-full max-w-[1480px] flex-col items-center px-4 pb-0 pt-24 sm:px-8 md:px-12 md:pt-40">
         <motion.h1
           ref={headingRef}
+          // full name for assistive tech from the first render (SSR included);
+          // an aria-label adds no painted text, so it cannot affect layout/LCP
+          aria-label={HERO_INTRO_TEXT.replace("\n", " ")}
           className="font-hero-display -mt-2 sm:-mt-4 md:-mt-8 mx-auto max-w-[860px] text-center text-[clamp(1.65rem,3.1vw,3.6rem)] leading-[1.15] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
         >
-          {/* Full heading for assistive tech and no-JS/SSR; the typed text is visual only. */}
-          <span className="sr-only">{HERO_INTRO_TEXT.replace("\n", " ")}</span>
+          {/* The typed text is visual only; the heading's name is the full intro. */}
           <span aria-hidden="true">
             {typedLines.map((line, idx) => (
               <React.Fragment key={idx}>

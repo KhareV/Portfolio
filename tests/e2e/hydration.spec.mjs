@@ -35,11 +35,11 @@ test("automation (navigator.webdriver) gets the full experience, not a lab varia
   await expect(page.getByText("Lightweight preview enabled")).toHaveCount(0);
 });
 
-test("SSR HTML contains a semantic h1 with the full intro text", async ({ request }) => {
+test("SSR HTML contains a semantic h1 named with the full intro", async ({ request }) => {
   const html = await (await request.get("/")).text();
-  const h1 = html.match(/<h1[\s\S]*?<\/h1>/);
+  const h1 = html.match(/<h1[^>]*>/);
   expect(h1, "h1 present").toBeTruthy();
-  expect(h1[0].replace(/<[^>]+>/g, "")).toContain("Vedant Khare");
+  expect(h1[0]).toMatch(/aria-label="Hello, I(&#x27;|')m Vedant Khare\."/);
 });
 
 test("static HTML does not preload a build-time day-phase plate", async ({ request }) => {
