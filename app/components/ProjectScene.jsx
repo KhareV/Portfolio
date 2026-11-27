@@ -22,8 +22,8 @@ import DemoComputer from "./DemoComputer.jsx";
 
 const AUTO_ROTATE_RESUME_DELAY_MS = 1800;
 const AUTO_ROTATE_SPEED = 0.8;
-// drei's OrbitControls calls controls.update() once per rendered frame without
-// a delta, so auto-rotation advances 2π/3600·speed radians per frame.
+// drei's OrbitControls (three-stdlib) calls controls.update() once per rendered
+// frame; auto-rotation advances 2π/3600·speed radians per frame.
 const AUTO_ROTATE_RAD_PER_FRAME = ((2 * Math.PI) / 3600) * AUTO_ROTATE_SPEED;
 const FRAME_MS = 1000 / 60;
 
@@ -44,14 +44,22 @@ const ProjectScene = ({ texture, isMobile, isActive = true }) => {
     const since = inactiveSinceRef.current;
     inactiveSinceRef.current = null;
     const controls = controlsRef.current;
-    if (since == null || !controls || isUserInteracting || typeof controls._rotateLeft !== "function") {
+    if (
+      since == null ||
+      !controls ||
+      isUserInteracting ||
+      typeof controls.setAzimuthalAngle !== "function"
+    ) {
       return;
     }
     const frames = (performance.now() - since) / FRAME_MS;
+    const angle = (frames * AUTO_ROTATE_RAD_PER_FRAME) % (2 * Math.PI);
+    // three-stdlib OrbitControls: auto-rotate decreases the azimuth. Apply the
+    // whole step at once (damping off for this one update, else it would
+    // visibly spin over the next frames).
     const damping = controls.enableDamping;
     controls.enableDamping = false;
-    controls._rotateLeft((frames * AUTO_ROTATE_RAD_PER_FRAME) % (2 * Math.PI));
-    controls.update();
+    controls.setAzimuthalAngle(controls.getAzimuthalAngle() - angle);
     controls.enableDamping = damping;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
