@@ -1,27 +1,46 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getImageProps } from "next/image";
+
+import {
+  PROJECT_SPOTLIGHT_IMAGE,
+  WORK_ICON_IMAGE,
+} from "../lib/imagePresets.js";
 
 const CRITICAL_IMAGE_ASSETS = ["/assets/close.svg", "/assets/menu.svg"];
-const HERO_BACKGROUND_BY_PHASE = {
-  morning: "/newimages/cofounder-bg.avif",
-  afternoon: "/newimages/hero-1.avif",
-  evening: "/newimages/vegas_night_hero.avif",
-  night: "/newimages/niag_night_hero.avif",
-};
-const HERO_PRELOAD_WIDTH_STEPS = [640, 750, 828, 1080, 1200, 1920];
-const HERO_PRELOAD_QUALITY = 56;
 
-const SUPPORTING_IMAGE_ASSETS = [
+// Warm the exact next/image variants the Projects card and the work timeline
+// render (same srcset + sizes, so the browser picks the same candidate and the
+// later <img> is a cache hit). Previously the raw source PNGs were fetched
+// here (~2.3 MB) although the page only ever displays the optimised versions.
+const toImageCandidate = (src, preset) => {
+  const { props } = getImageProps({ src, alt: "", ...preset });
+  return { src: props.src, srcSet: props.srcSet, sizes: props.sizes };
+};
+
+// Kept as explicit lists (as before) so the startup bundle does not pull in
+// the full constants module.
+const PROJECT_SPOTLIGHT_SOURCES = [
   "/assets/spotlight1.png",
   "/assets/spotlight2.png",
   "/assets/spotlight3.png",
   "/assets/spotlight4.png",
   "/assets/spotlight5.png",
+];
+const WORK_ICON_SOURCES = [
+  "/assets/walmart.png",
   "/assets/codechef.png",
   "/assets/ispace.png",
   "/assets/hackathons.png",
   "/assets/dandiya.png",
+];
+
+const getSupportingImageAssets = () => [
+  ...PROJECT_SPOTLIGHT_SOURCES.map((src) =>
+    toImageCandidate(src, PROJECT_SPOTLIGHT_IMAGE),
+  ),
+  ...WORK_ICON_SOURCES.map((src) => toImageCandidate(src, WORK_ICON_IMAGE)),
 ];
 
 const OPTIONAL_HEAVY_ASSETS = [
@@ -32,8 +51,6 @@ const OPTIONAL_HEAVY_ASSETS = [
 
 const BACKGROUND_WARMUP_TIMEOUT = 1500;
 const CRITICAL_WARMUP_CAP_MS = 1800;
-const LAB_UA_PATTERN =
-  /(chrome-lighthouse|lighthouse|pagespeed|headlesschrome|gtmetrix|webpagetest)/i;
 
 const getConnectionProfile = () => {
   if (typeof navigator === "undefined") {
@@ -53,17 +70,11 @@ const getConnectionProfile = () => {
   const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
   const isConstrained =
     Boolean(connection?.saveData) || slowType || downlink < 1.5;
-  const userAgent = navigator.userAgent || "";
-  const isLabTool = LAB_UA_PATTERN.test(userAgent);
-  const isAutomation = Boolean(navigator.webdriver);
 
   return {
     isConstrained,
-    isLabTool,
-    isAutomation,
+    // No Lighthouse/headless/webdriver special case: audits see real behaviour.
     canWarmHeavy:
-      !isLabTool &&
-      !isAutomation &&
       !isConstrained &&
       downlink >= 5 &&
       deviceMemory >= 6 &&
@@ -96,7 +107,10 @@ const cancelIdleTask = (id) => {
   clearTimeout(id);
 };
 
-const preloadImage = (src) => {
+const preloadImage = (asset) => {
+  const { src, srcSet, sizes } =
+    typeof asset === "string" ? { src: asset } : asset;
+
   return new Promise((resolve) => {
     const img = new Image();
     let settled = false;
@@ -112,6 +126,9 @@ const preloadImage = (src) => {
 
     img.onload = done;
     img.onerror = done;
+    // sizes/srcset before src so only the selected candidate is fetched
+    if (sizes) img.sizes = sizes;
+    if (srcSet) img.srcset = srcSet;
     img.src = src;
 
     if (typeof img.decode === "function") {
@@ -129,42 +146,6 @@ const waitForTimeout = (ms) => {
 
     window.setTimeout(resolve, ms);
   });
-};
-
-const getCurrentHeroImage = () => {
-  const hour = new Date().getHours();
-
-  if (hour < 12) {
-    return HERO_BACKGROUND_BY_PHASE.morning;
-  }
-
-  if (hour < 17) {
-    return HERO_BACKGROUND_BY_PHASE.afternoon;
-  }
-
-  if (hour < 21) {
-    return HERO_BACKGROUND_BY_PHASE.evening;
-  }
-
-  return HERO_BACKGROUND_BY_PHASE.night;
-};
-
-const getHeroPreloadWidth = () => {
-  if (typeof window === "undefined") {
-    return 1080;
-  }
-
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  const target = Math.ceil(window.innerWidth * dpr);
-
-  return (
-    HERO_PRELOAD_WIDTH_STEPS.find((width) => width >= target) ||
-    HERO_PRELOAD_WIDTH_STEPS[HERO_PRELOAD_WIDTH_STEPS.length - 1]
-  );
-};
-
-const buildOptimizedImageUrl = (src, width, quality = HERO_PRELOAD_QUALITY) => {
-  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
 };
 
 const preloadBinary = async (src, signal) => {
@@ -240,13 +221,10 @@ const usePreloadResources = () => {
     let heavyWarmupTriggered = false;
 
     const connectionProfile = getConnectionProfile();
-    const heroPreloadUrl = buildOptimizedImageUrl(
-      getCurrentHeroImage(),
-      getHeroPreloadWidth(),
-    );
-    const criticalImages = [
-      ...new Set([...CRITICAL_IMAGE_ASSETS, heroPreloadUrl]),
-    ];
+    // The hero plate is loaded (and awaited) by Hero itself through next/image;
+    // a second hand-built /_next/image URL here duplicated it with a quality
+    // the optimizer rejects (q=56 -> HTTP 400) and a different phase table.
+    const criticalImages = CRITICAL_IMAGE_ASSETS;
 
     const loadResources = async () => {
       try {
@@ -278,8 +256,8 @@ const usePreloadResources = () => {
           }
 
           await preloadBatch(
-            SUPPORTING_IMAGE_ASSETS,
-            async (src) => preloadImage(src),
+            getSupportingImageAssets(),
+            async (asset) => preloadImage(asset),
             {
               concurrency: 2,
               signal: abortController.signal,

@@ -18,41 +18,14 @@ const ChatBox = lazy(loadChatBox);
 import { MessageProvider } from "../contexts/MessageContext.jsx";
 import { cn } from "../styles/spacing.jsx";
 import { useLoadingContext } from "../contexts/LoadingContext";
-import Sunflower from "../components/Sunflower.jsx";
-
-const APP_TIMEZONE = "Asia/Kolkata";
+import { getDayPhase, getLocalClock, getLocalHour } from "../lib/dayPhase";
+import useIsClient from "../hooks/useIsClient";
 
 const HERO_BACKGROUNDS = {
   morning: "/newimages/cofounder-bg.avif",
   afternoon: "/newimages/after_alt.avif",
   evening: "/newimages/vegas_night_hero.avif",
   night: "/newimages/niag_night_hero.avif",
-};
-
-const getLocalHour = () => {
-  return Number(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: APP_TIMEZONE,
-      hour: "2-digit",
-      hour12: false,
-    }).format(new Date()),
-  );
-};
-
-const getLocalClock = () => {
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: APP_TIMEZONE,
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(new Date());
-};
-
-const getDayPhase = (hour) => {
-  if (hour >= 5 && hour < 12) return "morning";
-  if (hour >= 12 && hour < 17) return "afternoon";
-  if (hour >= 17 && hour < 21) return "evening";
-  return "night";
 };
 
 const HERO_INTRO_TEXT = "Hello,\nI'm Vedant Khare.";
@@ -65,51 +38,6 @@ const CHAT_AUTOSTART_DELAY_MS = 220;
 const CHAT_AUTOSTART_TIMEOUT_MS = 2200;
 const CHAT_IDLE_TIMEOUT_MS = 1200;
 const HERO_PRELOAD_TIMEOUT_MS = 1400;
-const HERO_PRELOAD_QUALITY = 56;
-const HERO_PRELOAD_WIDTH_STEPS = [640, 750, 828, 1080, 1200, 1920];
-
-const getHeroPreloadWidth = () => {
-  if (typeof window === "undefined") {
-    return 1080;
-  }
-
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  const target = Math.ceil(window.innerWidth * dpr);
-
-  return (
-    HERO_PRELOAD_WIDTH_STEPS.find((width) => width >= target) ||
-    HERO_PRELOAD_WIDTH_STEPS[HERO_PRELOAD_WIDTH_STEPS.length - 1]
-  );
-};
-
-const buildOptimizedImageUrl = (src, width, quality = HERO_PRELOAD_QUALITY) => {
-  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
-};
-
-const preloadAndDecodeImage = (src) => {
-  return new Promise((resolve) => {
-    const image = new Image();
-    let settled = false;
-
-    const finish = () => {
-      if (settled) {
-        return;
-      }
-
-      settled = true;
-      resolve();
-    };
-
-    image.onload = finish;
-    image.onerror = finish;
-    image.src = src;
-
-    if (typeof image.decode === "function") {
-      image.decode().then(finish).catch(finish);
-    }
-  });
-};
-
 const runWhenIdle = (task, timeout = CHAT_IDLE_TIMEOUT_MS) => {
   if (typeof window === "undefined") {
     return null;
@@ -174,8 +102,10 @@ const Hero = () => {
     useState(false);
   const headingRef = useRef(null);
   const latestPhaseRef = useRef(dayPhase);
-  const initialBackgroundRef = useRef(HERO_BACKGROUNDS[dayPhase]);
   const { setHeroReady, setModelsReady } = useLoadingContext();
+  // Day-phase plates and the IST clock depend on the visitor's clock, so they
+  // are rendered only on the client (never baked into the static HTML).
+  const isClient = useIsClient();
 
   useEffect(() => {
     let mounted = true;
@@ -187,7 +117,6 @@ const Hero = () => {
       }
 
       settled = true;
-      setIsInitialBackgroundReady(true);
 
       requestAnimationFrame(() => {
         if (!mounted) {
@@ -196,18 +125,20 @@ const Hero = () => {
 
         requestAnimationFrame(() => {
           if (mounted) {
+            // The plate (client-only) has been painted at opacity 0 by now, so
+            // flipping it here runs the original 1.4 s fade-in.
+            setIsInitialBackgroundReady(true);
             setHeroReady(true);
           }
         });
       });
     };
 
-    const preloadUrl = buildOptimizedImageUrl(
-      initialBackgroundRef.current,
-      getHeroPreloadWidth(),
-    );
-
-    preloadAndDecodeImage(preloadUrl).then(markReady);
+    // The original awaited a hand-built q=56 warm-up that always failed fast
+    // (HTTP 400), i.e. the hero was effectively "ready" right after mount and
+    // the plate faded in on its own onLoad. Keep that observable timing
+    // without the failing request.
+    markReady();
 
     const fallbackTimerId = window.setTimeout(
       markReady,
@@ -421,7 +352,7 @@ const Hero = () => {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgba(253,230,138,0.32),rgba(76,29,149,0.14)_38%,rgba(2,6,23,0.92)_82%)]" />
 
-        {visibleBackgroundPhases.map((phase) => (
+        {isClient && visibleBackgroundPhases.map((phase) => (
           <NextImage
             key={phase}
             src={HERO_BACKGROUNDS[phase]}
@@ -429,14 +360,12 @@ const Hero = () => {
             aria-hidden="true"
             fill
             sizes="100vw"
-            quality={58}
+            quality={75}
             priority={dayPhase === phase}
             fetchPriority={dayPhase === phase ? "high" : "auto"}
-            onLoad={() => {
-              if (phase === dayPhase && previousPhase === null) {
-                setIsInitialBackgroundReady(true);
-              }
-            }}
+            // visibility of the first plate is flipped by markReady two frames
+            // after mount (never before its opacity-0 frame is painted), so the
+            // 1.4 s fade-in also runs on a warm-cache load
             className={cn(
               "absolute inset-0 h-full w-full object-cover object-center transition-opacity ease-out",
               phase === previousPhase
@@ -455,22 +384,26 @@ const Hero = () => {
       <div className="relative z-10 mx-auto flex min-h-[180vh] md:min-h-[200vh] w-full max-w-[1480px] flex-col items-center px-4 pb-0 pt-24 sm:px-8 md:px-12 md:pt-40">
         <motion.h1
           ref={headingRef}
+          // full name for assistive tech from the first render (SSR included);
+          // an aria-label adds no painted text, so it cannot affect layout/LCP
+          aria-label={HERO_INTRO_TEXT.replace("\n", " ")}
           className="font-hero-display -mt-2 sm:-mt-4 md:-mt-8 mx-auto max-w-[860px] text-center text-[clamp(1.65rem,3.1vw,3.6rem)] leading-[1.15] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
-          aria-live="polite"
-          aria-atomic="true"
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
         >
-          {typedLines.map((line, idx) => (
-            <React.Fragment key={idx}>
-              {renderTypedLine(line, idx)}
-              {idx < typedLines.length - 1 ? <br /> : null}
-            </React.Fragment>
-          ))}
-          {!isTypingDone ? (
-            <span className="ml-1 inline-block h-[0.95em] w-[2px] translate-y-[2px] animate-pulse bg-white/90 align-middle" />
-          ) : null}
+          {/* The typed text is visual only; the heading's name is the full intro. */}
+          <span aria-hidden="true">
+            {typedLines.map((line, idx) => (
+              <React.Fragment key={idx}>
+                {renderTypedLine(line, idx)}
+                {idx < typedLines.length - 1 ? <br /> : null}
+              </React.Fragment>
+            ))}
+            {!isTypingDone ? (
+              <span className="ml-1 inline-block h-[0.95em] w-[2px] translate-y-[2px] animate-pulse bg-white/90 align-middle" />
+            ) : null}
+          </span>
         </motion.h1>
 
         <div className="mt-[3vh] grid w-full grid-cols-1 gap-8 sm:gap-12 md:mt-[12vh] md:grid-cols-[minmax(0,620px)_1fr] md:items-end">
@@ -520,9 +453,11 @@ const Hero = () => {
           </motion.article>
         </div>
 
-        <div className="mt-8 self-end rounded-full border border-[#f5d2bc]/40 bg-[#7d514a]/40 px-4 py-2 font-hero-serif text-sm text-[#ffe5d5] md:hidden">
-          {localClock} IST
-        </div>
+        {isClient ? (
+          <div className="mt-8 self-end rounded-full border border-[#f5d2bc]/40 bg-[#7d514a]/40 px-4 py-2 font-hero-serif text-sm text-[#ffe5d5] md:hidden">
+            {localClock} IST
+          </div>
+        ) : null}
       </div>
     </section>
   );

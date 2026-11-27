@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+const config = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -73,7 +73,6 @@ export default {
         },
       },
       backgroundImage: {
-        terminal: "url('/assets/terminal.png')",
         "hero-pattern": "url('/img/hero-pattern.svg')",
         "footer-texture": "url('/img/footer-texture.png')",
       },
@@ -203,3 +202,5 @@ export default {
     },
   ],
 };
+
+export default config;

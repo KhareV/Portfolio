@@ -11,7 +11,8 @@ const Stars = ({ isActive = true, ...props }) => {
   const ref = useRef();
   const sphere = useMemo(
     () =>
-      random.inSphere(new Float32Array(isMobile ? 540 : 2200), {
+      random.inSphere(// a multiple of 3 (xyz): 2200 left a partial vertex -> NaN bounding sphere
+      new Float32Array(isMobile ? 540 : 2199), {
         radius: 1.1,
       }),
     [isMobile],

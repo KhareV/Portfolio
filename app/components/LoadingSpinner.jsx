@@ -36,33 +36,48 @@ const captureBodyStyles = () => ({
   position: document.body.style.position,
   width: document.body.style.width,
   height: document.body.style.height,
+  top: document.body.style.top,
+  scrollY: window.scrollY,
 });
 
-const lockBodyScroll = () => {
+const lockBodyScroll = (scrollY) => {
   Object.assign(document.body.style, {
     overflow: "hidden",
     position: "fixed",
     width: "100%",
     height: "100%",
+    // keep the page where it was under the overlay (e.g. restored scroll)
+    top: scrollY ? `-${scrollY}px` : document.body.style.top,
   });
 };
 
 const restoreBodyStyles = (styles) => {
-  if (!styles) {
+  if (!styles || styles.restored) {
     return;
   }
 
-  Object.assign(document.body.style, styles);
+  styles.restored = true;
+  const { scrollY, restored, ...inline } = styles;
+  Object.assign(document.body.style, inline);
+  if (scrollY) {
+    window.scrollTo(0, scrollY);
+  }
 };
 
 const LoadingSpinner = ({ onLoadComplete, shouldHide = false }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
   const originalBodyStylesRef = useRef(null);
+  // Latest callback without restarting the fade timer when the parent
+  // re-renders with a new function identity.
+  const onLoadCompleteRef = useRef(onLoadComplete);
+  useEffect(() => {
+    onLoadCompleteRef.current = onLoadComplete;
+  }, [onLoadComplete]);
 
   useEffect(() => {
     originalBodyStylesRef.current = captureBodyStyles();
-    lockBodyScroll();
+    lockBodyScroll(originalBodyStylesRef.current.scrollY);
 
     return () => {
       restoreBodyStyles(originalBodyStylesRef.current);
@@ -77,7 +92,7 @@ const LoadingSpinner = ({ onLoadComplete, shouldHide = false }) => {
       // Wait for fade animation to complete before hiding
       const fadeTimer = window.setTimeout(() => {
         setIsVisible(false);
-        onLoadComplete();
+        onLoadCompleteRef.current?.();
 
         restoreBodyStyles(originalBodyStylesRef.current);
       }, 800); // 800ms fade duration
@@ -86,7 +101,7 @@ const LoadingSpinner = ({ onLoadComplete, shouldHide = false }) => {
         window.clearTimeout(fadeTimer);
       };
     }
-  }, [shouldHide, isVisible, onLoadComplete]);
+  }, [shouldHide, isVisible]);
 
   if (!isVisible) return null;
 

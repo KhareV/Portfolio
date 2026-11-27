@@ -1,18 +1,22 @@
 "use client";
 
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
+import useHashNavigation from "../hooks/useHashNavigation";
 import LoadingSpinner from "./LoadingSpinner";
+import SceneBoundary from "./SceneBoundary";
+// Above-the-fold sections are imported directly (they were lazy chunks fetched
+// immediately anyway). Inside a Suspense boundary their streamed HTML was only
+// revealed/hydrated after React's batched-reveal throttle (~300 ms).
+import Navbar from "../sections/Navbar";
+import Hero from "../sections/Hero";
+import TimeBands from "./TimeBands";
 import { LoadingProvider, useLoadingContext } from "../contexts/LoadingContext";
 import useDeviceDetection from "../hooks/useDeviceDetection";
 import usePreloadResources from "../hooks/usePreloadResources";
 import useRuntimePerformanceMode from "../hooks/useRuntimePerformanceMode";
 
-const loadNavbar = () => import("../sections/Navbar");
-const loadHero = () => import("../sections/Hero");
 const loadPointer = () => import("./Pointer");
 
-const Navbar = lazy(loadNavbar);
-const Hero = lazy(loadHero);
 const Pointer = lazy(loadPointer);
 
 const loadAbout = () => import("../sections/About");
@@ -21,7 +25,6 @@ const loadContact = () => import("../sections/Contact");
 const loadFooter = () => import("../sections/Footer");
 const loadWorkExperience = () => import("../sections/WorkExperience");
 const loadGithub = () => import("../sections/Github");
-const loadTimeBands = () => import("./TimeBands");
 
 const About = lazy(loadAbout);
 const Projects = lazy(loadProjects);
@@ -29,7 +32,6 @@ const Contact = lazy(loadContact);
 const Footer = lazy(loadFooter);
 const WorkExperience = lazy(loadWorkExperience);
 const Github = lazy(loadGithub);
-const TimeBands = lazy(loadTimeBands);
 
 const loadLogoAnimation = () => import("./LogoAnimation");
 const loadEarthCanvas = () => import("./Earth");
@@ -38,6 +40,14 @@ const loadSound = () => import("./Sound");
 const LogoAnimation = lazy(loadLogoAnimation);
 const EarthCanvas = lazy(loadEarthCanvas);
 const Sound = lazy(loadSound);
+
+// Each lazily loaded section is isolated: a failed chunk or a render error in
+// one section must not unmount the rest of the portfolio.
+const Guarded = ({ children }) => (
+  <SceneBoundary fallback={null}>
+    <Suspense fallback={null}>{children}</Suspense>
+  </SceneBoundary>
+);
 
 const runWhenIdle = (task, timeout = 2600) => {
   if (typeof window === "undefined") {
@@ -64,18 +74,68 @@ const cancelIdleTask = (id) => {
   clearTimeout(id);
 };
 
+// Server-rendered, above-the-fold sections. Memoised with no props so that
+// AppContent state changes during hydration (device/profile detection, render
+// stages) cannot force React to discard and client-render their SSR markup.
+const CriticalSections = React.memo(function CriticalSections() {
+  return (
+    // Rendered in the static shell (no Suspense): painted with the first HTML
+    // and hydrated immediately. Each keeps its own error boundary.
+    <>
+      <SceneBoundary fallback={null}>
+        <Navbar />
+      </SceneBoundary>
+      <SceneBoundary fallback={null}>
+        <Hero />
+      </SceneBoundary>
+      <SceneBoundary fallback={null}>
+        <TimeBands className="-mt-px" />
+      </SceneBoundary>
+    </>
+  );
+});
+
 const AppContent = () => {
   const isResourcesReady = usePreloadResources();
   const { isAppReady } = useLoadingContext();
   const { isMobile } = useDeviceDetection();
-  const { disableHeavyVisuals, isLabTool } = useRuntimePerformanceMode();
+  const { disableHeavyVisuals } = useRuntimePerformanceMode();
   const [renderStage, setRenderStage] = useState(0);
+  const lenisRef = useRef(null);
+  // The loading overlay belongs to the initial load only: once it has
+  // finished (or this visit started in the lightweight variant) it never
+  // re-appears, e.g. when reduced motion is toggled mid-visit.
+  const [overlayDone, setOverlayDone] = useState(false);
+  const [readinessTimedOut, setReadinessTimedOut] = useState(false);
+  const handleOverlayComplete = useCallback(() => setOverlayDone(true), []);
 
-  const isFullyLoaded = isResourcesReady && isAppReady;
+  // Bounded fail-open: if a readiness signal never arrives (e.g. the hero
+  // chunk failed to load) the overlay must not cover the page forever.
+  const isReadySignalled = isResourcesReady && isAppReady;
+  useEffect(() => {
+    if (isReadySignalled) return undefined;
+    const timerId = window.setTimeout(() => setReadinessTimedOut(true), 8000);
+    return () => window.clearTimeout(timerId);
+  }, [isReadySignalled]);
+
+  useEffect(() => {
+    if (disableHeavyVisuals) {
+      setOverlayDone(true);
+    }
+  }, [disableHeavyVisuals]);
+
+  // Deep links / early nav clicks to sections that mount in a later stage
+  // advance staging immediately and land once the target geometry settles.
+  const requestAllStages = useCallback(() => {
+    setRenderStage((current) => (current >= 3 ? current : 3));
+  }, []);
+  useHashNavigation({ lenisRef, onTargetMissing: requestAllStages });
+
+  const isFullyLoaded = isReadySignalled || readinessTimedOut;
   const shouldRenderPointer = !disableHeavyVisuals;
   const shouldRenderSound = !disableHeavyVisuals;
   const shouldRenderEarthCanvas = !isMobile && !disableHeavyVisuals;
-  const shouldShowLoadingOverlay = !disableHeavyVisuals && !isLabTool;
+  const shouldShowLoadingOverlay = !disableHeavyVisuals && !overlayDone;
   const shouldRenderStageOne = renderStage >= 1;
   const shouldRenderStageTwo = renderStage >= 2;
   const shouldRenderStageThree = renderStage >= 3;
@@ -258,7 +318,7 @@ const AppContent = () => {
         const hardwareConcurrency = Number(navigator.hardwareConcurrency ?? 8);
         const isLowerEndDevice = deviceMemory <= 4 || hardwareConcurrency <= 4;
 
-        lenisInstance = new Lenis({
+        lenisInstance = lenisRef.current = new Lenis({
           autoRaf: false,
           smoothWheel: true,
           syncTouch: true,
@@ -357,70 +417,66 @@ const AppContent = () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       lenisInstance?.destroy();
       lenisInstance = null;
+      lenisRef.current = null;
     };
   }, [disableHeavyVisuals]);
 
   return (
     <>
       {shouldShowLoadingOverlay && (
-        <LoadingSpinner shouldHide={isFullyLoaded} onLoadComplete={() => {}} />
+        <LoadingSpinner
+          shouldHide={isFullyLoaded}
+          onLoadComplete={handleOverlayComplete}
+        />
       )}
 
       <main className="relative z-10 overflow-x-hidden">
         <div className="bg-[#FEFFFC]">
           {shouldRenderPointer && (
-            <Suspense fallback={null}>
+            <Guarded>
               <Pointer />
-            </Suspense>
+            </Guarded>
           )}
-          <Suspense fallback={null}>
-            <Navbar />
-          </Suspense>
-          <Suspense fallback={null}>
-            <Hero />
-          </Suspense>
-          <Suspense fallback={null}>
-            <TimeBands className="-mt-px" />
-          </Suspense>
+          <CriticalSections />
 
           {shouldRenderStageOne && (
             <>
-              <Suspense fallback={null}>
+              <Guarded>
                 <About disableHeavyVisuals={disableHeavyVisuals} />
-              </Suspense>
-              <Suspense fallback={null}>
+              </Guarded>
+              <Guarded>
                 <Github />
-              </Suspense>
-              <Suspense fallback={null}>
+              </Guarded>
+              <Guarded>
                 <LogoAnimation isLoading={!isFullyLoaded} />
-              </Suspense>
+              </Guarded>
               {shouldRenderSound && (
-                <Suspense fallback={null}>
+                <Guarded>
                   <Sound />
-                </Suspense>
+                </Guarded>
               )}
             </>
           )}
 
           {shouldRenderStageTwo && (
             <>
-              <Suspense fallback={null}>
+              <Guarded>
                 <Projects disableHeavyVisuals={disableHeavyVisuals} />
-              </Suspense>
-              <Suspense fallback={null}>
+              </Guarded>
+              <Guarded>
                 <Contact />
-              </Suspense>
+              </Guarded>
             </>
           )}
 
           {shouldRenderStageThree && (
             <>
-              <Suspense fallback={null}>
+              <Guarded>
                 <WorkExperience disableHeavyVisuals={disableHeavyVisuals} />
-              </Suspense>
+              </Guarded>
 
               {shouldRenderEarthCanvas && (
-                <Suspense fallback={null}>
+                <Guarded>
                   <div className="relative mx-4 my-10 rounded-[2rem] border border-white/15 bg-black p-4 md:p-6 shadow-[0_24px_60px_rgba(2,6,23,0.45)] overflow-hidden">
                     <div
                       className="pointer-events-none absolute inset-0 opacity-70"
@@ -437,12 +493,12 @@ const AppContent = () => {
                       <EarthCanvas />
                     </div>
                   </div>
-                </Suspense>
+                </Guarded>
               )}
 
-              <Suspense fallback={null}>
+              <Guarded>
                 <TimeBands />
-              </Suspense>
+              </Guarded>
             </>
           )}
         </div>
@@ -455,9 +511,9 @@ const AppContent = () => {
             aria-hidden="true"
           />
 
-          <Suspense fallback={null}>
+          <Guarded>
             <Footer />
-          </Suspense>
+          </Guarded>
         </>
       )}
 

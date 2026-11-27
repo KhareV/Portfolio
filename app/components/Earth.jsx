@@ -7,6 +7,7 @@ import { useInView } from "framer-motion";
 import StarsCanvas from "./Stars";
 import CanvasLoader from "./CanvasLoader";
 import useDeviceDetection from "../hooks/useDeviceDetection";
+import { DRACO_DECODER_PATH } from "../lib/assetPaths";
 
 const EARTH_MODEL_URL = "/planet/scene.opt.glb";
 
@@ -46,8 +47,8 @@ const prewarmEarthModel = async (signal) => {
   }
 };
 
-const Earth = memo(() => {
-  const earth = useGLTF(EARTH_MODEL_URL);
+const Earth = memo(function Earth() {
+  const earth = useGLTF(EARTH_MODEL_URL, DRACO_DECODER_PATH);
 
   return (
     <primitive
@@ -81,7 +82,7 @@ const EarthCanvas = () => {
     const controller = new AbortController();
 
     const idleTaskId = runWhenIdle(async () => {
-      useGLTF.preload(EARTH_MODEL_URL);
+      useGLTF.preload(EARTH_MODEL_URL, DRACO_DECODER_PATH);
       await prewarmEarthModel(controller.signal);
 
       if (mounted) {
@@ -177,6 +178,6 @@ const EarthCanvas = () => {
   );
 };
 
-useGLTF.preload(EARTH_MODEL_URL);
+useGLTF.preload(EARTH_MODEL_URL, DRACO_DECODER_PATH);
 
 export default memo(EarthCanvas);

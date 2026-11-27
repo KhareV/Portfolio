@@ -14,6 +14,8 @@ import {
   cn,
 } from "../styles/spacing.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
+import SceneBoundary from "../components/SceneBoundary.jsx";
+import { WORK_ICON_IMAGE } from "../lib/imagePresets.js";
 
 const WorkExperienceScene = dynamic(
   () => import("../components/WorkExperienceScene.jsx"),
@@ -29,7 +31,15 @@ const WorkExperienceScene = dynamic(
 
 const IDLE_ANIMATION_DELAY_MS = 180;
 const FALLBACK_ANIMATION = "idle";
-const SUPPORTED_ANIMATIONS = new Set(["idle", "salute", "clapping", "victory"]);
+const SUPPORTED_ANIMATIONS = new Set([
+  "idle",
+  "salute",
+  "clapping",
+  "victory",
+  "dance",
+  "kick",
+  "swing",
+]);
 
 const normalizeAnimationName = (animationName) => {
   const normalizedName = String(
@@ -40,12 +50,23 @@ const normalizeAnimationName = (animationName) => {
     : FALLBACK_ANIMATION;
 };
 
+const rowKeyOf = (item) => String(item.id ?? item.name);
+const ANIMATION_BY_ROW = new Map(
+  workExperiences.map((item) => [rowKeyOf(item), item.animation]),
+);
+
 const WorkExperience = ({ disableHeavyVisuals = false }) => {
   const { isMobile } = useDeviceDetection();
   const sectionRef = useRef(null);
-  const developerRef = useRef(null);
+  const developerHandleRef = useRef(null);
   const idleAnimationTimerRef = useRef(null);
-  const activeAnimationRef = useRef(FALLBACK_ANIMATION);
+  const desiredAnimationRef = useRef(FALLBACK_ANIMATION);
+  // Which row drives the avatar. Pointer hover wins, then a row pinned by a
+  // click/tap/Enter (kept until the pointer leaves it or it blurs), then a row
+  // with keyboard focus; otherwise idle. Keys are row ids, not clip names.
+  const hoveredRowRef = useRef(null);
+  const pinnedRowRef = useRef(null);
+  const keyboardRowRef = useRef(null);
   const [hasEnteredView, setHasEnteredView] = useState(false);
   const isInView = useInView(sectionRef, {
     amount: 0.18,
@@ -67,44 +88,99 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
     idleAnimationTimerRef.current = null;
   }, []);
 
-  const playAnimation = useCallback(
-    (animationName) => {
-      const safeAnimationName = normalizeAnimationName(animationName);
+  const resolveAnimation = useCallback(() => {
+    clearIdleAnimationTimer();
+    const rowKey =
+      hoveredRowRef.current ?? pinnedRowRef.current ?? keyboardRowRef.current;
+    const next = normalizeAnimationName(ANIMATION_BY_ROW.get(rowKey));
+    desiredAnimationRef.current = next;
+    // Developer ignores a request for the clip it is already playing.
+    developerHandleRef.current?.playAnimation?.(next);
+  }, [clearIdleAnimationTimer]);
 
-      clearIdleAnimationTimer();
+  // Leaving a row waits briefly, so moving straight onto the next row does not
+  // flash idle in between (the next enter cancels this timer).
+  const resolveAnimationSoon = useCallback(() => {
+    clearIdleAnimationTimer();
+    idleAnimationTimerRef.current = window.setTimeout(() => {
+      idleAnimationTimerRef.current = null;
+      resolveAnimation();
+    }, IDLE_ANIMATION_DELAY_MS);
+  }, [clearIdleAnimationTimer, resolveAnimation]);
 
-      if (activeAnimationRef.current === safeAnimationName) {
-        return;
-      }
+  // Callback ref for the avatar's imperative handle: when it attaches (the model
+  // and clips finished loading) it immediately gets the current selection.
+  const attachDeveloper = useCallback((handle) => {
+    developerHandleRef.current = handle;
+    handle?.playAnimation?.(desiredAnimationRef.current);
+  }, []);
 
-      activeAnimationRef.current = safeAnimationName;
-      developerRef.current?.playAnimation?.(safeAnimationName);
+  const handleRowPointerEnter = useCallback(
+    (rowKey) => {
+      hoveredRowRef.current = rowKey;
+      resolveAnimation();
     },
-    [clearIdleAnimationTimer],
+    [resolveAnimation],
   );
 
-  const scheduleIdleAnimation = useCallback(() => {
-    clearIdleAnimationTimer();
+  const handleRowPointerLeave = useCallback(
+    (rowKey) => {
+      if (hoveredRowRef.current === rowKey) hoveredRowRef.current = null;
+      if (pinnedRowRef.current === rowKey) pinnedRowRef.current = null;
+      resolveAnimationSoon();
+    },
+    [resolveAnimationSoon],
+  );
 
-    idleAnimationTimerRef.current = window.setTimeout(() => {
-      playAnimation(FALLBACK_ANIMATION);
-      idleAnimationTimerRef.current = null;
-    }, IDLE_ANIMATION_DELAY_MS);
-  }, [clearIdleAnimationTimer, playAnimation]);
+  const handleRowSelect = useCallback(
+    (rowKey) => {
+      pinnedRowRef.current = rowKey;
+      resolveAnimation();
+    },
+    [resolveAnimation],
+  );
+
+  const handleRowFocus = useCallback(
+    (event, rowKey) => {
+      // Mouse/touch focus is already covered by hover/click; only keyboard
+      // focus (:focus-visible) keeps the clip after the pointer goes away.
+      let isKeyboardFocus = false;
+      try {
+        isKeyboardFocus = event.currentTarget.matches(":focus-visible");
+      } catch {
+        isKeyboardFocus = false;
+      }
+      if (isKeyboardFocus) keyboardRowRef.current = rowKey;
+      resolveAnimation();
+    },
+    [resolveAnimation],
+  );
+
+  const handleRowBlur = useCallback(
+    (rowKey) => {
+      if (keyboardRowRef.current === rowKey) keyboardRowRef.current = null;
+      if (pinnedRowRef.current === rowKey) pinnedRowRef.current = null;
+      resolveAnimationSoon();
+    },
+    [resolveAnimationSoon],
+  );
 
   const handleItemKeyDown = useCallback(
-    (event, animationName) => {
+    (event, rowKey) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        playAnimation(animationName);
+        handleRowSelect(rowKey);
       }
 
       if (event.key === "Escape") {
         event.preventDefault();
-        scheduleIdleAnimation();
+        hoveredRowRef.current = null;
+        pinnedRowRef.current = null;
+        keyboardRowRef.current = null;
+        resolveAnimationSoon();
       }
     },
-    [playAnimation, scheduleIdleAnimation],
+    [handleRowSelect, resolveAnimationSoon],
   );
 
   useEffect(() => {
@@ -116,6 +192,23 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
   const shouldUseScene = !isMobile && !disableHeavyVisuals;
   const shouldMountScene = shouldUseScene && hasEnteredView;
   const isSceneActive = shouldUseScene && isInView;
+
+  // When the section scrolls out of view, drop hover/tap state that no longer
+  // matches what is under the pointer (some browsers send no pointerleave until
+  // the mouse moves), so the avatar is idle when the visitor comes back.
+  useEffect(() => {
+    if (isSceneActive) {
+      return;
+    }
+    const stillHovered = sectionRef.current?.querySelector(
+      '[role="button"]:hover',
+    );
+    if (!stillHovered) {
+      hoveredRowRef.current = null;
+      pinnedRowRef.current = null;
+    }
+    resolveAnimation();
+  }, [isSceneActive, resolveAnimation]);
 
   return (
     <motion.section
@@ -145,10 +238,19 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
 
         <div className="work-container">
           {shouldUseScene && shouldMountScene && (
-            <WorkExperienceScene
-              developerRef={developerRef}
-              isActive={isSceneActive}
-            />
+            <SceneBoundary
+              name="WorkExperienceScene"
+              fallback={
+                <div className="work-canvas grid place-items-center text-slate-500 text-sm font-medium">
+                  3D preview unavailable.
+                </div>
+              }
+            >
+              <WorkExperienceScene
+                developerRef={attachDeveloper}
+                isActive={isSceneActive}
+              />
+            </SceneBoundary>
           )}
 
           {shouldUseScene && !shouldMountScene && (
@@ -158,7 +260,7 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
           )}
 
           <motion.div
-            className={cn("work-content", !shouldUseScene && "lg:col-span-3")}
+            className={cn("work-content", !shouldUseScene && "lg:col-span-5")}
             initial={{ x: 50, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
@@ -167,14 +269,14 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
             <div className={cn(spacing.section.paddingY, spacing.card.padding)}>
               {workExperiences.map((item, index) => (
                 <motion.div
-                  key={item.id ?? item.name}
-                  onClick={() => playAnimation(item.animation)}
-                  onPointerEnter={() => playAnimation(item.animation)}
-                  onPointerLeave={scheduleIdleAnimation}
-                  onFocus={() => playAnimation(item.animation)}
-                  onBlur={scheduleIdleAnimation}
+                  key={rowKeyOf(item)}
+                  onClick={() => handleRowSelect(rowKeyOf(item))}
+                  onPointerEnter={() => handleRowPointerEnter(rowKeyOf(item))}
+                  onPointerLeave={() => handleRowPointerLeave(rowKeyOf(item))}
+                  onFocus={(event) => handleRowFocus(event, rowKeyOf(item))}
+                  onBlur={() => handleRowBlur(rowKeyOf(item))}
                   onKeyDown={(event) =>
-                    handleItemKeyDown(event, item.animation)
+                    handleItemKeyDown(event, rowKeyOf(item))
                   }
                   role="button"
                   tabIndex={0}
@@ -202,9 +304,7 @@ const WorkExperience = ({ disableHeavyVisuals = false }) => {
                         className="w-full h-full object-contain"
                         src={item.icon}
                         alt={item.name}
-                        width={40}
-                        height={40}
-                        sizes="40px"
+                        {...WORK_ICON_IMAGE}
                       />
                     </div>
 

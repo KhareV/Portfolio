@@ -5,21 +5,34 @@ import { useEffect, useMemo, useState } from "react";
 import {
   GITHUB_CACHE_KEY,
   GITHUB_CACHE_TTL_MS,
+  GITHUB_FETCH_TIMEOUT_MS,
   GITHUB_USERNAME,
-  LANG_COLORS,
 } from "./constants";
+import {
+  GithubDisplayError,
+  GITHUB_GENERIC_ERROR,
+  buildGithubViewModel,
+  getGithubErrorMessage,
+  isGithubCacheFresh,
+  isValidGithubCache,
+  isValidGithubRepos,
+  isValidGithubUser,
+  toGithubDisplayMessage,
+} from "../../lib/githubData.js";
 
-const buildGithubHeaders = () => {
-  const headers = {
-    Accept: "application/vnd.github+json",
-  };
+export { buildGithubViewModel };
 
-  const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN?.trim();
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+// Unauthenticated on purpose: any token in client code would be public.
+const GITHUB_HEADERS = {
+  Accept: "application/vnd.github+json",
+};
+
+const removeGithubCache = () => {
+  try {
+    localStorage.removeItem(GITHUB_CACHE_KEY);
+  } catch {
+    // Ignore storage access errors.
   }
-
-  return headers;
 };
 
 const readGithubCache = () => {
@@ -30,10 +43,14 @@ const readGithubCache = () => {
     if (!cached) return null;
 
     const parsed = JSON.parse(cached);
-    if (!parsed || typeof parsed !== "object") return null;
+    if (!isValidGithubCache(parsed)) {
+      removeGithubCache();
+      return null;
+    }
 
     return parsed;
   } catch {
+    removeGithubCache();
     return null;
   }
 };
@@ -48,44 +65,6 @@ const writeGithubCache = (payload) => {
   }
 };
 
-export const buildGithubViewModel = (userData, reposData) => {
-  const safeRepos = Array.isArray(reposData) ? reposData : [];
-  const byStars = [...safeRepos].sort(
-    (a, b) => b.stargazers_count - a.stargazers_count,
-  );
-
-  const stars = safeRepos.reduce(
-    (sum, repo) => sum + (repo?.stargazers_count || 0),
-    0,
-  );
-
-  const counts = {};
-  safeRepos.forEach((repo) => {
-    if (repo?.language) {
-      counts[repo.language] = (counts[repo.language] || 0) + 1;
-    }
-  });
-
-  const total = Object.values(counts).reduce((a, b) => a + b, 0);
-  const langs = Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 7)
-    .map(([name, count]) => ({
-      name,
-      count,
-      pct: total > 0 ? Math.round((count / total) * 100) : 0,
-      color: LANG_COLORS[name] || "#94A3B8",
-    }));
-
-  return {
-    user: userData ?? null,
-    repos: byStars,
-    totalStars: stars,
-    langData: langs,
-    cachedAt: Date.now(),
-  };
-};
-
 const useGithubData = () => {
   const [user, setUser] = useState(null);
   const [repos, setRepos] = useState([]);
@@ -95,9 +74,12 @@ const useGithubData = () => {
   const [error, setError] = useState("");
   const [fromCache, setFromCache] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshFailed, setRefreshFailed] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
+    let disposed = false;
+    let timeoutId = null;
 
     const applyViewModel = (payload) => {
       setUser(payload?.user ?? null);
@@ -114,11 +96,9 @@ const useGithubData = () => {
       setLoading(false);
     }
 
-    const isCacheFresh =
-      cached?.cachedAt && Date.now() - cached.cachedAt < GITHUB_CACHE_TTL_MS;
-
-    if (isCacheFresh) {
+    if (cached && isGithubCacheFresh(cached, GITHUB_CACHE_TTL_MS)) {
       return () => {
+        disposed = true;
         controller.abort();
       };
     }
@@ -128,51 +108,58 @@ const useGithubData = () => {
     }
 
     const fetchAll = async () => {
-      try {
-        const headers = buildGithubHeaders();
+      timeoutId = window.setTimeout(
+        () => controller.abort(),
+        GITHUB_FETCH_TIMEOUT_MS,
+      );
 
+      try {
         const [uRes, rRes] = await Promise.all([
           fetch(`https://api.github.com/users/${GITHUB_USERNAME}`, {
-            headers,
+            headers: GITHUB_HEADERS,
             signal: controller.signal,
           }),
           fetch(
             `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=pushed`,
             {
-              headers,
+              headers: GITHUB_HEADERS,
               signal: controller.signal,
             },
           ),
         ]);
 
         if (!uRes.ok || !rRes.ok) {
-          if (uRes.status === 403 || rRes.status === 403) {
-            throw new Error(
-              "GitHub API rate limit reached. Please try again later.",
-            );
-          }
-
-          throw new Error("Unable to fetch GitHub data.");
+          throw new GithubDisplayError(getGithubErrorMessage(uRes, rRes));
         }
 
         const userData = await uRes.json();
         const reposData = await rRes.json();
+
+        if (!isValidGithubUser(userData) || !isValidGithubRepos(reposData)) {
+          throw new GithubDisplayError(GITHUB_GENERIC_ERROR);
+        }
+
         const payload = buildGithubViewModel(userData, reposData);
 
+        if (disposed) return;
         applyViewModel(payload);
         setFromCache(false);
+        setRefreshFailed(false);
         setError("");
         writeGithubCache(payload);
       } catch (fetchError) {
-        if (fetchError?.name === "AbortError") {
-          return;
-        }
+        // Unmounted (or StrictMode re-run): nothing to report.
+        if (disposed) return;
 
-        if (!cached) {
-          setError(fetchError?.message || "Could not load GitHub data.");
+        // Timeouts surface as AbortError here and are treated as failures.
+        if (cached) {
+          setRefreshFailed(true);
+        } else {
+          setError(toGithubDisplayMessage(fetchError));
         }
       } finally {
-        if (!controller.signal.aborted) {
+        window.clearTimeout(timeoutId);
+        if (!disposed) {
           setLoading(false);
           setIsRefreshing(false);
         }
@@ -182,6 +169,8 @@ const useGithubData = () => {
     fetchAll();
 
     return () => {
+      disposed = true;
+      window.clearTimeout(timeoutId);
       controller.abort();
     };
   }, []);
@@ -199,6 +188,7 @@ const useGithubData = () => {
     error,
     fromCache,
     isRefreshing,
+    refreshFailed,
   };
 };
 

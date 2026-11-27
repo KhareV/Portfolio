@@ -4,8 +4,8 @@ import NextImage from "next/image";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { FaGithub, FaTwitter, FaInstagram } from "react-icons/fa";
 import { cn, transitions } from "../styles/spacing.jsx";
+import { getDayPhase, getLocalHour } from "../lib/dayPhase";
 
-const APP_TIMEZONE = "Asia/Kolkata";
 const FOOTER_IMAGES = {
   morning: "/newimages/morningfoot.png",
   afternoon: "/newimages/afternoonfoot.png",
@@ -22,23 +22,6 @@ const FOOTER_ASPECT_RATIO = FOOTER_ASPECT_WIDTH / FOOTER_ASPECT_HEIGHT;
 const FOOTER_ASPECT_RATIO_INVERSE = FOOTER_ASPECT_HEIGHT / FOOTER_ASPECT_WIDTH;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-
-const getLocalHour = () => {
-  return Number(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: APP_TIMEZONE,
-      hour: "2-digit",
-      hour12: false,
-    }).format(new Date()),
-  );
-};
-
-const getDayPhase = (hour) => {
-  if (hour >= 5 && hour < 12) return "morning";
-  if (hour >= 12 && hour < 17) return "afternoon";
-  if (hour >= 17 && hour < 21) return "evening";
-  return "night";
-};
 
 const Footer = () => {
   const footerRef = useRef(null);
@@ -107,21 +90,54 @@ const Footer = () => {
       ticking = false;
     };
 
+    // While the page still covers the footer by more than a full viewport it
+    // is not painted (visibility hidden), not focusable (inert) and so not an
+    // LCP candidate. Updated synchronously in the scroll handler, with a one
+    // viewport margin, so it is always visible before any of it can show.
+    const syncCoveredState = () => {
+      const footerElement = footerRef.current;
+      if (!footerElement) return;
+      const viewportHeight = window.innerHeight || 1;
+      const scrollTop =
+        window.scrollY || document.documentElement.scrollTop || 0;
+      const remainingToBottom =
+        document.documentElement.scrollHeight - viewportHeight - scrollTop;
+      const covered =
+        remainingToBottom >
+        viewportHeight * REVEAL_RANGE_MULTIPLIER + viewportHeight;
+      const visibility = covered ? "hidden" : "";
+      if (footerElement.style.visibility !== visibility) {
+        footerElement.style.visibility = visibility;
+        footerElement.inert = covered;
+      }
+    };
+
     const requestUpdate = () => {
+      syncCoveredState();
       if (!ticking) {
         rafId = window.requestAnimationFrame(update);
         ticking = true;
       }
     };
 
+    syncCoveredState();
     update();
 
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
+    // Sections above the footer mount in later stages: the page grows without
+    // any scroll/resize event, which used to leave a now-covered footer
+    // visible and keyboard-focusable until the first scroll.
+    const pageResizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(requestUpdate);
+    pageResizeObserver?.observe(document.body);
 
     return () => {
       window.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", requestUpdate);
+      pageResizeObserver?.disconnect();
 
       if (rafId != null) {
         window.cancelAnimationFrame(rafId);
@@ -156,7 +172,7 @@ const Footer = () => {
           alt=""
           fill
           loading="lazy"
-          quality={52}
+          quality={75}
           fetchPriority="low"
           sizes="100vw"
           className="object-cover object-bottom"

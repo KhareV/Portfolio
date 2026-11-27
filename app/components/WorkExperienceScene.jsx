@@ -49,7 +49,9 @@ const WorkExperienceScene = ({ developerRef, isActive }) => {
         />
 
         <Suspense fallback={<CanvasLoader />}>
-          <Developer ref={developerRef} position-y={-2.2} scale={2.45} />
+          {/* scale 2.05 (was 2.45) in a 2/5-wide canvas (was 1/3): feet stay anchored
+              at y=-2.2, and wide moves (kicks, arms overhead) fit inside it */}
+          <Developer ref={developerRef} position-y={-2.2} scale={2.05} />
         </Suspense>
       </Canvas>
     </div>

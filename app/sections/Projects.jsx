@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { useInView } from "framer-motion";
 import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -8,6 +9,8 @@ import dynamic from "next/dynamic";
 import { myProjects } from "../constants/index.jsx";
 import TechIcon from "../components/TechIcon.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
+import SceneBoundary from "../components/SceneBoundary.jsx";
+import { PROJECT_SPOTLIGHT_IMAGE } from "../lib/imagePresets.js";
 
 const ProjectScene = dynamic(() => import("../components/ProjectScene.jsx"), {
   ssr: false,
@@ -23,6 +26,10 @@ const PROJECT_COUNT = myProjects.length;
 const Projects = ({ disableHeavyVisuals = false }) => {
   const { isMobile } = useDeviceDetection();
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  // Render the 3D monitor only while it can be seen (with a small margin so
+  // the first visible frame is already drawn). Offscreen it keeps its state.
+  const sceneContainerRef = useRef(null);
+  const isSceneInView = useInView(sceneContainerRef, { margin: "200px 0px" });
   const hasProjects = PROJECT_COUNT > 0;
 
   const handleNavigation = useCallback((direction) => {
@@ -104,9 +111,7 @@ const Projects = ({ disableHeavyVisuals = false }) => {
                 src={currentProject.spotlight}
                 alt=""
                 aria-hidden="true"
-                fill
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                quality={52}
+                {...PROJECT_SPOTLIGHT_IMAGE}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -204,7 +209,7 @@ const Projects = ({ disableHeavyVisuals = false }) => {
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-white/70 backdrop-blur-sm border border-slate-200 rounded-[2.5rem] h-[clamp(20rem,72vw,34rem)] lg:h-[40rem] overflow-hidden transition-all duration-500 relative flex items-center justify-center group shadow-[inset_0_0_80px_rgba(15,23,42,0.04)] transform-gpu [will-change:transform]">
+          <div ref={sceneContainerRef} className="lg:col-span-7 bg-white/70 backdrop-blur-sm border border-slate-200 rounded-[2.5rem] h-[clamp(20rem,72vw,34rem)] lg:h-[40rem] overflow-hidden transition-all duration-500 relative flex items-center justify-center group shadow-[inset_0_0_80px_rgba(15,23,42,0.04)] transform-gpu [will-change:transform]">
             <div className="absolute top-4 right-4 sm:top-8 sm:right-8 z-20 flex gap-2 items-center bg-white/50 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-black/[0.03]">
               {myProjects.map((_, index) => (
                 <button
@@ -234,10 +239,31 @@ const Projects = ({ disableHeavyVisuals = false }) => {
                 </div>
               </div>
             ) : (
-              <ProjectScene
-                texture={currentProject.texture}
-                isMobile={isMobile}
-              />
+              <SceneBoundary
+                name="ProjectScene"
+                fallback={({ retry }) => (
+                  <div className="absolute inset-0 z-10 grid place-items-center bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.72),rgba(248,250,252,0.94))]">
+                    <div className="rounded-2xl border border-slate-200 bg-white/95 px-6 py-4 text-center shadow-sm">
+                      <p className="text-sm font-medium text-slate-700">
+                        The 3D preview could not be loaded.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={retry}
+                        className="mt-2 text-sm font-medium text-slate-900 underline underline-offset-4"
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  </div>
+                )}
+              >
+                <ProjectScene
+                  texture={currentProject.texture}
+                  isMobile={isMobile}
+                  isActive={isSceneInView}
+                />
+              </SceneBoundary>
             )}
           </div>
         </div>

@@ -16,8 +16,11 @@ import {
   cn,
 } from "../styles/spacing.jsx";
 import useDeviceDetection from "../hooks/useDeviceDetection.jsx";
+import SceneBoundary from "../components/SceneBoundary.jsx";
 
-const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
+const Globe = dynamic(() => import("../components/GlobeView.jsx"), {
+  ssr: false,
+});
 
 const EMAIL_ADDRESS = "kharevedant05@gmail.com";
 const PROFILE_NAME = "Vedant Khare";
@@ -210,6 +213,17 @@ const ProfileTickerRow = memo(function ProfileTickerRow({
   );
 });
 
+const globeStaticCard = (
+  <div className="relative h-full w-full overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_30%,#123_0%,#0f172a_45%,#020617_100%)]">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_64%,rgba(16,185,129,0.22),transparent_48%),radial-gradient(circle_at_40%_35%,rgba(56,189,248,0.16),transparent_42%)]" />
+    <div className="relative z-10 grid h-full place-items-center text-center px-6">
+      <p className="text-sm sm:text-base text-slate-100/90 leading-relaxed">
+        Global collaboration enabled across multiple time zones.
+      </p>
+    </div>
+  </div>
+);
+
 const About = ({ disableHeavyVisuals = false }) => {
   const { isMobile } = useDeviceDetection();
   const [hasCopied, setHasCopied] = useState(false);
@@ -392,15 +406,9 @@ const About = ({ disableHeavyVisuals = false }) => {
             "
             >
               {!shouldRenderInteractiveGlobe ? (
-                <div className="relative h-full w-full overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_30%,#123_0%,#0f172a_45%,#020617_100%)]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_64%,rgba(16,185,129,0.22),transparent_48%),radial-gradient(circle_at_40%_35%,rgba(56,189,248,0.16),transparent_42%)]" />
-                  <div className="relative z-10 grid h-full place-items-center text-center px-6">
-                    <p className="text-sm sm:text-base text-slate-100/90 leading-relaxed">
-                      Global collaboration enabled across multiple time zones.
-                    </p>
-                  </div>
-                </div>
+                globeStaticCard
               ) : (
+                <SceneBoundary name="AboutGlobe" fallback={globeStaticCard}>
                 <Globe
                   height={isMobile ? 200 : 326}
                   width={isMobile ? 200 : 326}
@@ -416,6 +424,7 @@ const About = ({ disableHeavyVisuals = false }) => {
                   htmlElement={createGlobeMarkerElement}
                   htmlAltitude={0.1}
                 />
+                </SceneBoundary>
               )}
             </div>
             <div className="relative p-6">

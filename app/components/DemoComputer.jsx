@@ -8,13 +8,15 @@ import { memo, useRef, useEffect } from "react";
 import { useGLTF, useVideoTexture } from "@react-three/drei";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { DRACO_DECODER_PATH } from "../lib/assetPaths";
 
 const DemoComputer = (props) => {
+  const { texture: _texture, isActive: _isActive, ...groupProps } = props;
   const group = useRef();
-  const { nodes, materials } = useGLTF("/models/computer.glb");
+  const { nodes, materials } = useGLTF("/models/computer.glb", DRACO_DECODER_PATH);
 
   const txt = useVideoTexture(
-    props.texture ? props.texture : "/textures/projects/project1.mp4",
+    props.texture ? props.texture : "/textures/project/project1.mp4",
   );
 
   useEffect(() => {
@@ -22,6 +24,33 @@ const DemoComputer = (props) => {
       txt.flipY = false;
     }
   }, [txt]);
+
+  // Only the selected project's video plays, and only while the scene is
+  // visible. useVideoTexture caches one <video> per URL and never pauses it,
+  // so previously every visited project kept decoding offscreen.
+  const isActive = props.isActive !== false;
+  useEffect(() => {
+    const video = txt?.image;
+    if (!video || typeof video.play !== "function") return undefined;
+    if (isActive) {
+      // continue at the frame it would have reached had it kept playing
+      const pausedAt = video.dataset.pausedAt ? Number(video.dataset.pausedAt) : null;
+      if (pausedAt != null && video.duration > 0 && Number.isFinite(video.duration)) {
+        const elapsed = (performance.now() - pausedAt) / 1000;
+        video.currentTime = (video.currentTime + elapsed) % video.duration;
+      }
+      delete video.dataset.pausedAt;
+      const playing = video.play();
+      if (playing && typeof playing.catch === "function") playing.catch(() => {});
+    } else {
+      video.pause();
+    }
+    return () => {
+      video.pause();
+      // only a run that was playing records when playback stopped
+      if (isActive) video.dataset.pausedAt = String(performance.now());
+    };
+  }, [txt, isActive]);
 
   useGSAP(() => {
     gsap.from(group.current.rotation, {
@@ -32,7 +61,7 @@ const DemoComputer = (props) => {
   }, [txt]);
 
   return (
-    <group ref={group} {...props} dispose={null}>
+    <group ref={group} {...groupProps} dispose={null}>
       <group name="Scene">
         <mesh
           name="monitor-screen"
@@ -1021,6 +1050,6 @@ const DemoComputer = (props) => {
   );
 };
 
-useGLTF.preload("/models/computer.glb");
+useGLTF.preload("/models/computer.glb", DRACO_DECODER_PATH);
 
 export default memo(DemoComputer);

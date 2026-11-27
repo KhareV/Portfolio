@@ -21,10 +21,48 @@ import CanvasLoader from "./CanvasLoader.jsx";
 import DemoComputer from "./DemoComputer.jsx";
 
 const AUTO_ROTATE_RESUME_DELAY_MS = 1800;
+const AUTO_ROTATE_SPEED = 0.8;
+// drei's OrbitControls (three-stdlib) calls controls.update() once per rendered
+// frame; auto-rotation advances 2π/3600·speed radians per frame.
+const AUTO_ROTATE_RAD_PER_FRAME = ((2 * Math.PI) / 3600) * AUTO_ROTATE_SPEED;
+const FRAME_MS = 1000 / 60;
 
-const ProjectScene = ({ texture, isMobile }) => {
+const ProjectScene = ({ texture, isMobile, isActive = true }) => {
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const resumeTimerRef = useRef(null);
+  const controlsRef = useRef(null);
+  const inactiveSinceRef = useRef(null);
+
+  // Offscreen the scene is not rendered (it used to rotate unseen at 60 fps).
+  // On re-entry, advance the auto-rotation by the time spent offscreen so the
+  // computer appears at the same angle it would have reached before.
+  useEffect(() => {
+    if (!isActive) {
+      inactiveSinceRef.current = performance.now();
+      return;
+    }
+    const since = inactiveSinceRef.current;
+    inactiveSinceRef.current = null;
+    const controls = controlsRef.current;
+    if (
+      since == null ||
+      !controls ||
+      isUserInteracting ||
+      typeof controls.setAzimuthalAngle !== "function"
+    ) {
+      return;
+    }
+    const frames = (performance.now() - since) / FRAME_MS;
+    const angle = (frames * AUTO_ROTATE_RAD_PER_FRAME) % (2 * Math.PI);
+    // three-stdlib OrbitControls: auto-rotate decreases the azimuth. Apply the
+    // whole step at once (damping off for this one update, else it would
+    // visibly spin over the next frames).
+    const damping = controls.enableDamping;
+    controls.enableDamping = false;
+    controls.setAzimuthalAngle(controls.getAzimuthalAngle() - angle);
+    controls.enableDamping = damping;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive]);
 
   const glConfig = useMemo(
     () => ({
@@ -82,10 +120,14 @@ const ProjectScene = ({ texture, isMobile }) => {
     <Canvas
       className="relative z-10 w-full h-full cursor-grab active:cursor-grabbing"
       dpr={isMobile ? [1, 1.25] : [1, 1.5]}
+      // offscreen: render only on demand (first frame / invalidations) instead
+      // of 60 fps at all times
+      frameloop={isActive ? "always" : "demand"}
       gl={glConfig}
       camera={cameraConfig}
     >
-      <Environment preset="studio" environmentIntensity={0.8} />
+      {/* Same HDR bytes drei's "studio" preset fetched from a CDN, self-hosted (public/hdri/PROVENANCE.md). */}
+      <Environment files="/hdri/studio_small_03_1k.hdr" environmentIntensity={0.8} />
       <ambientLight intensity={0.6} color="#ffffff" />
       <directionalLight
         position={[5, 10, 5]}
@@ -106,7 +148,7 @@ const ProjectScene = ({ texture, isMobile }) => {
             position={modelTransform.position}
             rotation={modelTransform.rotation}
           >
-            <DemoComputer texture={texture} />
+            <DemoComputer texture={texture} isActive={isActive} />
           </group>
 
           <ContactShadows
@@ -121,12 +163,13 @@ const ProjectScene = ({ texture, isMobile }) => {
       </Center>
 
       <OrbitControls
+        ref={controlsRef}
         maxPolarAngle={Math.PI / 2 + 0.1}
         minPolarAngle={Math.PI / 3}
         enableZoom={false}
         enablePan={false}
-        autoRotate={!isUserInteracting}
-        autoRotateSpeed={0.8}
+        autoRotate={isActive && !isUserInteracting}
+        autoRotateSpeed={AUTO_ROTATE_SPEED}
         rotateSpeed={0.5}
         onStart={handleControlsStart}
         onEnd={handleControlsEnd}

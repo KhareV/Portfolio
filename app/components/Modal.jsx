@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import {
@@ -13,6 +13,29 @@ import {
 
 const Modal = ({ onClose, toggle }) => {
   const modalRoot = document.getElementById("my-modal");
+  const dialogRef = useRef(null);
+
+  // Dialog keyboard semantics: focus the first action on open, Escape = "No",
+  // focus returns to where it was when the dialog closes.
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    // Focus the dialog itself (no visible ring) so keyboard/AT users start
+    // inside it; Tab reaches "Yes"/"No" as before.
+    dialogRef.current?.focus({ preventScroll: true });
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (previouslyFocused instanceof HTMLElement && document.contains(previouslyFocused)) {
+        previouslyFocused.focus({ preventScroll: true });
+      }
+    };
+  }, [onClose]);
 
   if (!modalRoot) return null;
 
@@ -33,6 +56,11 @@ const Modal = ({ onClose, toggle }) => {
         }}
       />
       <motion.div
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="music-consent-title"
         initial={{ opacity: 0, scale: 0.97, y: 14 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
@@ -45,14 +73,17 @@ const Modal = ({ onClose, toggle }) => {
           "rounded-3xl border border-white/20",
           "bg-[linear-gradient(150deg,rgba(18,30,75,0.95),rgba(10,19,45,0.94))]",
           "shadow-[0_24px_70px_rgba(2,6,23,0.58)]",
-          "text-center",
+          "text-center outline-none",
           spacing.card.padding,
           "space-y-7",
         )}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/12 to-transparent" />
 
-        <p className="relative text-white font-semibold tracking-wide text-lg">
+        <p
+          id="music-consent-title"
+          className="relative text-white font-semibold tracking-wide text-lg"
+        >
           Would you like to play the background music?
         </p>
 
