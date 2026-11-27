@@ -7,6 +7,10 @@ const SECTIONS = ["hero", "about", "projects", "contact", "work"];
 async function expectPageIntact(page) {
   for (const id of SECTIONS) await expect(page.locator(`#${id}`)).toHaveCount(1);
   await expect(page.getByText("Application error")).toHaveCount(0);
+  await expect(page.getByText(/Something went wrong while loading this page/)).toHaveCount(0);
+  // the rest of the page still has its content (not just empty section ids)
+  await expect(page.locator("#contact form")).toHaveCount(1);
+  await expect(page.locator("#hero h1")).toHaveCount(1);
 }
 
 const faults = [

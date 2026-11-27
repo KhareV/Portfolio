@@ -25,3 +25,24 @@ test("@xbrowser full page renders without errors", async ({ page, context }) => 
   expect(errors, errors.join("\n")).toEqual([]);
   expect(failed.filter((f) => !/_vercel/.test(f)), failed.join("\n")).toEqual([]);
 });
+
+test("healthy path shows no failure fallbacks and every scene renders", async ({ page, context }) => {
+  await mockGithub(context);
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  await page.waitForTimeout(7000);
+  await dismissConsentIfShown(page, 5000);
+  for (const id of ["about", "projects", "contact", "work"]) {
+    await scrollToId(page, id);
+    await page.waitForTimeout(2500);
+  }
+  await expect(page.getByText(/could not be loaded|preview unavailable|Lightweight preview/i)).toHaveCount(0);
+  await scrollToId(page, "projects");
+  await page.waitForTimeout(1500);
+  await expect(page.locator("#projects canvas")).toHaveCount(1);
+  await scrollToId(page, "work");
+  await page.waitForTimeout(1500);
+  await expect(page.locator("#work canvas")).toHaveCount(1);
+  expect(errors, errors.join("\n")).toEqual([]);
+});

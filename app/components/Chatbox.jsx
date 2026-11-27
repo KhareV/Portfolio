@@ -351,6 +351,7 @@ const ChatBox = () => {
             type="text"
             placeholder="Ask me anything..."
             aria-label="Ask me anything..."
+            maxLength={1000}
             onChange={(e) => setCurrMsg(e.target.value)}
           />
           <button

@@ -65,7 +65,7 @@ export const DRAW_COUNTER = () => {
   const ogc = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function (kind, ...a) {
     const c = ogc.call(this, kind, ...a);
-    if (c && /webgl/.test(kind) && !this.__counted && this.width > 1) { this.__counted = true; window.__glContexts++; }
+    if (c && /webgl/.test(kind) && !this.__counted && this.width > 1) { this.__counted = true; window.__glContexts++; (window.__glList = window.__glList || []).push(c); }
     return c;
   };
   window.__videos = [];

@@ -13,13 +13,15 @@ import {
 
 const Modal = ({ onClose, toggle }) => {
   const modalRoot = document.getElementById("my-modal");
-  const yesButtonRef = useRef(null);
+  const dialogRef = useRef(null);
 
   // Dialog keyboard semantics: focus the first action on open, Escape = "No",
   // focus returns to where it was when the dialog closes.
   useEffect(() => {
     const previouslyFocused = document.activeElement;
-    yesButtonRef.current?.focus({ preventScroll: true });
+    // Focus the dialog itself (no visible ring) so keyboard/AT users start
+    // inside it; Tab reaches "Yes"/"No" as before.
+    dialogRef.current?.focus({ preventScroll: true });
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -54,6 +56,8 @@ const Modal = ({ onClose, toggle }) => {
         }}
       />
       <motion.div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="music-consent-title"
@@ -69,7 +73,7 @@ const Modal = ({ onClose, toggle }) => {
           "rounded-3xl border border-white/20",
           "bg-[linear-gradient(150deg,rgba(18,30,75,0.95),rgba(10,19,45,0.94))]",
           "shadow-[0_24px_70px_rgba(2,6,23,0.58)]",
-          "text-center",
+          "text-center outline-none",
           spacing.card.padding,
           "space-y-7",
         )}
@@ -91,7 +95,6 @@ const Modal = ({ onClose, toggle }) => {
           className={cn(layout.flex.center, spacing.interactive.gap, "pt-1")}
         >
           <motion.button
-            ref={yesButtonRef}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             onClick={toggle}

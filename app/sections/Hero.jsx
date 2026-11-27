@@ -102,9 +102,6 @@ const Hero = () => {
     useState(false);
   const headingRef = useRef(null);
   const latestPhaseRef = useRef(dayPhase);
-  // Called by the current plate's onLoad (or the 1.4 s cap) — the hero is
-  // "ready" when its real background image has loaded, as originally intended.
-  const markInitialReadyRef = useRef(null);
   const { setHeroReady, setModelsReady } = useLoadingContext();
   // Day-phase plates and the IST clock depend on the visitor's clock, so they
   // are rendered only on the client (never baked into the static HTML).
@@ -135,7 +132,11 @@ const Hero = () => {
       });
     };
 
-    markInitialReadyRef.current = markReady;
+    // The original awaited a hand-built q=56 warm-up that always failed fast
+    // (HTTP 400), i.e. the hero was effectively "ready" right after mount and
+    // the plate faded in on its own onLoad. Keep that observable timing
+    // without the failing request.
+    markReady();
 
     const fallbackTimerId = window.setTimeout(
       markReady,
@@ -144,7 +145,6 @@ const Hero = () => {
 
     return () => {
       mounted = false;
-      markInitialReadyRef.current = null;
       window.clearTimeout(fallbackTimerId);
     };
   }, [setHeroReady]);
@@ -364,7 +364,6 @@ const Hero = () => {
             onLoad={() => {
               if (phase === dayPhase && previousPhase === null) {
                 setIsInitialBackgroundReady(true);
-                markInitialReadyRef.current?.();
               }
             }}
             className={cn(

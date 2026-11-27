@@ -90,13 +90,37 @@ const Footer = () => {
       ticking = false;
     };
 
+    // While the page still covers the footer by more than a full viewport it
+    // is not painted (visibility hidden), not focusable (inert) and so not an
+    // LCP candidate. Updated synchronously in the scroll handler, with a one
+    // viewport margin, so it is always visible before any of it can show.
+    const syncCoveredState = () => {
+      const footerElement = footerRef.current;
+      if (!footerElement) return;
+      const viewportHeight = window.innerHeight || 1;
+      const scrollTop =
+        window.scrollY || document.documentElement.scrollTop || 0;
+      const remainingToBottom =
+        document.documentElement.scrollHeight - viewportHeight - scrollTop;
+      const covered =
+        remainingToBottom >
+        viewportHeight * REVEAL_RANGE_MULTIPLIER + viewportHeight;
+      const visibility = covered ? "hidden" : "";
+      if (footerElement.style.visibility !== visibility) {
+        footerElement.style.visibility = visibility;
+        footerElement.inert = covered;
+      }
+    };
+
     const requestUpdate = () => {
+      syncCoveredState();
       if (!ticking) {
         rafId = window.requestAnimationFrame(update);
         ticking = true;
       }
     };
 
+    syncCoveredState();
     update();
 
     window.addEventListener("scroll", requestUpdate, { passive: true });
@@ -112,7 +136,6 @@ const Footer = () => {
     };
   }, []);
 
-  const isRevealing = progress > PROGRESS_EPSILON;
   const parallaxY = (1 - progress) * MAX_PARALLAX_OFFSET;
   const overlayOpacity = clamp(0.6 - progress * 0.5, 0.08, 0.6);
   const footerImage = useMemo(
@@ -125,10 +148,6 @@ const Footer = () => {
       ref={footerRef}
       id="footer"
       className="fixed bottom-0 left-0 h-screen w-full overflow-hidden z-0"
-      // Fully covered by the page until the reveal starts: not painted, not
-      // focusable, not an LCP candidate. Identical pixels (it was occluded).
-      style={isRevealing ? undefined : { visibility: "hidden" }}
-      inert={!isRevealing}
     >
       <div
         className="absolute left-1/2 top-1/2 will-change-transform"

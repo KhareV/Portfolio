@@ -7,6 +7,8 @@ const SETTLE_FRAMES = 3;
 const DRIFT_TOLERANCE_PX = 4;
 const CORRECTION_WINDOW_MS = 2500;
 const USER_SCROLL_EVENTS = ["wheel", "touchstart", "pointerdown", "keydown"];
+// Sections that mount in later render stages. Unknown hashes are left alone.
+const STAGED_SECTION_IDS = new Set(["about", "projects", "contact", "work", "footer"]);
 
 const decodeHash = (hash) => {
   if (!hash || hash.length < 2) return null;
@@ -117,7 +119,7 @@ export default function useHashNavigation({ lenisRef, onTargetMissing }) {
     };
 
     const handle = (id, opts) => {
-      if (!id) return;
+      if (!id || !STAGED_SECTION_IDS.has(id)) return;
       if (!document.getElementById(id)) {
         onTargetMissing?.();
         navigate(id, opts);
@@ -138,7 +140,7 @@ export default function useHashNavigation({ lenisRef, onTargetMissing }) {
       const anchor = event.target instanceof Element ? event.target.closest('a[href^="#"]') : null;
       if (!anchor) return;
       const id = decodeHash(anchor.getAttribute("href"));
-      if (!id || document.getElementById(id)) return; // existing targets: unchanged behaviour
+      if (!id || !STAGED_SECTION_IDS.has(id) || document.getElementById(id)) return; // existing/unknown targets: unchanged behaviour
       event.preventDefault();
       if (window.location.hash !== `#${id}`) {
         window.history.pushState(null, "", `#${id}`);

@@ -33,12 +33,22 @@ const DemoComputer = (props) => {
     const video = txt?.image;
     if (!video || typeof video.play !== "function") return undefined;
     if (isActive) {
+      // continue at the frame it would have reached had it kept playing
+      const pausedAt = video.dataset.pausedAt ? Number(video.dataset.pausedAt) : null;
+      if (pausedAt != null && video.duration > 0 && Number.isFinite(video.duration)) {
+        const elapsed = (performance.now() - pausedAt) / 1000;
+        video.currentTime = (video.currentTime + elapsed) % video.duration;
+      }
+      delete video.dataset.pausedAt;
       const playing = video.play();
       if (playing && typeof playing.catch === "function") playing.catch(() => {});
     } else {
       video.pause();
     }
-    return () => video.pause();
+    return () => {
+      video.pause();
+      video.dataset.pausedAt = String(performance.now());
+    };
   }, [txt, isActive]);
 
   useGSAP(() => {

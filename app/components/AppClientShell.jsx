@@ -113,10 +113,12 @@ const AppContent = () => {
 
   // Bounded fail-open: if a readiness signal never arrives (e.g. the hero
   // chunk failed to load) the overlay must not cover the page forever.
+  const isReadySignalled = isResourcesReady && isAppReady;
   useEffect(() => {
+    if (isReadySignalled) return undefined;
     const timerId = window.setTimeout(() => setReadinessTimedOut(true), 8000);
     return () => window.clearTimeout(timerId);
-  }, []);
+  }, [isReadySignalled]);
 
   useEffect(() => {
     if (disableHeavyVisuals) {
@@ -131,7 +133,7 @@ const AppContent = () => {
   }, []);
   useHashNavigation({ lenisRef, onTargetMissing: requestAllStages });
 
-  const isFullyLoaded = (isResourcesReady && isAppReady) || readinessTimedOut;
+  const isFullyLoaded = isReadySignalled || readinessTimedOut;
   const shouldRenderPointer = !disableHeavyVisuals;
   const shouldRenderSound = !disableHeavyVisuals;
   const shouldRenderEarthCanvas = !isMobile && !disableHeavyVisuals;

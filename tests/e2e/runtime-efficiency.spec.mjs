@@ -31,7 +31,10 @@ test("About globe in/out cycling does not grow WebGL contexts or evict the proje
   await dismissConsentIfShown(page, 4000);
   await scrollToId(page, "projects");
   await page.waitForTimeout(2500);
-  const baseline = await page.evaluate(() => window.__glContexts);
+  const liveContexts = () => page.evaluate(() => (window.__glList || []).filter((gl) => !gl.isContextLost()).length);
+  const warnings = [];
+  page.on("console", (m) => { if (/Too many active WebGL contexts/i.test(m.text())) warnings.push(m.text()); });
+  const baseline = await liveContexts();
   for (let i = 0; i < 10; i++) {
     await scrollToId(page, "about");
     await page.evaluate(() => window.scrollBy(0, 900));
@@ -39,8 +42,12 @@ test("About globe in/out cycling does not grow WebGL contexts or evict the proje
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(500);
   }
-  const after = await page.evaluate(() => window.__glContexts);
-  expect(after - baseline).toBeLessThanOrEqual(2);
+  // The globe still remounts on every entry (its animate-in is part of the
+  // design) but each unmount must release its context: live contexts stay
+  // bounded and Chrome never has to evict one.
+  const after = await liveContexts();
+  expect(after - baseline).toBeLessThanOrEqual(1);
+  expect(warnings).toEqual([]);
   await scrollToId(page, "projects");
   await page.waitForTimeout(1500);
   const lost = await page.evaluate(() => {
