@@ -79,17 +79,21 @@ const cancelIdleTask = (id) => {
 // stages) cannot force React to discard and client-render their SSR markup.
 const CriticalSections = React.memo(function CriticalSections() {
   return (
-    <>
-      <Guarded>
+    // One Suspense boundary so the streamed HTML reveals navbar, hero and the
+    // first time band together (a band revealed before the hero would paint at
+    // the top of the page and then shift down). Each keeps its own error
+    // boundary.
+    <Suspense fallback={null}>
+      <SceneBoundary fallback={null}>
         <Navbar />
-      </Guarded>
-      <Guarded>
+      </SceneBoundary>
+      <SceneBoundary fallback={null}>
         <Hero />
-      </Guarded>
-      <Guarded>
+      </SceneBoundary>
+      <SceneBoundary fallback={null}>
         <TimeBands className="-mt-px" />
-      </Guarded>
-    </>
+      </SceneBoundary>
+    </Suspense>
   );
 });
 
