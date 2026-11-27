@@ -43,7 +43,7 @@ const CLIP_FRAMING = {
   swing: { radius: 0.8898, vertical: 1.001 },
 };
 const FRAMING_MARGIN = 0.94; // widest point stays within 94 % of the half-width
-const FRAMING_OUT_SECONDS = 0.12; // pull back quickly (before the wide poses)
+const FRAMING_OUT_SECONDS = 0.08; // pull back quickly (clapping is widest 0.17 s in)
 const FRAMING_IN_SECONDS = 0.35; // return gently
 const SUPPORTED_ANIMATIONS = new Set(Object.keys(ANIMATION_PATHS));
 
@@ -133,10 +133,13 @@ const Developer = React.forwardRef(
       const horizontalTan = Math.tan(halfFov) * (size.width / Math.max(1, size.height));
       const fitAngle = Math.sin(Math.atan(FRAMING_MARGIN * horizontalTan));
       let needed = framing.base;
-      // every clip still visible (including one fading out) must fit
+      // the selected clip (from its first frame, before its weight rises) and every
+      // clip still visible (including one fading out) must fit
       for (const name of Object.keys(CLIP_FRAMING)) {
         const action = actions[name];
-        if (!action || !action.isRunning() || action.getEffectiveWeight() <= 0.001) {
+        const visible =
+          action && action.isRunning() && action.getEffectiveWeight() > 0.001;
+        if (name !== activeAnimationRef.current && !visible) {
           continue;
         }
         const clipFraming = CLIP_FRAMING[name];

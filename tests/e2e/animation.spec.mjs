@@ -112,14 +112,17 @@ async function showRows(page, from, to) {
   }
 }
 
-async function openWork(page, context, { delayAnimationsMs = 0 } = {}) {
+async function openWork(page, context, { holdAnimations = false } = {}) {
   await context.addInitScript(() => {
     window.__PORTFOLIO_ANIMATION_PROBE__ = true;
   });
   await mockGithub(context);
-  if (delayAnimationsMs) {
+  let release = () => {};
+  if (holdAnimations) {
+    // Clip downloads wait until the test releases them (deterministic "still loading").
+    const gate = new Promise((resolve) => { release = resolve; });
     await context.route(/\/models\/animations\/.*\.glb$/, async (route) => {
-      await new Promise((r) => setTimeout(r, delayAnimationsMs));
+      await gate;
       await route.fallback();
     });
   }
@@ -133,6 +136,7 @@ async function openWork(page, context, { delayAnimationsMs = 0 } = {}) {
   }
   await page.mouse.move(5, 5);
   await bringWorkIntoView(page);
+  return { release };
 }
 
 async function bringWorkIntoView(page) {
@@ -150,6 +154,10 @@ async function bringWorkIntoView(page) {
 
 async function waitForAvatar(page) {
   await expect.poll(() => page.evaluate(() => Boolean(window.__workAnimation)), { timeout: 30_000 }).toBe(true);
+  // first fade-in finished (software GL in headless can render slowly at first)
+  await expect
+    .poll(() => page.evaluate(() => window.__workAnimation.snapshot().actions.some((a) => a.running && a.weight >= 0.999)), { timeout: 15_000 })
+    .toBe(true);
 }
 
 // Headless on purpose: in a headed window the real OS cursor, if it rests over the
@@ -216,12 +224,14 @@ test.describe("work avatar animation identity", () => {
   });
 
   test("a row hovered while the avatar is still loading is played once it loads", async ({ page, context }) => {
-    await openWork(page, context, { delayAnimationsMs: 2500 });
-    // the canvas exists but the clips are still in flight
+    const { release } = await openWork(page, context, { holdAnimations: true });
+    // the canvas exists but the clips are held back
     await expect(page.locator("#work canvas")).toHaveCount(1, { timeout: 20_000 });
-    expect(await page.evaluate(() => Boolean(window.__workAnimation))).toBe(false);
     const ispace = await center(row(page, /^iSpace College Club/));
     await page.mouse.move(ispace.x, ispace.y, { steps: 3 });
+    await page.waitForTimeout(500);
+    expect(await page.evaluate(() => Boolean(window.__workAnimation))).toBe(false);
+    release();
     await waitForAvatar(page);
     await expectOnly(page, "swing", { timeout: 5000 });
     await page.mouse.move((await neutralPoint(page)).x, (await neutralPoint(page)).y, { steps: 3 });
